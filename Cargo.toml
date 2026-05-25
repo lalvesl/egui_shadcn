@@ -1,0 +1,12 @@
+[package]
+name = "egui-shadcn"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "egui-shadcn"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.31", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+egui = "0.31"
