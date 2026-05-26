@@ -79,7 +79,7 @@
                 set -e
                 export PATH="${rustToolchain}/bin:${pkgs.trunk}/bin:$PATH"
                 REPO="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
-                cd "$REPO"
+                cd "$REPO/demo"
                 echo "Starting trunk serve on http://localhost:8080 …"
                 exec trunk serve --port 8080
               '';

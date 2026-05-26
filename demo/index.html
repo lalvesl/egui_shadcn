@@ -12,7 +12,7 @@
 <body>
   <canvas id="egui_canvas"></canvas>
   <!-- Material Icons font for web (served as static asset, not baked into WASM) -->
-  <link data-trunk rel="copy-file" data-file="../egui-shadcn/assets/MaterialIcons-Regular.ttf" />
-  <link data-trunk rel="rust" data-wasm-opt="z" data-cargo-profile="release" />
+  <link data-trunk rel="copy-file" href="../egui-shadcn/assets/MaterialIcons-Regular.ttf" />
+  <link data-trunk rel="rust" data-wasm-opt="z" data-cargo-profile="release" data-target-name="demo" />
 </body>
 </html>

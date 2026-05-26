@@ -106,7 +106,7 @@ demo/                  — showcase app (native + WASM)
 
 ## Tech stack
 
-- Rust 1.94+
+- Rust 1.95+
 - [egui](https://github.com/emilk/egui) 0.34 / [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) 0.34
 - Nix flakes (reproducible dev environment)
 - Trunk (WASM builds)
