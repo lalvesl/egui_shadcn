@@ -11,8 +11,8 @@ pub fn start() -> Result<(), JsValue> {
     let web_options = eframe::WebOptions::default();
 
     wasm_bindgen_futures::spawn_local(async {
-        let document  = web_sys::window().unwrap().document().unwrap();
-        let canvas    = document.get_element_by_id("egui_canvas").unwrap();
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.get_element_by_id("egui_canvas").unwrap();
         let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into().unwrap();
 
         let runner = eframe::WebRunner::new();

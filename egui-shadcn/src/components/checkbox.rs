@@ -1,19 +1,29 @@
+use crate::{ICON_CHECK, ShadcnTheme};
 use egui::{Color32, CornerRadius, Response, Sense, Stroke, Ui, Vec2};
-use crate::{ShadcnTheme, ICON_CHECK};
 
 pub struct Checkbox<'a> {
     checked: &'a mut bool,
-    label:   Option<&'a str>,
+    label: Option<&'a str>,
     enabled: bool,
 }
 
 impl<'a> Checkbox<'a> {
     pub fn new(checked: &'a mut bool) -> Self {
-        Self { checked, label: None, enabled: true }
+        Self {
+            checked,
+            label: None,
+            enabled: true,
+        }
     }
 
-    pub fn label(mut self, l: &'a str) -> Self { self.label = Some(l); self }
-    pub fn enabled(mut self, e: bool)  -> Self { self.enabled = e; self }
+    pub fn label(mut self, l: &'a str) -> Self {
+        self.label = Some(l);
+        self
+    }
+    pub fn enabled(mut self, e: bool) -> Self {
+        self.enabled = e;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -30,12 +40,19 @@ impl<'a> Checkbox<'a> {
         });
 
         let gap = 8.0;
-        let text_w = text_galley.as_ref().map(|g| g.size().x + gap).unwrap_or(0.0);
+        let text_w = text_galley
+            .as_ref()
+            .map(|g| g.size().x + gap)
+            .unwrap_or(0.0);
         let total_w = box_size + text_w;
 
         let (rect, resp) = ui.allocate_exact_size(
             Vec2::new(total_w, total_h),
-            if self.enabled { Sense::click() } else { Sense::hover() },
+            if self.enabled {
+                Sense::click()
+            } else {
+                Sense::hover()
+            },
         );
 
         if resp.clicked() && self.enabled {
@@ -60,7 +77,12 @@ impl<'a> Checkbox<'a> {
             };
 
             painter.rect_filled(box_rect, cr, bg);
-            painter.rect_stroke(box_rect, cr, Stroke::new(1.5, border), egui::StrokeKind::Inside);
+            painter.rect_stroke(
+                box_rect,
+                cr,
+                Stroke::new(1.5, border),
+                egui::StrokeKind::Inside,
+            );
 
             if *self.checked {
                 painter.text(

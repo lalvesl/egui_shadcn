@@ -1,5 +1,5 @@
-use egui::{FontFamily, FontId, RichText, Ui};
 use crate::ShadcnTheme;
+use egui::{FontFamily, FontId, RichText, Ui};
 
 pub fn heading1(ui: &mut Ui, text: &str) {
     let theme = ShadcnTheme::get(ui.ctx());
@@ -43,17 +43,29 @@ pub fn heading4(ui: &mut Ui, text: &str) {
 
 pub fn body_text(ui: &mut Ui, text: &str) {
     let theme = ShadcnTheme::get(ui.ctx());
-    ui.label(RichText::new(text).font(FontId::new(14.0, FontFamily::Proportional)).color(theme.foreground));
+    ui.label(
+        RichText::new(text)
+            .font(FontId::new(14.0, FontFamily::Proportional))
+            .color(theme.foreground),
+    );
 }
 
 pub fn muted_text(ui: &mut Ui, text: &str) {
     let theme = ShadcnTheme::get(ui.ctx());
-    ui.label(RichText::new(text).font(FontId::new(14.0, FontFamily::Proportional)).color(theme.muted_foreground));
+    ui.label(
+        RichText::new(text)
+            .font(FontId::new(14.0, FontFamily::Proportional))
+            .color(theme.muted_foreground),
+    );
 }
 
 pub fn small_text(ui: &mut Ui, text: &str) {
     let theme = ShadcnTheme::get(ui.ctx());
-    ui.label(RichText::new(text).font(FontId::new(12.0, FontFamily::Proportional)).color(theme.muted_foreground));
+    ui.label(
+        RichText::new(text)
+            .font(FontId::new(12.0, FontFamily::Proportional))
+            .color(theme.muted_foreground),
+    );
 }
 
 pub fn code_text(ui: &mut Ui, text: &str) {
@@ -72,7 +84,8 @@ pub fn code_text(ui: &mut Ui, text: &str) {
     let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
 
     if ui.is_rect_visible(rect) {
-        ui.painter().rect_filled(rect, egui::CornerRadius::same(4), bg);
+        ui.painter()
+            .rect_filled(rect, egui::CornerRadius::same(4), bg);
         ui.painter().galley(
             egui::Pos2::new(rect.left() + h_pad, rect.top() + v_pad),
             galley,

@@ -1,21 +1,32 @@
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 use crate::ShadcnTheme;
+use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
 pub struct Card {
     padding: f32,
-    shadow:  bool,
+    shadow: bool,
 }
 
 impl Default for Card {
     fn default() -> Self {
-        Self { padding: 24.0, shadow: true }
+        Self {
+            padding: 24.0,
+            shadow: true,
+        }
     }
 }
 
 impl Card {
-    pub fn new() -> Self { Self::default() }
-    pub fn padding(mut self, p: f32)  -> Self { self.padding = p; self }
-    pub fn shadow(mut self, s: bool)  -> Self { self.shadow  = s; self }
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn padding(mut self, p: f32) -> Self {
+        self.padding = p;
+        self
+    }
+    pub fn shadow(mut self, s: bool) -> Self {
+        self.shadow = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui, content: impl FnOnce(&mut Ui)) {
         let theme = ShadcnTheme::get(ui.ctx());

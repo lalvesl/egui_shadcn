@@ -1,14 +1,22 @@
-use egui::Ui;
 use crate::ShadcnTheme;
+use egui::Ui;
 
 pub struct Label<'a> {
-    text:     &'a str,
+    text: &'a str,
     required: bool,
 }
 
 impl<'a> Label<'a> {
-    pub fn new(text: &'a str) -> Self { Self { text, required: false } }
-    pub fn required(mut self, r: bool) -> Self { self.required = r; self }
+    pub fn new(text: &'a str) -> Self {
+        Self {
+            text,
+            required: false,
+        }
+    }
+    pub fn required(mut self, r: bool) -> Self {
+        self.required = r;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());

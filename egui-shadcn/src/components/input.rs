@@ -1,14 +1,14 @@
-use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 use crate::ShadcnTheme;
+use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 
 pub struct Input<'a> {
-    value:       &'a mut String,
+    value: &'a mut String,
     placeholder: &'a str,
-    label:       Option<&'a str>,
-    password:    bool,
-    enabled:     bool,
-    icon_left:   Option<&'a str>,
-    width:       Option<f32>,
+    label: Option<&'a str>,
+    password: bool,
+    enabled: bool,
+    icon_left: Option<&'a str>,
+    width: Option<f32>,
 }
 
 impl<'a> Input<'a> {
@@ -16,20 +16,38 @@ impl<'a> Input<'a> {
         Self {
             value,
             placeholder: "",
-            label:       None,
-            password:    false,
-            enabled:     true,
-            icon_left:   None,
-            width:       None,
+            label: None,
+            password: false,
+            enabled: true,
+            icon_left: None,
+            width: None,
         }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
-    pub fn label(mut self, l: &'a str)        -> Self { self.label = Some(l); self }
-    pub fn password(mut self, p: bool)        -> Self { self.password = p; self }
-    pub fn enabled(mut self, e: bool)         -> Self { self.enabled = e; self }
-    pub fn icon_left(mut self, i: &'a str)    -> Self { self.icon_left = Some(i); self }
-    pub fn width(mut self, w: f32)            -> Self { self.width = Some(w); self }
+    pub fn placeholder(mut self, p: &'a str) -> Self {
+        self.placeholder = p;
+        self
+    }
+    pub fn label(mut self, l: &'a str) -> Self {
+        self.label = Some(l);
+        self
+    }
+    pub fn password(mut self, p: bool) -> Self {
+        self.password = p;
+        self
+    }
+    pub fn enabled(mut self, e: bool) -> Self {
+        self.enabled = e;
+        self
+    }
+    pub fn icon_left(mut self, i: &'a str) -> Self {
+        self.icon_left = Some(i);
+        self
+    }
+    pub fn width(mut self, w: f32) -> Self {
+        self.width = Some(w);
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> egui::Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -46,13 +64,22 @@ impl<'a> Input<'a> {
 
         let height = 36.0;
         let cr = CornerRadius::same(theme.radius as u8);
-        let bg = if self.enabled { theme.background } else { theme.muted };
+        let bg = if self.enabled {
+            theme.background
+        } else {
+            theme.muted
+        };
 
         let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
 
         // Draw background and border using temporary painter borrows
         ui.painter().rect_filled(rect, cr, bg);
-        ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Inside);
+        ui.painter().rect_stroke(
+            rect,
+            cr,
+            Stroke::new(1.0, theme.border),
+            egui::StrokeKind::Inside,
+        );
 
         let x_pad = 12.0;
         let icon_w = if self.icon_left.is_some() { 24.0 } else { 0.0 };
@@ -77,7 +104,11 @@ impl<'a> Input<'a> {
             .password(self.password)
             .hint_text(self.placeholder)
             .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-            .text_color(if self.enabled { theme.foreground } else { theme.muted_foreground })
+            .text_color(if self.enabled {
+                theme.foreground
+            } else {
+                theme.muted_foreground
+            })
             .interactive(self.enabled)
             .frame(egui::Frame::new());
 

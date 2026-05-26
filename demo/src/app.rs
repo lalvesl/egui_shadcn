@@ -1,12 +1,13 @@
 use egui::Color32;
 use egui_shadcn::{
+    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE, ShadcnTheme,
     accordion::Accordion,
     alert::{Alert, AlertVariant},
     avatar::{Avatar, AvatarSize},
     badge::{Badge, BadgeVariant},
     button::{Button, ButtonSize, ButtonVariant},
     calendar::{CalDate, Calendar},
-    card::{card_header, Card},
+    card::{Card, card_header},
     checkbox::Checkbox,
     dialog::Dialog,
     input::Input,
@@ -23,8 +24,6 @@ use egui_shadcn::{
     textarea::Textarea,
     tooltip::Tooltip,
     typography::*,
-    ShadcnTheme,
-    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE,
 };
 
 // ── Nav sections ──────────────────────────────────────────────────────────────
@@ -48,60 +47,60 @@ const SECTIONS: &[&str] = &[
 // ── App state ─────────────────────────────────────────────────────────────────
 
 pub struct DemoApp {
-    dark:            bool,
-    primary_hue:     Option<f32>,
+    dark: bool,
+    primary_hue: Option<f32>,
     show_hue_picker: bool,
     current_section: usize,
 
-    btn_clicked:    bool,
-    checkbox1:      bool,
-    checkbox2:      bool,
-    checkbox3:      bool,
-    switch1:        bool,
-    switch2:        bool,
-    slider_val:     f32,
-    progress_val:   f32,
-    radio_val:      u32,
-    tab_index:      usize,
-    input_text:     String,
-    password_text:  String,
-    textarea_text:  String,
-    select_val:     Option<usize>,
-    accordion_open:   [bool; 3],
-    dialog_open:      bool,
-    dialog_input:     String,
-    cal_single:      Option<CalDate>,
+    btn_clicked: bool,
+    checkbox1: bool,
+    checkbox2: bool,
+    checkbox3: bool,
+    switch1: bool,
+    switch2: bool,
+    slider_val: f32,
+    progress_val: f32,
+    radio_val: u32,
+    tab_index: usize,
+    input_text: String,
+    password_text: String,
+    textarea_text: String,
+    select_val: Option<usize>,
+    accordion_open: [bool; 3],
+    dialog_open: bool,
+    dialog_input: String,
+    cal_single: Option<CalDate>,
     cal_range_start: Option<CalDate>,
-    cal_range_end:   Option<CalDate>,
+    cal_range_end: Option<CalDate>,
 }
 
 impl Default for DemoApp {
     fn default() -> Self {
         Self {
-            dark:            true,
-            primary_hue:     None,
+            dark: true,
+            primary_hue: None,
             show_hue_picker: false,
             current_section: 0,
-            btn_clicked:     false,
-            checkbox1:       true,
-            checkbox2:       false,
-            checkbox3:       true,
-            switch1:         true,
-            switch2:         false,
-            slider_val:      40.0,
-            progress_val:    0.65,
-            radio_val:       1,
-            tab_index:       0,
-            input_text:      String::new(),
-            password_text:   String::new(),
-            textarea_text:   String::new(),
-            select_val:      None,
-            accordion_open:   [true, false, false],
-            dialog_open:      false,
-            dialog_input:     String::new(),
-            cal_single:      None,
+            btn_clicked: false,
+            checkbox1: true,
+            checkbox2: false,
+            checkbox3: true,
+            switch1: true,
+            switch2: false,
+            slider_val: 40.0,
+            progress_val: 0.65,
+            radio_val: 1,
+            tab_index: 0,
+            input_text: String::new(),
+            password_text: String::new(),
+            textarea_text: String::new(),
+            select_val: None,
+            accordion_open: [true, false, false],
+            dialog_open: false,
+            dialog_input: String::new(),
+            cal_single: None,
             cal_range_start: None,
-            cal_range_end:   None,
+            cal_range_end: None,
         }
     }
 }
@@ -111,10 +110,12 @@ impl DemoApp {
         egui_shadcn::register_font(&cc.egui_ctx);
 
         let dark = cc.egui_ctx.data_mut(|d| {
-            d.get_persisted::<bool>(egui::Id::new("demo_dark")).unwrap_or(true)
+            d.get_persisted::<bool>(egui::Id::new("demo_dark"))
+                .unwrap_or(true)
         });
         let hue = cc.egui_ctx.data_mut(|d| {
-            d.get_persisted::<Option<f32>>(egui::Id::new("demo_hue")).unwrap_or(None)
+            d.get_persisted::<Option<f32>>(egui::Id::new("demo_hue"))
+                .unwrap_or(None)
         });
 
         let mut app = Self::default();
@@ -151,10 +152,12 @@ impl eframe::App for DemoApp {
 
         // ── Toolbar ─────────────────────────────────────────────────────────
         egui::Panel::top("toolbar")
-            .frame(egui::Frame::new()
-                .fill(theme.background)
-                .inner_margin(egui::Margin::symmetric(16, 10))
-                .stroke(egui::Stroke::new(1.0, theme.border)))
+            .frame(
+                egui::Frame::new()
+                    .fill(theme.background)
+                    .inner_margin(egui::Margin::symmetric(16, 10))
+                    .stroke(egui::Stroke::new(1.0, theme.border)),
+            )
             .show_inside(ui, |ui| {
                 self.show_toolbar(ui);
             });
@@ -163,31 +166,31 @@ impl eframe::App for DemoApp {
         let theme = ShadcnTheme::get(&ctx);
         egui::Panel::left("sidebar")
             .exact_size(200.0)
-            .frame(egui::Frame::new()
-                .fill(theme.card)
-                .inner_margin(egui::Margin::symmetric(8, 12))
-                .stroke(egui::Stroke::new(1.0, theme.border)))
+            .frame(
+                egui::Frame::new()
+                    .fill(theme.card)
+                    .inner_margin(egui::Margin::symmetric(8, 12))
+                    .stroke(egui::Stroke::new(1.0, theme.border)),
+            )
             .show_inside(ui, |ui| {
                 self.show_sidebar(ui);
             });
 
         // ── Content ─────────────────────────────────────────────────────────
         let theme = ShadcnTheme::get(&ctx);
-        egui::Frame::new()
-            .fill(theme.background)
-            .show(ui, |ui| {
-                egui::ScrollArea::vertical()
-                    .auto_shrink([false; 2])
-                    .show(ui, |ui| {
-                        ui.add_space(24.0);
-                        egui::Frame::new()
-                            .inner_margin(egui::Margin::symmetric(24, 0))
-                            .show(ui, |ui| {
-                                self.render_section(ui);
-                            });
-                        ui.add_space(48.0);
-                    });
-            });
+        egui::Frame::new().fill(theme.background).show(ui, |ui| {
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.add_space(24.0);
+                    egui::Frame::new()
+                        .inner_margin(egui::Margin::symmetric(24, 0))
+                        .show(ui, |ui| {
+                            self.render_section(ui);
+                        });
+                    ui.add_space(48.0);
+                });
+        });
 
         // ── Dialog (floating) ────────────────────────────────────────────────
         self.render_dialog(&ctx);
@@ -215,32 +218,53 @@ impl DemoApp {
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Dark/light toggle
-                let moon_sun = if self.dark { ICON_BRIGHTNESS_7 } else { ICON_BRIGHTNESS_4 };
+                let moon_sun = if self.dark {
+                    ICON_BRIGHTNESS_7
+                } else {
+                    ICON_BRIGHTNESS_4
+                };
                 let icon_resp = ui.add(
                     egui::Label::new(
                         egui::RichText::new(moon_sun)
-                            .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                            .font(egui::FontId::new(
+                                20.0,
+                                egui::FontFamily::Name("MaterialIcons".into()),
+                            ))
                             .color(theme.foreground),
-                    ).sense(egui::Sense::click()),
+                    )
+                    .sense(egui::Sense::click()),
                 );
-                if icon_resp.clicked() { self.dark = !self.dark; }
-                if icon_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+                if icon_resp.clicked() {
+                    self.dark = !self.dark;
+                }
+                if icon_resp.hovered() {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                }
 
                 ui.add_space(8.0);
 
                 // Color picker icon
-                let palette_color = self.primary_hue
+                let palette_color = self
+                    .primary_hue
                     .map(|h| egui_shadcn::theme::hsl(h, 0.8, 0.55))
                     .unwrap_or(theme.foreground);
                 let palette_resp = ui.add(
                     egui::Label::new(
                         egui::RichText::new(ICON_PALETTE)
-                            .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                            .font(egui::FontId::new(
+                                20.0,
+                                egui::FontFamily::Name("MaterialIcons".into()),
+                            ))
                             .color(palette_color),
-                    ).sense(egui::Sense::click()),
+                    )
+                    .sense(egui::Sense::click()),
                 );
-                if palette_resp.clicked() { self.show_hue_picker = !self.show_hue_picker; }
-                if palette_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+                if palette_resp.clicked() {
+                    self.show_hue_picker = !self.show_hue_picker;
+                }
+                if palette_resp.hovered() {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                }
 
                 if self.show_hue_picker {
                     let theme = ShadcnTheme::get(ui.ctx());
@@ -251,11 +275,13 @@ impl DemoApp {
                         .resizable(false)
                         .default_width(260.0)
                         .anchor(egui::Align2::RIGHT_TOP, [-8.0, 48.0])
-                        .frame(egui::Frame::new()
-                            .fill(theme.card)
-                            .stroke(egui::Stroke::new(1.0, theme.border))
-                            .corner_radius(egui::CornerRadius::same(theme.radius as u8))
-                            .inner_margin(egui::Margin::same(16)))
+                        .frame(
+                            egui::Frame::new()
+                                .fill(theme.card)
+                                .stroke(egui::Stroke::new(1.0, theme.border))
+                                .corner_radius(egui::CornerRadius::same(theme.radius as u8))
+                                .inner_margin(egui::Margin::same(16)),
+                        )
                         .title_bar(false)
                         .show(ui.ctx(), |ui| {
                             ui.label(
@@ -267,10 +293,10 @@ impl DemoApp {
                             ui.add_space(12.0);
 
                             let presets: &[(Option<f32>, &str)] = &[
-                                (None,        "Zinc"),
-                                (Some(0.0),   "Red"),
-                                (Some(25.0),  "Orange"),
-                                (Some(48.0),  "Yellow"),
+                                (None, "Zinc"),
+                                (Some(0.0), "Red"),
+                                (Some(25.0), "Orange"),
+                                (Some(48.0), "Yellow"),
                                 (Some(142.0), "Green"),
                                 (Some(217.0), "Blue"),
                                 (Some(263.0), "Violet"),
@@ -280,7 +306,11 @@ impl DemoApp {
                             ui.horizontal_wrapped(|ui| {
                                 for (hue, name) in presets {
                                     let color = match hue {
-                                        None    => egui_shadcn::theme::hsl(240.0, 0.059, if dark { 0.5 } else { 0.3 }),
+                                        None => egui_shadcn::theme::hsl(
+                                            240.0,
+                                            0.059,
+                                            if dark { 0.5 } else { 0.3 },
+                                        ),
                                         Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
                                     };
 
@@ -290,10 +320,12 @@ impl DemoApp {
                                         egui::Sense::click(),
                                     );
 
-                                    ui.painter().circle_filled(swatch_rect.center(), 12.0, color);
+                                    ui.painter()
+                                        .circle_filled(swatch_rect.center(), 12.0, color);
                                     if is_sel {
                                         ui.painter().circle_stroke(
-                                            swatch_rect.center(), 14.0,
+                                            swatch_rect.center(),
+                                            14.0,
                                             egui::Stroke::new(2.0, theme.foreground),
                                         );
                                     }
@@ -344,13 +376,19 @@ impl DemoApp {
 
             for (i, section) in SECTIONS.iter().enumerate() {
                 let is_active = self.current_section == i;
-                let bg = if is_active { theme.accent } else { Color32::TRANSPARENT };
-                let fg = if is_active { theme.accent_foreground } else { theme.foreground };
+                let bg = if is_active {
+                    theme.accent
+                } else {
+                    Color32::TRANSPARENT
+                };
+                let fg = if is_active {
+                    theme.accent_foreground
+                } else {
+                    theme.foreground
+                };
 
-                let (rect, resp) = ui.allocate_exact_size(
-                    egui::Vec2::new(184.0, 32.0),
-                    egui::Sense::click(),
-                );
+                let (rect, resp) =
+                    ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
 
                 if resp.hovered() && !is_active {
                     ui.painter().rect_filled(
@@ -360,7 +398,11 @@ impl DemoApp {
                     );
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 } else {
-                    ui.painter().rect_filled(rect, egui::CornerRadius::same(theme.radius as u8), bg);
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(theme.radius as u8),
+                        bg,
+                    );
                 }
 
                 ui.painter().text(
@@ -371,7 +413,9 @@ impl DemoApp {
                     fg,
                 );
 
-                if resp.clicked() { self.current_section = i; }
+                if resp.clicked() {
+                    self.current_section = i;
+                }
                 ui.add_space(2.0);
             }
         });
@@ -383,20 +427,20 @@ impl DemoApp {
 impl DemoApp {
     fn render_section(&mut self, ui: &mut egui::Ui) {
         match self.current_section {
-            0  => self.section_overview(ui),
-            1  => self.section_typography(ui),
-            2  => self.section_buttons(ui),
-            3  => self.section_badges(ui),
-            4  => self.section_alerts(ui),
-            5  => self.section_cards(ui),
-            6  => self.section_form(ui),
-            7  => self.section_inputs(ui),
-            8  => self.section_feedback(ui),
-            9  => self.section_navigation(ui),
+            0 => self.section_overview(ui),
+            1 => self.section_typography(ui),
+            2 => self.section_buttons(ui),
+            3 => self.section_badges(ui),
+            4 => self.section_alerts(ui),
+            5 => self.section_cards(ui),
+            6 => self.section_form(ui),
+            7 => self.section_inputs(ui),
+            8 => self.section_feedback(ui),
+            9 => self.section_navigation(ui),
             10 => self.section_overlays(ui),
             11 => self.section_data_display(ui),
             12 => self.section_calendar(ui),
-            _  => {}
+            _ => {}
         }
     }
 
@@ -464,14 +508,22 @@ impl DemoApp {
     fn section_typography(&mut self, ui: &mut egui::Ui) {
         self.section_title(ui, "Typography", "Text styles and type scale.");
         Card::new().show(ui, |ui| {
-            heading1(ui, "Heading 1"); ui.add_space(8.0);
-            heading2(ui, "Heading 2"); ui.add_space(8.0);
-            heading3(ui, "Heading 3"); ui.add_space(8.0);
-            heading4(ui, "Heading 4"); ui.add_space(8.0);
-            lead_text(ui, "Lead paragraph — larger, muted text for introductions."); ui.add_space(8.0);
-            body_text(ui, "Body text — the default paragraph size."); ui.add_space(8.0);
-            muted_text(ui, "Muted text — de-emphasised, helper copy."); ui.add_space(8.0);
-            small_text(ui, "Small text — footnotes and captions."); ui.add_space(8.0);
+            heading1(ui, "Heading 1");
+            ui.add_space(8.0);
+            heading2(ui, "Heading 2");
+            ui.add_space(8.0);
+            heading3(ui, "Heading 3");
+            ui.add_space(8.0);
+            heading4(ui, "Heading 4");
+            ui.add_space(8.0);
+            lead_text(ui, "Lead paragraph — larger, muted text for introductions.");
+            ui.add_space(8.0);
+            body_text(ui, "Body text — the default paragraph size.");
+            ui.add_space(8.0);
+            muted_text(ui, "Muted text — de-emphasised, helper copy.");
+            ui.add_space(8.0);
+            small_text(ui, "Small text — footnotes and captions.");
+            ui.add_space(8.0);
             ui.horizontal(|ui| {
                 body_text(ui, "Inline ");
                 code_text(ui, "code_snippet");
@@ -486,13 +538,21 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Variants", None);
             ui.horizontal_wrapped(|ui| {
-                if Button::new("Default").show(ui).clicked()                                     { self.btn_clicked = true; }
+                if Button::new("Default").show(ui).clicked() {
+                    self.btn_clicked = true;
+                }
                 ui.add_space(8.0);
-                Button::new("Destructive").variant(ButtonVariant::Destructive).show(ui);
+                Button::new("Destructive")
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui);
                 ui.add_space(8.0);
-                Button::new("Outline").variant(ButtonVariant::Outline).show(ui);
+                Button::new("Outline")
+                    .variant(ButtonVariant::Outline)
+                    .show(ui);
                 ui.add_space(8.0);
-                Button::new("Secondary").variant(ButtonVariant::Secondary).show(ui);
+                Button::new("Secondary")
+                    .variant(ButtonVariant::Secondary)
+                    .show(ui);
                 ui.add_space(8.0);
                 Button::new("Ghost").variant(ButtonVariant::Ghost).show(ui);
                 ui.add_space(8.0);
@@ -501,7 +561,9 @@ impl DemoApp {
             if self.btn_clicked {
                 ui.add_space(8.0);
                 Alert::new("Button clicked!").show(ui);
-                if ui.small_button("Dismiss").clicked() { self.btn_clicked = false; }
+                if ui.small_button("Dismiss").clicked() {
+                    self.btn_clicked = false;
+                }
             }
         });
 
@@ -532,10 +594,19 @@ impl DemoApp {
         self.section_title(ui, "Badge", "Labels and status indicators.");
         Card::new().show(ui, |ui| {
             ui.horizontal(|ui| {
-                Badge::new("Default").show(ui); ui.add_space(8.0);
-                Badge::new("Secondary").variant(BadgeVariant::Secondary).show(ui); ui.add_space(8.0);
-                Badge::new("Destructive").variant(BadgeVariant::Destructive).show(ui); ui.add_space(8.0);
-                Badge::new("Outline").variant(BadgeVariant::Outline).show(ui);
+                Badge::new("Default").show(ui);
+                ui.add_space(8.0);
+                Badge::new("Secondary")
+                    .variant(BadgeVariant::Secondary)
+                    .show(ui);
+                ui.add_space(8.0);
+                Badge::new("Destructive")
+                    .variant(BadgeVariant::Destructive)
+                    .show(ui);
+                ui.add_space(8.0);
+                Badge::new("Outline")
+                    .variant(BadgeVariant::Outline)
+                    .show(ui);
             });
         });
     }
@@ -560,7 +631,11 @@ impl DemoApp {
     fn section_cards(&mut self, ui: &mut egui::Ui) {
         self.section_title(ui, "Card", "Container with optional header and footer.");
         Card::new().show(ui, |ui| {
-            card_header(ui, "Card Title", Some("A brief description of the card content."));
+            card_header(
+                ui,
+                "Card Title",
+                Some("A brief description of the card content."),
+            );
             body_text(ui, "Card body content goes here.");
         });
         ui.add_space(16.0);
@@ -582,24 +657,47 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Checkbox", None);
-            Checkbox::new(&mut self.checkbox1).label("Accept terms and conditions").show(ui); ui.add_space(8.0);
-            Checkbox::new(&mut self.checkbox2).label("Subscribe to newsletter").show(ui); ui.add_space(8.0);
-            Checkbox::new(&mut self.checkbox3).label("Disabled option").enabled(false).show(ui);
+            Checkbox::new(&mut self.checkbox1)
+                .label("Accept terms and conditions")
+                .show(ui);
+            ui.add_space(8.0);
+            Checkbox::new(&mut self.checkbox2)
+                .label("Subscribe to newsletter")
+                .show(ui);
+            ui.add_space(8.0);
+            Checkbox::new(&mut self.checkbox3)
+                .label("Disabled option")
+                .enabled(false)
+                .show(ui);
         });
 
         ui.add_space(16.0);
         Card::new().show(ui, |ui| {
             card_header(ui, "Radio Group", None);
-            Radio::new(&mut self.radio_val, 0u32).label("Option A").show(ui); ui.add_space(8.0);
-            Radio::new(&mut self.radio_val, 1u32).label("Option B").show(ui); ui.add_space(8.0);
-            Radio::new(&mut self.radio_val, 2u32).label("Option C").show(ui);
+            Radio::new(&mut self.radio_val, 0u32)
+                .label("Option A")
+                .show(ui);
+            ui.add_space(8.0);
+            Radio::new(&mut self.radio_val, 1u32)
+                .label("Option B")
+                .show(ui);
+            ui.add_space(8.0);
+            Radio::new(&mut self.radio_val, 2u32)
+                .label("Option C")
+                .show(ui);
         });
 
         ui.add_space(16.0);
         Card::new().show(ui, |ui| {
             card_header(ui, "Switch", None);
-            Switch::new(&mut self.switch1).label("Enable notifications").show(ui); ui.add_space(8.0);
-            Switch::new(&mut self.switch2).label("Disabled switch").enabled(false).show(ui);
+            Switch::new(&mut self.switch1)
+                .label("Enable notifications")
+                .show(ui);
+            ui.add_space(8.0);
+            Switch::new(&mut self.switch2)
+                .label("Disabled switch")
+                .enabled(false)
+                .show(ui);
         });
     }
 
@@ -609,17 +707,25 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Text Input", None);
             Input::new(&mut self.input_text)
-                .label("Username").placeholder("Enter your username…").show(ui);
+                .label("Username")
+                .placeholder("Enter your username…")
+                .show(ui);
             ui.add_space(12.0);
             Input::new(&mut self.password_text)
-                .label("Password").placeholder("••••••••").password(true).show(ui);
+                .label("Password")
+                .placeholder("••••••••")
+                .password(true)
+                .show(ui);
         });
 
         ui.add_space(16.0);
         Card::new().show(ui, |ui| {
             card_header(ui, "Textarea", None);
             Textarea::new(&mut self.textarea_text)
-                .label("Bio").placeholder("Tell us about yourself…").rows(4).show(ui);
+                .label("Bio")
+                .placeholder("Tell us about yourself…")
+                .rows(4)
+                .show(ui);
         });
 
         ui.add_space(16.0);
@@ -651,7 +757,12 @@ impl DemoApp {
             Progress::new(self.progress_val).show(ui);
             ui.add_space(12.0);
             ui.horizontal(|ui| {
-                if Button::new("−10%").size(ButtonSize::Sm).variant(ButtonVariant::Outline).show(ui).clicked() {
+                if Button::new("−10%")
+                    .size(ButtonSize::Sm)
+                    .variant(ButtonVariant::Outline)
+                    .show(ui)
+                    .clicked()
+                {
                     self.progress_val = (self.progress_val - 0.1).max(0.0);
                 }
                 ui.add_space(4.0);
@@ -665,8 +776,10 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Spinner", None);
             ui.horizontal(|ui| {
-                Spinner::new().size(16.0).show(ui); ui.add_space(4.0);
-                Spinner::new().size(24.0).show(ui); ui.add_space(4.0);
+                Spinner::new().size(16.0).show(ui);
+                ui.add_space(4.0);
+                Spinner::new().size(24.0).show(ui);
+                ui.add_space(4.0);
                 Spinner::new().size(40.0).show(ui);
             });
         });
@@ -684,7 +797,9 @@ impl DemoApp {
                 });
             });
             ui.add_space(12.0);
-            Skeleton::new(ui.available_width(), 120.0).radius(8.0).show(ui);
+            Skeleton::new(ui.available_width(), 120.0)
+                .radius(8.0)
+                .show(ui);
         });
     }
 
@@ -693,29 +808,55 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Tabs", None);
-            Tabs::new("demo_tabs", &["Account", "Password", "Notifications"], &mut self.tab_index)
-                .show(ui, |ui, tab| {
-                    ui.add_space(8.0);
-                    match tab {
-                        0 => body_text(ui, "Account settings go here."),
-                        1 => body_text(ui, "Change your password."),
-                        2 => body_text(ui, "Notification preferences."),
-                        _ => {}
-                    }
-                });
+            Tabs::new(
+                "demo_tabs",
+                &["Account", "Password", "Notifications"],
+                &mut self.tab_index,
+            )
+            .show(ui, |ui, tab| {
+                ui.add_space(8.0);
+                match tab {
+                    0 => body_text(ui, "Account settings go here."),
+                    1 => body_text(ui, "Change your password."),
+                    2 => body_text(ui, "Notification preferences."),
+                    _ => {}
+                }
+            });
         });
 
         ui.add_space(16.0);
         Card::new().show(ui, |ui| {
             card_header(ui, "Accordion", None);
-            Accordion::new("acc_0", "What is egui-shadcn?", &mut self.accordion_open[0]).show(ui, |ui| {
-                muted_text(ui, "A Shadcn/ui implementation for the egui Rust GUI library.");
+            Accordion::new("acc_0", "What is egui-shadcn?", &mut self.accordion_open[0]).show(
+                ui,
+                |ui| {
+                    muted_text(
+                        ui,
+                        "A Shadcn/ui implementation for the egui Rust GUI library.",
+                    );
+                },
+            );
+            Accordion::new(
+                "acc_1",
+                "Does it work on WASM?",
+                &mut self.accordion_open[1],
+            )
+            .show(ui, |ui| {
+                muted_text(
+                    ui,
+                    "Yes! Both native and web targets are supported via eframe.",
+                );
             });
-            Accordion::new("acc_1", "Does it work on WASM?", &mut self.accordion_open[1]).show(ui, |ui| {
-                muted_text(ui, "Yes! Both native and web targets are supported via eframe.");
-            });
-            Accordion::new("acc_2", "Can I customise the theme?", &mut self.accordion_open[2]).show(ui, |ui| {
-                muted_text(ui, "Use the palette icon in the toolbar to pick a primary color.");
+            Accordion::new(
+                "acc_2",
+                "Can I customise the theme?",
+                &mut self.accordion_open[2],
+            )
+            .show(ui, |ui| {
+                muted_text(
+                    ui,
+                    "Use the palette icon in the toolbar to pick a primary color.",
+                );
             });
         });
     }
@@ -734,7 +875,9 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Tooltip", None);
             Tooltip::new("This is a helpful tooltip").wrap(ui, |ui| {
-                Button::new("Hover me").variant(ButtonVariant::Outline).show(ui)
+                Button::new("Hover me")
+                    .variant(ButtonVariant::Outline)
+                    .show(ui)
             });
         });
     }
@@ -745,10 +888,15 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Avatar", None);
             ui.horizontal(|ui| {
-                Avatar::new("JD").size(AvatarSize::Sm).show(ui);  ui.add_space(8.0);
-                Avatar::new("Alice").show(ui);                      ui.add_space(8.0);
-                Avatar::new("Bob").size(AvatarSize::Lg).show(ui); ui.add_space(8.0);
-                Avatar::new("XY").color(Color32::from_rgb(139, 92, 246)).show(ui);
+                Avatar::new("JD").size(AvatarSize::Sm).show(ui);
+                ui.add_space(8.0);
+                Avatar::new("Alice").show(ui);
+                ui.add_space(8.0);
+                Avatar::new("Bob").size(AvatarSize::Lg).show(ui);
+                ui.add_space(8.0);
+                Avatar::new("XY")
+                    .color(Color32::from_rgb(139, 92, 246))
+                    .show(ui);
             });
         });
 
@@ -762,7 +910,11 @@ impl DemoApp {
     }
 
     fn section_calendar(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Calendar", "Date and range pickers with optional cell content.");
+        self.section_title(
+            ui,
+            "Calendar",
+            "Date and range pickers with optional cell content.",
+        );
 
         // ── Single date ──────────────────────────────────────────────────────
         Card::new().show(ui, |ui| {
@@ -770,7 +922,7 @@ impl DemoApp {
 
             let label = match self.cal_single {
                 Some(d) => format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day),
-                None    => "No date selected".to_owned(),
+                None => "No date selected".to_owned(),
             };
             muted_text(ui, &label);
             ui.add_space(12.0);
@@ -782,17 +934,20 @@ impl DemoApp {
 
         // ── Range date ───────────────────────────────────────────────────────
         Card::new().show(ui, |ui| {
-            card_header(ui, "Date range", Some("Click a start date then an end date."));
+            card_header(
+                ui,
+                "Date range",
+                Some("Click a start date then an end date."),
+            );
 
             let label = match (self.cal_range_start, self.cal_range_end) {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
                     s.year, s.month, s.day, e.year, e.month, e.day
                 ),
-                (Some(s), None) => format!(
-                    "{:04}-{:02}-{:02}  →  (pick end)",
-                    s.year, s.month, s.day
-                ),
+                (Some(s), None) => {
+                    format!("{:04}-{:02}-{:02}  →  (pick end)", s.year, s.month, s.day)
+                }
                 _ => "No range selected".to_owned(),
             };
             muted_text(ui, &label);
@@ -802,13 +957,14 @@ impl DemoApp {
                 "demo_cal_range",
                 &mut self.cal_range_start,
                 &mut self.cal_range_end,
-            ).show(ui);
+            )
+            .show(ui);
 
             if self.cal_range_start.is_some() {
                 ui.add_space(8.0);
                 if ui.button("Clear").clicked() {
                     self.cal_range_start = None;
-                    self.cal_range_end   = None;
+                    self.cal_range_end = None;
                 }
             }
         });
@@ -817,7 +973,11 @@ impl DemoApp {
 
         // ── With cell content ─────────────────────────────────────────────────
         Card::new().show(ui, |ui| {
-            card_header(ui, "Cell content", Some("Custom badges inside specific date cells."));
+            card_header(
+                ui,
+                "Cell content",
+                Some("Custom badges inside specific date cells."),
+            );
             muted_text(ui, "Cells on the 1st, 10th, and 20th have event badges.");
             ui.add_space(12.0);
 
@@ -850,9 +1010,11 @@ impl DemoApp {
         Dialog::new("Confirm Action", &mut self.dialog_open).show(ctx, |ui| {
             let theme = ShadcnTheme::get(ui.ctx());
             ui.label(
-                egui::RichText::new("Are you sure you want to perform this action? This cannot be undone.")
-                    .font(egui::FontId::new(13.0, egui::FontFamily::Proportional))
-                    .color(theme.muted_foreground),
+                egui::RichText::new(
+                    "Are you sure you want to perform this action? This cannot be undone.",
+                )
+                .font(egui::FontId::new(13.0, egui::FontFamily::Proportional))
+                .color(theme.muted_foreground),
             );
             ui.add_space(16.0);
             ui.label(
@@ -866,9 +1028,22 @@ impl DemoApp {
 
             let ok = input.as_str() == "CONFIRM";
             ui.horizontal(|ui| {
-                if Button::new("Cancel").variant(ButtonVariant::Outline).show(ui).clicked()  { close = true; }
+                if Button::new("Cancel")
+                    .variant(ButtonVariant::Outline)
+                    .show(ui)
+                    .clicked()
+                {
+                    close = true;
+                }
                 ui.add_space(8.0);
-                if Button::new("Continue").variant(ButtonVariant::Destructive).enabled(ok).show(ui).clicked() { close = true; }
+                if Button::new("Continue")
+                    .variant(ButtonVariant::Destructive)
+                    .enabled(ok)
+                    .show(ui)
+                    .clicked()
+                {
+                    close = true;
+                }
             });
         });
 

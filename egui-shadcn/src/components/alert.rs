@@ -1,5 +1,5 @@
+use crate::{ICON_ERROR_OUTLINE, ICON_INFO, ICON_WARNING, ShadcnTheme};
 use egui::{CornerRadius, FontFamily, FontId, Frame, Margin, Stroke, Ui};
-use crate::{ShadcnTheme, ICON_INFO, ICON_ERROR_OUTLINE, ICON_WARNING};
 
 #[derive(Clone, Copy, PartialEq, Default)]
 pub enum AlertVariant {
@@ -10,26 +10,36 @@ pub enum AlertVariant {
 }
 
 pub struct Alert<'a> {
-    title:       &'a str,
+    title: &'a str,
     description: Option<&'a str>,
-    variant:     AlertVariant,
+    variant: AlertVariant,
 }
 
 impl<'a> Alert<'a> {
     pub fn new(title: &'a str) -> Self {
-        Self { title, description: None, variant: AlertVariant::Default }
+        Self {
+            title,
+            description: None,
+            variant: AlertVariant::Default,
+        }
     }
 
-    pub fn description(mut self, d: &'a str) -> Self { self.description = Some(d); self }
-    pub fn variant(mut self, v: AlertVariant)  -> Self { self.variant = v; self }
+    pub fn description(mut self, d: &'a str) -> Self {
+        self.description = Some(d);
+        self
+    }
+    pub fn variant(mut self, v: AlertVariant) -> Self {
+        self.variant = v;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
         let (border_color, icon_color, icon) = match self.variant {
-            AlertVariant::Default     => (theme.border, theme.foreground, ICON_INFO),
+            AlertVariant::Default => (theme.border, theme.foreground, ICON_INFO),
             AlertVariant::Destructive => (theme.destructive, theme.destructive, ICON_ERROR_OUTLINE),
-            AlertVariant::Warning     => (
+            AlertVariant::Warning => (
                 egui::Color32::from_rgb(234, 179, 8),
                 egui::Color32::from_rgb(234, 179, 8),
                 ICON_WARNING,

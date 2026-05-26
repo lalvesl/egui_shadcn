@@ -1,23 +1,41 @@
-use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 use crate::ShadcnTheme;
+use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 
 pub struct Textarea<'a> {
-    value:       &'a mut String,
+    value: &'a mut String,
     placeholder: &'a str,
-    label:       Option<&'a str>,
-    rows:        usize,
-    enabled:     bool,
+    label: Option<&'a str>,
+    rows: usize,
+    enabled: bool,
 }
 
 impl<'a> Textarea<'a> {
     pub fn new(value: &'a mut String) -> Self {
-        Self { value, placeholder: "", label: None, rows: 4, enabled: true }
+        Self {
+            value,
+            placeholder: "",
+            label: None,
+            rows: 4,
+            enabled: true,
+        }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
-    pub fn label(mut self, l: &'a str)        -> Self { self.label = Some(l); self }
-    pub fn rows(mut self, r: usize)            -> Self { self.rows  = r; self }
-    pub fn enabled(mut self, e: bool)          -> Self { self.enabled = e; self }
+    pub fn placeholder(mut self, p: &'a str) -> Self {
+        self.placeholder = p;
+        self
+    }
+    pub fn label(mut self, l: &'a str) -> Self {
+        self.label = Some(l);
+        self
+    }
+    pub fn rows(mut self, r: usize) -> Self {
+        self.rows = r;
+        self
+    }
+    pub fn enabled(mut self, e: bool) -> Self {
+        self.enabled = e;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> egui::Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -32,16 +50,25 @@ impl<'a> Textarea<'a> {
         }
 
         let line_h = 20.0;
-        let v_pad  = 8.0;
+        let v_pad = 8.0;
         let height = line_h * self.rows as f32 + v_pad * 2.0;
-        let width  = ui.available_width();
-        let cr     = CornerRadius::same(theme.radius as u8);
-        let bg     = if self.enabled { theme.background } else { theme.muted };
+        let width = ui.available_width();
+        let cr = CornerRadius::same(theme.radius as u8);
+        let bg = if self.enabled {
+            theme.background
+        } else {
+            theme.muted
+        };
 
         let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
 
         ui.painter().rect_filled(rect, cr, bg);
-        ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Inside);
+        ui.painter().rect_stroke(
+            rect,
+            cr,
+            Stroke::new(1.0, theme.border),
+            egui::StrokeKind::Inside,
+        );
 
         let inner_rect = rect.shrink2(Vec2::new(12.0, v_pad));
 

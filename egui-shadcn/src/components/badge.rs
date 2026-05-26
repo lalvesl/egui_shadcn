@@ -1,5 +1,5 @@
-use egui::{Color32, CornerRadius, Sense, Ui, Vec2};
 use crate::ShadcnTheme;
+use egui::{Color32, CornerRadius, Sense, Ui, Vec2};
 
 #[derive(Clone, Copy, PartialEq, Default)]
 pub enum BadgeVariant {
@@ -11,16 +11,22 @@ pub enum BadgeVariant {
 }
 
 pub struct Badge<'a> {
-    label:   &'a str,
+    label: &'a str,
     variant: BadgeVariant,
 }
 
 impl<'a> Badge<'a> {
     pub fn new(label: &'a str) -> Self {
-        Self { label, variant: BadgeVariant::Default }
+        Self {
+            label,
+            variant: BadgeVariant::Default,
+        }
     }
 
-    pub fn variant(mut self, v: BadgeVariant) -> Self { self.variant = v; self }
+    pub fn variant(mut self, v: BadgeVariant) -> Self {
+        self.variant = v;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -42,7 +48,12 @@ impl<'a> Badge<'a> {
             painter.rect_filled(rect, cr, bg);
 
             if let Some(border_color) = border {
-                painter.rect_stroke(rect, cr, egui::Stroke::new(1.0, border_color), egui::StrokeKind::Inside);
+                painter.rect_stroke(
+                    rect,
+                    cr,
+                    egui::Stroke::new(1.0, border_color),
+                    egui::StrokeKind::Inside,
+                );
             }
 
             painter.galley(
@@ -55,10 +66,10 @@ impl<'a> Badge<'a> {
 
     fn colors(&self, t: &ShadcnTheme) -> (Color32, Color32, Option<Color32>) {
         match self.variant {
-            BadgeVariant::Default     => (t.primary,     t.primary_foreground,   None),
-            BadgeVariant::Secondary   => (t.secondary,   t.secondary_foreground, None),
+            BadgeVariant::Default => (t.primary, t.primary_foreground, None),
+            BadgeVariant::Secondary => (t.secondary, t.secondary_foreground, None),
             BadgeVariant::Destructive => (t.destructive, t.destructive_foreground, None),
-            BadgeVariant::Outline     => (Color32::TRANSPARENT, t.foreground, Some(t.border)),
+            BadgeVariant::Outline => (Color32::TRANSPARENT, t.foreground, Some(t.border)),
         }
     }
 }

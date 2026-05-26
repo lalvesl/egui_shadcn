@@ -1,23 +1,32 @@
-use egui::{CornerRadius, Sense, Ui, Vec2};
 use crate::ShadcnTheme;
+use egui::{CornerRadius, Sense, Ui, Vec2};
 
 pub struct Progress {
-    value:  f32,  // 0.0..=1.0
+    value: f32, // 0.0..=1.0
     height: f32,
 }
 
 impl Default for Progress {
     fn default() -> Self {
-        Self { value: 0.0, height: 8.0 }
+        Self {
+            value: 0.0,
+            height: 8.0,
+        }
     }
 }
 
 impl Progress {
     pub fn new(value: f32) -> Self {
-        Self { value: value.clamp(0.0, 1.0), ..Self::default() }
+        Self {
+            value: value.clamp(0.0, 1.0),
+            ..Self::default()
+        }
     }
 
-    pub fn height(mut self, h: f32) -> Self { self.height = h; self }
+    pub fn height(mut self, h: f32) -> Self {
+        self.height = h;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());

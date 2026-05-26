@@ -1,21 +1,30 @@
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 use crate::ShadcnTheme;
+use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
 pub struct Dialog<'a> {
     title: &'a str,
-    open:  &'a mut bool,
+    open: &'a mut bool,
     width: f32,
 }
 
 impl<'a> Dialog<'a> {
     pub fn new(title: &'a str, open: &'a mut bool) -> Self {
-        Self { title, open, width: 448.0 }
+        Self {
+            title,
+            open,
+            width: 448.0,
+        }
     }
 
-    pub fn width(mut self, w: f32) -> Self { self.width = w; self }
+    pub fn width(mut self, w: f32) -> Self {
+        self.width = w;
+        self
+    }
 
     pub fn show(self, ctx: &egui::Context, content: impl FnOnce(&mut Ui)) {
-        if !*self.open { return }
+        if !*self.open {
+            return;
+        }
 
         let theme = ShadcnTheme::get(ctx);
 

@@ -1,9 +1,9 @@
 pub mod accordion;
-pub mod calendar;
 pub mod alert;
 pub mod avatar;
 pub mod badge;
 pub mod button;
+pub mod calendar;
 pub mod card;
 pub mod checkbox;
 pub mod dialog;
@@ -23,11 +23,11 @@ pub mod tooltip;
 pub mod typography;
 
 pub use accordion::*;
-pub use calendar::*;
 pub use alert::*;
 pub use avatar::*;
 pub use badge::*;
 pub use button::*;
+pub use calendar::*;
 pub use card::*;
 pub use checkbox::*;
 pub use dialog::*;

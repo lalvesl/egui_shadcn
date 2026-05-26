@@ -1,16 +1,18 @@
-use egui::{Response, Ui};
 use crate::ShadcnTheme;
+use egui::{Response, Ui};
 
 pub struct Tooltip<'a> {
     text: &'a str,
 }
 
 impl<'a> Tooltip<'a> {
-    pub fn new(text: &'a str) -> Self { Self { text } }
+    pub fn new(text: &'a str) -> Self {
+        Self { text }
+    }
 
     /// Show `content` and attach tooltip on hover.
     pub fn wrap(self, ui: &mut Ui, content: impl FnOnce(&mut Ui) -> Response) -> Response {
-        let text  = self.text;
+        let text = self.text;
 
         let inner = content(ui);
 

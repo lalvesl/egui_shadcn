@@ -8,7 +8,7 @@ fn main() {
     println!("cargo::rustc-check-cfg=cfg(has_material_icons)");
 
     let manifest = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let assets   = manifest.join("assets");
+    let assets = manifest.join("assets");
     let ttf_path = assets.join("MaterialIcons-Regular.ttf");
 
     println!("cargo:rerun-if-changed=assets/MaterialIcons-Regular.ttf");

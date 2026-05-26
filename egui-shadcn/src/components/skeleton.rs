@@ -1,30 +1,45 @@
-use egui::{Color32, CornerRadius, Sense, Ui, Vec2};
 use crate::ShadcnTheme;
+use egui::{Color32, CornerRadius, Sense, Ui, Vec2};
 
 pub struct Skeleton {
-    width:    f32,
-    height:   f32,
-    circle:   bool,
-    radius:   Option<f32>,
+    width: f32,
+    height: f32,
+    circle: bool,
+    radius: Option<f32>,
 }
 
 impl Skeleton {
     pub fn new(width: f32, height: f32) -> Self {
-        Self { width, height, circle: false, radius: None }
+        Self {
+            width,
+            height,
+            circle: false,
+            radius: None,
+        }
     }
 
     pub fn circle(size: f32) -> Self {
-        Self { width: size, height: size, circle: true, radius: None }
+        Self {
+            width: size,
+            height: size,
+            circle: true,
+            radius: None,
+        }
     }
 
-    pub fn radius(mut self, r: f32) -> Self { self.radius = Some(r); self }
+    pub fn radius(mut self, r: f32) -> Self {
+        self.radius = Some(r);
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
         let (rect, _) = ui.allocate_exact_size(Vec2::new(self.width, self.height), Sense::hover());
 
-        if !ui.is_rect_visible(rect) { return }
+        if !ui.is_rect_visible(rect) {
+            return;
+        }
 
         ui.ctx().request_repaint();
 
