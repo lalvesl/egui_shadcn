@@ -1,4 +1,5 @@
 /target
-/dist
+*/dist
+**/dist
 .claude
 CLAUDE.md

@@ -1023,7 +1023,7 @@ impl DemoApp {
                     .color(theme.foreground),
             );
             ui.add_space(4.0);
-            ui.text_edit_singleline(input);
+            Input::new(input).placeholder("CONFIRM").show(ui);
             ui.add_space(16.0);
 
             let ok = input.as_str() == "CONFIRM";
