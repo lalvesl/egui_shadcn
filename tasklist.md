@@ -2,7 +2,8 @@
 
 - Add in Example of buttons one with icon;
 - The textarea can write more text than your content, create option to scroll or grow to x or y or bolf, and add in example;
-- Icons is extreme difficult to use.
+- Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
+- The implementation of @build.rs is wrong, the location to download fonts need's to be inside target folder this is wrong, not in codespace;
 
 # Done
 

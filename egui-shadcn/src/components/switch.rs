@@ -72,8 +72,6 @@ impl<'a> Switch<'a> {
 
             let track_color = if *self.checked {
                 theme.primary
-            } else if resp.hovered() {
-                theme.muted_foreground
             } else {
                 theme.muted_foreground
             };

@@ -32,33 +32,17 @@ impl CalDate {
 
     pub fn next_month(self) -> Self {
         if self.month == 12 {
-            Self {
-                year: self.year + 1,
-                month: 1,
-                day: 1,
-            }
+            Self { year: self.year + 1, month: 1, day: 1 }
         } else {
-            Self {
-                year: self.year,
-                month: self.month + 1,
-                day: 1,
-            }
+            Self { year: self.year, month: self.month + 1, day: 1 }
         }
     }
 
     pub fn prev_month(self) -> Self {
         if self.month == 1 {
-            Self {
-                year: self.year - 1,
-                month: 12,
-                day: 1,
-            }
+            Self { year: self.year - 1, month: 12, day: 1 }
         } else {
-            Self {
-                year: self.year,
-                month: self.month - 1,
-                day: 1,
-            }
+            Self { year: self.year, month: self.month - 1, day: 1 }
         }
     }
 
@@ -74,11 +58,7 @@ impl CalDate {
         let d = doy - (153 * mp + 2) / 5 + 1;
         let m = if mp < 10 { mp + 3 } else { mp - 9 };
         let y = if m <= 2 { y + 1 } else { y };
-        Self {
-            year: y,
-            month: m as u8,
-            day: d as u8,
-        }
+        Self { year: y, month: m as u8, day: d as u8 }
     }
 }
 
@@ -120,18 +100,8 @@ fn weekday_of(year: i32, month: u8, day: u8) -> usize {
 }
 
 const MONTHS: [&str; 12] = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
 ];
 const DAYS: [&str; 7] = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -141,6 +111,10 @@ const DAYS: [&str; 7] = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 struct CalState {
     view: CalDate,
 }
+
+// ── type alias ────────────────────────────────────────────────────────────────
+
+type CellFn<'a> = dyn Fn(&mut Ui, CalDate) + 'a;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
 
@@ -163,7 +137,7 @@ pub struct Calendar<'a> {
     id: egui::Id,
     selected: &'a mut Option<CalDate>,
     end: Option<&'a mut Option<CalDate>>,
-    cell_fn: Option<Box<dyn Fn(&mut Ui, CalDate) + 'a>>,
+    cell_fn: Option<Box<CellFn<'a>>>,
     cell_h: f32,
 }
 
@@ -216,9 +190,7 @@ impl<'a> Calendar<'a> {
 
         let theme = ShadcnTheme::get(ui.ctx());
         let cell_h = self.cell_h;
-        // Borrow cell_fn as a trait-object reference with the same lifetime 'a,
-        // then immediately coerce to a shorter lifetime via subtyping.
-        let cell_fn: Option<&(dyn Fn(&mut Ui, CalDate) + '_)> = self.cell_fn.as_deref();
+        let cell_fn: Option<&CellFn<'_>> = self.cell_fn.as_deref();
 
         if let Some(end_ref) = self.end {
             let right_view = state.view.next_month();
@@ -227,15 +199,27 @@ impl<'a> Calendar<'a> {
 
             let (nav, c0, c1) = ui
                 .horizontal(|ui| {
-                    let (n, c0) = draw_month(
-                        ui, &theme, state.view, &s_start, &s_end, true, false, today, cell_h,
+                    let (n, c0) = draw_month(ui, &theme, DrawConfig {
+                        view: state.view,
+                        sel_start: s_start,
+                        sel_end: s_end,
+                        show_prev: true,
+                        show_next: false,
+                        today,
+                        cell_h,
                         cell_fn,
-                    );
+                    });
                     ui.add_space(24.0);
-                    let (_, c1) = draw_month(
-                        ui, &theme, right_view, &s_start, &s_end, false, true, today, cell_h,
+                    let (_, c1) = draw_month(ui, &theme, DrawConfig {
+                        view: right_view,
+                        sel_start: s_start,
+                        sel_end: s_end,
+                        show_prev: false,
+                        show_next: true,
+                        today,
+                        cell_h,
                         cell_fn,
-                    );
+                    });
                     (n, c0, c1)
                 })
                 .inner;
@@ -254,9 +238,16 @@ impl<'a> Calendar<'a> {
         } else {
             let mut sel: Option<CalDate> = *self.selected;
 
-            let (nav, clicked) = draw_month(
-                ui, &theme, state.view, &sel, &None, true, true, today, cell_h, cell_fn,
-            );
+            let (nav, clicked) = draw_month(ui, &theme, DrawConfig {
+                view: state.view,
+                sel_start: sel,
+                sel_end: None,
+                show_prev: true,
+                show_next: true,
+                today,
+                cell_h,
+                cell_fn,
+            });
 
             match nav {
                 -1 => state.view = state.view.prev_month(),
@@ -299,18 +290,18 @@ fn range_click(d: CalDate, start: &mut Option<CalDate>, end: &mut Option<CalDate
 
 // ── month grid ────────────────────────────────────────────────────────────────
 
-fn draw_month<'f>(
-    ui: &mut Ui,
-    theme: &ShadcnTheme,
+struct DrawConfig<'f> {
     view: CalDate,
-    sel_start: &Option<CalDate>,
-    sel_end: &Option<CalDate>,
+    sel_start: Option<CalDate>,
+    sel_end: Option<CalDate>,
     show_prev: bool,
     show_next: bool,
     today: CalDate,
     cell_h: f32,
-    cell_fn: Option<&'f (dyn Fn(&mut Ui, CalDate) + 'f)>,
-) -> (i8, Option<CalDate>) {
+    cell_fn: Option<&'f CellFn<'f>>,
+}
+
+fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8, Option<CalDate>) {
     let cell_w: f32 = 36.0;
     let mut nav: i8 = 0;
     let mut clicked: Option<CalDate> = None;
@@ -321,7 +312,7 @@ fn draw_month<'f>(
         // header
         ui.horizontal(|ui| {
             let sz = Vec2::new(24.0, 24.0);
-            if show_prev {
+            if cfg.show_prev {
                 if ui.add_sized(sz, egui::Button::new("‹").frame(false)).clicked() { nav = -1; }
             } else {
                 ui.add_space(sz.x);
@@ -329,14 +320,14 @@ fn draw_month<'f>(
             ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
                 ui.label(
                     egui::RichText::new(format!(
-                        "{} {}", MONTHS[(view.month - 1) as usize], view.year
+                        "{} {}", MONTHS[(cfg.view.month - 1) as usize], cfg.view.year
                     ))
                     .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
                     .color(theme.foreground)
                     .strong(),
                 );
             });
-            if show_next {
+            if cfg.show_next {
                 if ui.add_sized(sz, egui::Button::new("›").frame(false)).clicked() { nav = 1; }
             } else {
                 ui.add_space(sz.x);
@@ -360,25 +351,25 @@ fn draw_month<'f>(
         ui.add_space(2.0);
 
         // day cells
-        let first_col = weekday_of(view.year, view.month, 1);
-        let n_days    = days_in_month(view.year, view.month) as usize;
-        let n_rows    = (first_col + n_days + 6) / 7;
+        let first_col = weekday_of(cfg.view.year, cfg.view.month, 1);
+        let n_days = days_in_month(cfg.view.year, cfg.view.month) as usize;
+        let n_rows = (first_col + n_days).div_ceil(7);
 
         for row in 0..n_rows {
             ui.horizontal(|ui| {
                 for col in 0..7usize {
                     let day = (row * 7 + col) as i32 - first_col as i32 + 1;
-                    let (rect, resp) = ui.allocate_exact_size(Vec2::new(cell_w, cell_h), Sense::click());
+                    let (rect, resp) = ui.allocate_exact_size(Vec2::new(cell_w, cfg.cell_h), Sense::click());
 
                     if day < 1 || day > n_days as i32 { continue; }
 
-                    let date     = CalDate::new(view.year, view.month, day as u8);
-                    let is_start = *sel_start == Some(date);
-                    let is_end   = *sel_end   == Some(date);
-                    let in_range = matches!((sel_start, sel_end), (Some(s), Some(e)) if date > *s && date < *e);
-                    let is_today = date == today;
+                    let date     = CalDate::new(cfg.view.year, cfg.view.month, day as u8);
+                    let is_start = cfg.sel_start == Some(date);
+                    let is_end   = cfg.sel_end == Some(date);
+                    let in_range = matches!((cfg.sel_start, cfg.sel_end), (Some(s), Some(e)) if date > s && date < e);
+                    let is_today = date == cfg.today;
                     let hovered  = resp.hovered();
-                    let r        = (cell_w.min(cell_h) / 2.0 - 2.0).max(1.0);
+                    let r        = (cell_w.min(cfg.cell_h) / 2.0 - 2.0).max(1.0);
 
                     if is_start || is_end {
                         ui.painter().circle_filled(rect.center(), r, theme.primary);
@@ -399,7 +390,7 @@ fn draw_month<'f>(
                                     else if is_today      { theme.primary }
                                     else                  { theme.foreground };
 
-                    let num_y = if cell_fn.is_some() { rect.top() + 10.0 } else { rect.center().y };
+                    let num_y = if cfg.cell_fn.is_some() { rect.top() + 10.0 } else { rect.center().y };
 
                     ui.painter().text(
                         egui::Pos2::new(rect.center().x, num_y),
@@ -409,7 +400,7 @@ fn draw_month<'f>(
                         num_color,
                     );
 
-                    if let Some(f) = cell_fn {
+                    if let Some(f) = cfg.cell_fn {
                         let inner = egui::Rect::from_min_max(
                             egui::Pos2::new(rect.left() + 1.0, num_y + 12.0),
                             rect.max - egui::Vec2::splat(1.0),

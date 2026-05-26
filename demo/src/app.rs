@@ -118,9 +118,7 @@ impl DemoApp {
                 .unwrap_or(None)
         });
 
-        let mut app = Self::default();
-        app.dark = dark;
-        app.primary_hue = hue;
+        let app = Self { dark, primary_hue: hue, ..Default::default() };
 
         let theme = ShadcnTheme::build(dark, hue);
         ShadcnTheme::set(&cc.egui_ctx, theme.clone());
