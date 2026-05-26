@@ -70,7 +70,8 @@ pub fn material_icons_ttf() -> Option<&'static [u8]> {
     None  // web: font served separately, loaded async by demo app
 }
 
-/// Register Material Icons font with egui. Call once during app setup.
+/// Register Material Icons font. Call during app creation (eframe CreationContext).
+/// Uses FontDefinitions::default() as base — fonts are applied before the first frame renders.
 pub fn register_font(ctx: &egui::Context) {
     let Some(bytes) = material_icons_ttf() else { return };
 
