@@ -20,20 +20,16 @@ impl<'a> TextInput<'a> {
     pub fn password(mut self, p: bool) -> Self        { self.password = p; self }
 
     pub fn show(self, ui: &mut Ui) -> Response {
-        let theme = ShadcnTheme::get(ui.ctx());
+        let theme  = ShadcnTheme::get(ui.ctx());
+        let height = 36.0;
 
         if let Some(lbl) = self.label {
             ui.label(egui::RichText::new(lbl).size(14.0).strong().color(theme.foreground));
             ui.add_space(4.0);
         }
 
-        let width  = ui.available_width();
-        let height = 36.0;
-
-        let (outer_rect, response) = ui.allocate_exact_size(
-            Vec2::new(width, height),
-            Sense::click_and_drag(),
-        );
+        let width = ui.available_width();
+        let (outer_rect, response) = ui.allocate_exact_size(Vec2::new(width, height), Sense::click_and_drag());
 
         let focused = ui.memory(|m| m.has_focus(response.id));
         let hovered = response.hovered() && !self.disabled;
@@ -56,12 +52,19 @@ impl<'a> TextInput<'a> {
             response.request_focus();
         }
 
-        let inner = outer_rect.shrink2(Vec2::new(12.0, 0.0));
+        // Vertically center the TextEdit within the 36px tall field
+        let text_h = 20.0;
+        let v_pad  = (height - text_h) / 2.0;
+        let inner = egui::Rect::from_min_size(
+            egui::pos2(outer_rect.left() + 12.0, outer_rect.top() + v_pad),
+            Vec2::new(outer_rect.width() - 24.0, text_h),
+        );
+
         let te = ui.put(
             inner,
             egui::TextEdit::singleline(self.value)
                 .hint_text(self.placeholder)
-                .frame(false)
+                .frame(egui::Frame::new())
                 .text_color(if self.disabled { theme.muted_foreground } else { theme.foreground })
                 .password(self.password)
                 .interactive(!self.disabled),

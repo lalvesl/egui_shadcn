@@ -42,13 +42,12 @@ impl<'a> Slider<'a> {
         let thumb_x = track.left() + t * track.width();
         let thumb_c = egui::pos2(thumb_x, rect.center().y);
 
-        if !self.disabled {
-            if response.dragged() || response.clicked() {
-                if let Some(pos) = ui.input(|i| i.pointer.interact_pos()) {
-                    let raw = (pos.x - track.left()) / track.width();
-                    *self.value = self.min + raw.clamp(0.0, 1.0) * (self.max - self.min);
-                }
-            }
+        if !self.disabled
+            && (response.dragged() || response.clicked())
+            && let Some(pos) = ui.input(|i| i.pointer.interact_pos())
+        {
+            let raw = (pos.x - track.left()) / track.width();
+            *self.value = self.min + raw.clamp(0.0, 1.0) * (self.max - self.min);
         }
 
         if ui.is_rect_visible(rect) {

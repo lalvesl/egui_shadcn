@@ -41,16 +41,26 @@ impl<'a> Textarea<'a> {
             ui.painter().rect_stroke(rect, theme.radius, border, StrokeKind::Inside);
         }
 
+        let text_color = if self.disabled { theme.muted_foreground } else { theme.foreground };
         let inner = rect.shrink2(Vec2::new(12.0, 8.0));
-        ui.put(
-            inner,
-            egui::TextEdit::multiline(self.value)
-                .hint_text(self.placeholder)
-                .frame(false)
-                .text_color(if self.disabled { theme.muted_foreground } else { theme.foreground })
-                .desired_rows(self.rows)
-                .interactive(!self.disabled),
-        );
+
+        // Scrollable text area clipped to the fixed rect
+        ui.scope_builder(egui::UiBuilder::new().max_rect(inner), |ui| {
+            egui::ScrollArea::vertical()
+                .id_salt(response.id)
+                .max_height(inner.height())
+                .auto_shrink([false, false])
+                .show(ui, |ui| {
+                    ui.add(
+                        egui::TextEdit::multiline(self.value)
+                            .hint_text(self.placeholder)
+                            .frame(egui::Frame::new())
+                            .text_color(text_color)
+                            .interactive(!self.disabled)
+                            .desired_width(f32::INFINITY),
+                    );
+                });
+        });
 
         response
     }

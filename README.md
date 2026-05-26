@@ -4,27 +4,29 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 
 ## Components
 
-| Component | Notes |
-|-----------|-------|
-| Button | 6 variants (default, destructive, outline, secondary, ghost, link) |
-| Input | |
-| Label | |
-| Badge | |
-| Card | |
-| Checkbox | |
-| Radio | |
-| Select | |
-| Slider | |
-| Switch | |
-| Textarea | |
-| Progress | |
-| Separator | |
-| Avatar | |
-| Alert | |
-| Tabs | |
-| Accordion | |
-| Dialog | |
-| Tooltip | |
+| Component | Notes                                                              |
+| --------- | ------------------------------------------------------------------ |
+| Button    | 6 variants (default, destructive, outline, secondary, ghost, link) |
+| Input     |                                                                    |
+| Label     |                                                                    |
+| Badge     |                                                                    |
+| Card      |                                                                    |
+| Checkbox  |                                                                    |
+| Radio     |                                                                    |
+| Select    |                                                                    |
+| Slider    |                                                                    |
+| Switch    |                                                                    |
+| Textarea  |                                                                    |
+| Progress  |                                                                    |
+| Separator |                                                                    |
+| Avatar    |                                                                    |
+| Alert     |                                                                    |
+| Tabs      |                                                                    |
+| Accordion |                                                                    |
+| Dialog    |                                                                    |
+| Tooltip   |                                                                    |
+
+Accordion, Alert, Alert Dialog, Aspect Ratio, Avatar, Badge, Breadcrumb, Button Group, Calendar, Card, Carousel, Chart, Checkbox, Collapsible, Combobox, Command, Context Menu, Data Table, Date Picker, Dialog, Direction, Drawer, Dropdown Menu, Empty, Field, Hover Card, Input, Input Group, Input OTP, Item, Kbd, Label, Menubar, Native Select, Navigation Menu, Pagination, Popover, Progress, Radio Group, Resizable, Scroll Area, Select, Separator, Sheet, Sidebar, Skeleton, Slider, Sonner, Spinner, Switch, Table, Tabs, Textarea, Toast, Toggle, Toggle Group, Tooltip, Typography
 
 ## Running
 

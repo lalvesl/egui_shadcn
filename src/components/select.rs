@@ -58,17 +58,15 @@ impl<'a> Select<'a> {
             ], Stroke::new(1.5, theme.muted_foreground)));
         }
 
+        let popup_id = egui::Popup::default_response_id(&response);
+
         if response.clicked() && !self.disabled {
-            ui.memory_mut(|m| m.toggle_popup(response.id));
+            egui::Popup::toggle_id(ui.ctx(), popup_id);
         }
 
-        let popup_id = response.id;
-        egui::popup::popup_below_widget(
-            ui,
-            popup_id,
-            &response,
-            egui::PopupCloseBehavior::CloseOnClickOutside,
-            |ui| {
+        egui::Popup::from_response(&response)
+            .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)
+            .show(|ui: &mut egui::Ui| {
                 ui.set_min_width(width);
                 egui::Frame::new()
                     .fill(theme.card)
@@ -91,12 +89,11 @@ impl<'a> Select<'a> {
 
                             if item.clicked() {
                                 *self.selected = i;
-                                ui.memory_mut(|m| m.close_popup());
+                                egui::Popup::close_id(ui.ctx(), popup_id);
                             }
                         }
                     });
-            },
-        );
+            });
 
         response
     }

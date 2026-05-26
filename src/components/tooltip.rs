@@ -12,29 +12,19 @@ impl<'a> Tooltip<'a> {
         let theme    = ShadcnTheme::get(ui.ctx());
         let response = add_trigger(ui);
 
-        if response.hovered() {
-            let tooltip_id = egui::Id::new("shad_tooltip").with(response.id);
-            let pos        = response.rect.center_top() - egui::Vec2::new(0.0, 8.0);
-
-            egui::show_tooltip_at(
-                ui.ctx(),
-                ui.layer_id(),
-                tooltip_id,
-                pos,
-                |ui| {
-                    egui::Frame::new()
-                        .fill(theme.foreground)
-                        .corner_radius(6u8)
-                        .inner_margin(Margin::symmetric(8, 4))
-                        .show(ui, |ui| {
-                            ui.label(
-                                egui::RichText::new(self.content)
-                                    .size(12.0)
-                                    .color(theme.background),
-                            );
-                        });
-                },
-            );
-        }
+        egui::Tooltip::for_enabled(&response)
+            .show(|ui| {
+                egui::Frame::new()
+                    .fill(theme.foreground)
+                    .corner_radius(6u8)
+                    .inner_margin(Margin::symmetric(8, 4))
+                    .show(ui, |ui| {
+                        ui.label(
+                            egui::RichText::new(self.content)
+                                .size(12.0)
+                                .color(theme.background),
+                        );
+                    });
+            });
     }
 }

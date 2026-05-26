@@ -9,9 +9,11 @@ use components::{
     alert::{Alert, AlertVariant},
     avatar::Avatar,
     badge::{Badge, BadgeVariant},
+    breadcrumb::{Breadcrumb, BreadcrumbItem, CollapsedBreadcrumb},
     button::{Button, ButtonSize, ButtonVariant},
     card::{Card, card_content, card_footer, card_header},
     checkbox::Checkbox,
+    date_picker::{Date, DatePicker, DateRangePicker},
     dialog::{Dialog, dialog_description, dialog_footer},
     input::TextInput,
     label::Label,
@@ -21,11 +23,15 @@ use components::{
     separator::Separator,
     slider::Slider,
     switch::Switch,
+    table::{DataTable, DataTableState, TableColumn},
     tabs::Tabs,
     textarea::Textarea,
+    theme_picker::{ThemePicker, ThemePreset},
+    toast::{Toaster, ToastVariant},
     tooltip::Tooltip,
 };
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
@@ -34,6 +40,26 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native("egui-shadcn", options, Box::new(|cc| Ok(Box::new(App::new(cc)))))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    use wasm_bindgen::JsCast as _;
+    let web_options = eframe::WebOptions::default();
+    wasm_bindgen_futures::spawn_local(async {
+        let canvas = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id("egui_canvas")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .unwrap();
+        eframe::WebRunner::new()
+            .start(canvas, web_options, Box::new(|cc| Ok(Box::new(App::new(cc)))))
+            .await
+            .unwrap();
+    });
 }
 
 struct App {
@@ -60,6 +86,24 @@ struct App {
     textarea:    String,
     active_tab:  usize,
     dialog_name: String,
+
+    // breadcrumb
+    crumb_expanded: bool,
+
+    // table
+    table_state: DataTableState,
+
+    // theme picker
+    picker_idx: usize,
+
+    // date pickers
+    date_selected: Option<Date>,
+    date_open:     bool,
+    date_view:     Date,
+    range_start:   Option<Date>,
+    range_end:     Option<Date>,
+    range_open:    bool,
+    range_view:    Date,
 }
 
 impl App {
@@ -82,24 +126,37 @@ impl App {
             textarea:     String::new(),
             active_tab:   0,
             dialog_name:  String::new(),
+            crumb_expanded: false,
+            table_state:    DataTableState::new(5, 4),
+            picker_idx:   0,
+            date_selected: None,
+            date_open:    false,
+            date_view:    Date::new(2026, 5, 1),
+            range_start:  None,
+            range_end:    None,
+            range_open:   false,
+            range_view:   Date::new(2026, 5, 1),
         }
     }
 }
 
 impl eframe::App for App {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let theme = if self.dark_mode { ShadcnTheme::dark() } else { ShadcnTheme::light() };
-        ShadcnTheme::set(ctx, theme.clone());
-        theme.apply_to_ctx(ctx);
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        let ctx = ui.ctx().clone();
 
-        egui::TopBottomPanel::top("toolbar")
+        let mut theme = if self.dark_mode { ShadcnTheme::dark() } else { ShadcnTheme::light() };
+        ThemePreset::all()[self.picker_idx].apply_to(&mut theme);
+        ShadcnTheme::set(&ctx, theme.clone());
+        theme.apply_to_ctx(&ctx);
+
+        egui::Panel::top("toolbar")
             .frame(
                 egui::Frame::new()
                     .fill(theme.background)
                     .stroke(egui::Stroke::new(1.0, theme.border))
                     .inner_margin(Margin::symmetric(16, 12)),
             )
-            .show(ctx, |ui| {
+            .show_inside(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.label(egui::RichText::new("egui-shadcn").size(18.0).strong().color(theme.foreground));
                     ui.add_space(8.0);
@@ -114,16 +171,21 @@ impl eframe::App for App {
                 });
             });
 
+        Toaster::show(&ctx);
+
         egui::CentralPanel::default()
-            .frame(egui::Frame::new().fill(theme.background).inner_margin(Margin::same(0)))
-            .show(ctx, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
+            .frame(egui::Frame::new().fill(theme.background).inner_margin(Margin::symmetric(24, 0)))
+            .show_inside(ui, |ui| {
+                egui::ScrollArea::both().show(ui, |ui| {
                     ui.add_space(24.0);
+
+                    let col_w = ((ui.available_width() - 24.0) * 0.5).max(400.0);
 
                     egui::Grid::new("grid")
                         .num_columns(2)
                         .spacing([24.0, 24.0])
-                        .min_col_width(460.0)
+                        .min_col_width(col_w)
+                        .max_col_width(col_w)
                         .show(ui, |ui| {
                             self.section_buttons(ui, &theme);
                             self.section_input(ui);
@@ -157,8 +219,19 @@ impl eframe::App for App {
                             self.section_accordion(ui, &theme);
                             ui.end_row();
 
-                            self.section_dialog(ui, ctx);
+                            self.section_dialog(ui, &ctx);
                             self.section_tooltip(ui);
+                            ui.end_row();
+
+                            self.section_date_pickers(ui);
+                            self.section_theme_picker(ui);
+                            ui.end_row();
+
+                            self.section_toast(ui, &ctx);
+                            ui.end_row();
+
+                            self.section_table(ui);
+                            self.section_breadcrumb(ui);
                             ui.end_row();
                         });
 
@@ -592,6 +665,140 @@ impl App {
                             .size(12.0)
                             .italics(),
                     );
+                });
+            });
+        });
+    }
+
+    fn section_date_pickers(&mut self, ui: &mut egui::Ui) {
+        ui.vertical(|ui| {
+            Card::new().show(ui, |ui| {
+                card_header(ui, "Date Picker", Some("Single date and date range selection."));
+                card_content(ui, |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    ui.label(egui::RichText::new("Date").size(13.0).color(theme.muted_foreground));
+                    ui.add_space(4.0);
+                    DatePicker::new(&mut self.date_selected, &mut self.date_open, &mut self.date_view)
+                        .today(Date::new(2026, 5, 22))
+                        .show(ui);
+
+                    if let Some(d) = self.date_selected {
+                        ui.add_space(6.0);
+                        ui.label(
+                            egui::RichText::new(format!("Selected: {}/{:02}/{}", d.month, d.day, d.year))
+                                .size(12.0)
+                                .color(theme.muted_foreground),
+                        );
+                    }
+
+                    ui.add_space(16.0);
+                    ui.label(egui::RichText::new("Date Range").size(13.0).color(theme.muted_foreground));
+                    ui.add_space(4.0);
+                    DateRangePicker::new(
+                        &mut self.range_start,
+                        &mut self.range_end,
+                        &mut self.range_open,
+                        &mut self.range_view,
+                    )
+                    .today(Date::new(2026, 5, 22))
+                    .show(ui);
+                });
+            });
+        });
+    }
+
+    fn section_toast(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
+        ui.vertical(|ui| {
+            Card::new().show(ui, |ui| {
+                card_header(ui, "Toast", Some("Timed overlay notifications."));
+                card_content(ui, |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    ui.horizontal_wrapped(|ui| {
+                        ui.spacing_mut().item_spacing.x = 8.0;
+
+                        if Button::new("Default").variant(ButtonVariant::Secondary).show(ui).clicked() {
+                            Toaster::push_desc(ctx, "Heads up!", "Your request has been received.", ToastVariant::Default);
+                        }
+                        if Button::new("Success").show(ui).clicked() {
+                            Toaster::push_desc(ctx, "Changes saved", "Your profile has been updated.", ToastVariant::Success);
+                        }
+                        if Button::new("Error").variant(ButtonVariant::Destructive).show(ui).clicked() {
+                            Toaster::push_desc(ctx, "Something went wrong", "Please try again later.", ToastVariant::Destructive);
+                        }
+                    });
+                    ui.add_space(10.0);
+                    ui.label(
+                        egui::RichText::new("Toasts auto-dismiss after 4 s. Stack up to 4.")
+                            .size(12.0)
+                            .color(theme.muted_foreground),
+                    );
+                });
+            });
+        });
+    }
+
+    fn section_table(&mut self, ui: &mut egui::Ui) {
+        ui.vertical(|ui| {
+            Card::new().show(ui, |ui| {
+                card_header(ui, "Table", Some("Filter, multi-select, sort, paginate."));
+                card_content(ui, |ui| {
+                    let cols = [
+                        TableColumn::new("Status"),
+                        TableColumn::new("Email"),
+                        TableColumn::new("Amount"),
+                    ];
+                    let rows: Vec<Vec<String>> = vec![
+                        vec!["Success".into(),    "ken99@example.com".into(),       "$316.00".into()],
+                        vec!["Success".into(),    "abe45@example.com".into(),       "$242.00".into()],
+                        vec!["Processing".into(), "monserrat44@example.com".into(), "$837.00".into()],
+                        vec!["Success".into(),    "silas22@example.com".into(),     "$874.00".into()],
+                        vec!["Failed".into(),     "carmella@example.com".into(),    "$721.00".into()],
+                    ];
+                    DataTable::new(&cols, &rows, &mut self.table_state)
+                        .filter_hint("Filter emails...")
+                        .page_size(5)
+                        .show(ui);
+                });
+            });
+        });
+    }
+
+    fn section_breadcrumb(&mut self, ui: &mut egui::Ui) {
+        ui.vertical(|ui| {
+            Card::new().show(ui, |ui| {
+                card_header(ui, "Breadcrumb", Some("Navigation path with collapsed variant."));
+                card_content(ui, |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+
+                    ui.label(egui::RichText::new("Standard").size(12.0).color(theme.muted_foreground));
+                    ui.add_space(4.0);
+                    let items = [
+                        BreadcrumbItem::link("Home"),
+                        BreadcrumbItem::link("Components"),
+                        BreadcrumbItem::current("Breadcrumb"),
+                    ];
+                    Breadcrumb::new(&items).separator("/").show(ui);
+
+                    ui.add_space(16.0);
+                    ui.label(egui::RichText::new("Collapsed").size(12.0).color(theme.muted_foreground));
+                    ui.add_space(4.0);
+                    CollapsedBreadcrumb::new(
+                        "Home",
+                        "Breadcrumb",
+                        &mut self.crumb_expanded,
+                        &["Docs", "Components"],
+                    ).show(ui);
+                });
+            });
+        });
+    }
+
+    fn section_theme_picker(&mut self, ui: &mut egui::Ui) {
+        ui.vertical(|ui| {
+            Card::new().show(ui, |ui| {
+                card_header(ui, "Theme", Some("Pick a color palette — applies live to this app."));
+                card_content(ui, |ui| {
+                    ThemePicker::new(&mut self.picker_idx).show(ui);
                 });
             });
         });

@@ -1,17 +1,14 @@
 use egui::{Margin, Stroke, Ui};
 use crate::theme::ShadcnTheme;
 
-pub struct Card {
-    width: Option<f32>,
-}
+pub struct Card;
 
 impl Card {
-    pub fn new() -> Self { Self { width: None } }
-    pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
+    pub fn new() -> Self { Self }
 
     pub fn show(self, ui: &mut Ui, add_contents: impl FnOnce(&mut Ui)) {
         let theme = ShadcnTheme::get(ui.ctx());
-        let width = self.width.unwrap_or(ui.available_width());
+        let width = ui.available_width();
 
         let frame = egui::Frame::new()
             .fill(theme.card)
