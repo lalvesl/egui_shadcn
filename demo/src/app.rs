@@ -65,6 +65,10 @@ pub struct DemoApp {
     input_text: String,
     password_text: String,
     textarea_text: String,
+    textarea_scroll: String,
+    textarea_grow_y: String,
+    textarea_grow_x: String,
+    textarea_grow_both: String,
     select_val: Option<usize>,
     accordion_open: [bool; 3],
     dialog_open: bool,
@@ -94,6 +98,10 @@ impl Default for DemoApp {
             input_text: String::new(),
             password_text: String::new(),
             textarea_text: String::new(),
+            textarea_scroll: String::new(),
+            textarea_grow_y: String::new(),
+            textarea_grow_x: String::new(),
+            textarea_grow_both: String::new(),
             select_val: None,
             accordion_open: [true, false, false],
             dialog_open: false,
@@ -719,10 +727,53 @@ impl DemoApp {
         ui.add_space(16.0);
         Card::new().show(ui, |ui| {
             card_header(ui, "Textarea", None);
+
+            // Default — fixed rows
             Textarea::new(&mut self.textarea_text)
-                .label("Bio")
+                .label("Default (fixed 4 rows)")
                 .placeholder("Tell us about yourself…")
                 .rows(4)
+                .show(ui);
+
+            ui.add_space(12.0);
+
+            // Scroll — fixed height, vertical scrollbar
+            Textarea::new(&mut self.textarea_scroll)
+                .label("Scroll (fixed 3 rows, scrolls)")
+                .placeholder("Keep typing — content scrolls inside…")
+                .rows(3)
+                .scroll(true)
+                .show(ui);
+
+            ui.add_space(12.0);
+
+            // Grow Y — expands up to 8 rows, then scrolls
+            Textarea::new(&mut self.textarea_grow_y)
+                .label("Grow Y (2 → 8 rows, then scrolls)")
+                .placeholder("Start typing — textarea grows…")
+                .rows(2)
+                .max_rows(8)
+                .show(ui);
+
+            ui.add_space(12.0);
+
+            // Grow X — capped width (doesn't fill panel)
+            Textarea::new(&mut self.textarea_grow_x)
+                .label("Grow X (max width 280 px)")
+                .placeholder("Width capped at 280 px…")
+                .rows(3)
+                .max_width(280.0)
+                .show(ui);
+
+            ui.add_space(12.0);
+
+            // Grow both — capped width + grow Y
+            Textarea::new(&mut self.textarea_grow_both)
+                .label("Grow both (2 → 6 rows, max width 320 px)")
+                .placeholder("Grows in height, capped in width…")
+                .rows(2)
+                .max_rows(6)
+                .max_width(320.0)
                 .show(ui);
         });
 
