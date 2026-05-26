@@ -26,17 +26,26 @@ impl<'a> Dialog<'a> {
             return;
         }
 
+        // Escape key closes
+        if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+            *self.open = false;
+            return;
+        }
+
         let theme = ShadcnTheme::get(ctx);
 
-        // Dim overlay
-        let overlay_painter = ctx.layer_painter(egui::LayerId::new(
-            egui::Order::Background,
-            egui::Id::new("dialog_overlay"),
-        ));
+        // Dim overlay — also acts as click-outside detector
+        let overlay_id = egui::Id::new("dialog_overlay");
+        let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
+        let overlay_painter = ctx.layer_painter(overlay_layer);
         overlay_painter.rect_filled(egui::Rect::EVERYTHING, 0.0, Color32::from_black_alpha(128));
 
-        egui::Window::new(self.title)
-            .id(egui::Id::new("shadcn_dialog").with(self.title))
+        // Detect click on the overlay (outside the dialog window)
+        let pointer_down = ctx.input(|i| i.pointer.primary_pressed());
+        let dialog_window_id = egui::Id::new("shadcn_dialog").with(self.title);
+
+        let win_resp = egui::Window::new(self.title)
+            .id(dialog_window_id)
             .collapsible(false)
             .resizable(false)
             .default_width(self.width)
@@ -70,5 +79,17 @@ impl<'a> Dialog<'a> {
 
                 content(ui);
             });
+
+        // Close if pointer pressed outside the dialog rect
+        if pointer_down {
+            let pointer_pos = ctx.input(|i| i.pointer.interact_pos());
+            let clicked_inside = match (win_resp.as_ref(), pointer_pos) {
+                (Some(r), Some(pos)) => r.response.rect.contains(pos),
+                _ => true,
+            };
+            if !clicked_inside {
+                *self.open = false;
+            }
+        }
     }
 }
