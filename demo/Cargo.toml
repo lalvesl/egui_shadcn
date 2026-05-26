@@ -1,0 +1,25 @@
+[package]
+name    = "demo"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "demo"
+path = "src/main.rs"
+
+[dependencies]
+egui-shadcn = { path = "../egui-shadcn" }
+egui        = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+eframe = { workspace = true, features = ["default_fonts", "glow", "x11", "wayland"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+eframe               = { workspace = true, features = ["default_fonts", "glow"] }
+wasm-bindgen         = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys              = { version = "0.3", features = ["Document", "HtmlCanvasElement", "Window"] }
+ehttp                = { version = "0.5", features = [] }

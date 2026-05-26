@@ -1,0 +1,7 @@
+[workspace]
+members  = ["egui-shadcn", "demo"]
+resolver = "2"
+
+[workspace.dependencies]
+egui   = "0.34"
+eframe = { version = "0.34", default-features = false }
