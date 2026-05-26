@@ -16,12 +16,18 @@ impl CalDate {
     }
 
     pub fn today() -> Self {
-        use std::time::{SystemTime, UNIX_EPOCH};
-        let secs = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs() as i32;
-        Self::from_epoch_days(secs / 86400)
+        #[cfg(not(target_arch = "wasm32"))]
+        let secs: i64 = {
+            use std::time::{SystemTime, UNIX_EPOCH};
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs() as i64
+        };
+        #[cfg(target_arch = "wasm32")]
+        let secs: i64 = (js_sys::Date::now() / 1000.0) as i64;
+
+        Self::from_epoch_days((secs / 86400) as i32)
     }
 
     pub fn next_month(self) -> Self {
