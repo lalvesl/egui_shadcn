@@ -1,4 +1,4 @@
-use crate::ShadcnTheme;
+use crate::{ShadcnTheme, ICON_CLOSE};
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
 pub struct Dialog<'a> {
@@ -67,8 +67,22 @@ impl<'a> Dialog<'a> {
                             .strong(),
                     );
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.small_button("×").clicked() {
+                        let close_resp = ui.add(
+                            egui::Label::new(
+                                egui::RichText::new(ICON_CLOSE)
+                                    .font(egui::FontId::new(
+                                        18.0,
+                                        egui::FontFamily::Name("MaterialIcons".into()),
+                                    ))
+                                    .color(theme.muted_foreground),
+                            )
+                            .sense(egui::Sense::click()),
+                        );
+                        if close_resp.clicked() {
                             *self.open = false;
+                        }
+                        if close_resp.hovered() {
+                            ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                         }
                     });
                 });
