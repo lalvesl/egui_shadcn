@@ -1,0 +1,97 @@
+use std::sync::Arc;
+
+// Custom font name constant — only present when EGUI_SHADCN_CUSTOM_FONT_URL was set at build time.
+#[cfg(has_custom_font)]
+include!(concat!(env!("OUT_DIR"), "/custom_font_name.rs"));
+
+/// Register the MaterialIcons font family with egui.
+///
+/// - **Native (font downloaded to OUT_DIR)**: embeds the TTF via `include_bytes!`.
+/// - **Native (font missing)**: registers a stub so egui never panics.
+/// - **WASM**: registers a stub; call `register_font_bytes` from your ehttp callback.
+///
+/// Call during `eframe::CreationContext` — `ctx.set_fonts` queues the definitions
+/// and eframe applies them before the first frame renders.
+pub fn register_font(ctx: &egui::Context) {
+    let mut fonts = egui::FontDefinitions::default();
+
+    #[cfg(all(not(target_arch = "wasm32"), has_material_icons))]
+    {
+        fonts.font_data.insert(
+            "MaterialIcons".to_owned(),
+            Arc::new(egui::FontData::from_static(include_bytes!(concat!(
+                env!("OUT_DIR"),
+                "/MaterialIcons-Regular.ttf"
+            )))),
+        );
+        fonts.families.insert(
+            egui::FontFamily::Name("MaterialIcons".into()),
+            vec!["MaterialIcons".to_owned()],
+        );
+    }
+
+    // Stub for WASM and native builds without the font file:
+    // map "MaterialIcons" to the proportional fallback so egui never panics
+    // with "font family not bound". The real font is loaded async on web.
+    #[cfg(not(all(not(target_arch = "wasm32"), has_material_icons)))]
+    {
+        let fallback = fonts
+            .families
+            .get(&egui::FontFamily::Proportional)
+            .cloned()
+            .unwrap_or_default();
+        fonts
+            .families
+            .insert(egui::FontFamily::Name("MaterialIcons".into()), fallback);
+    }
+
+    ctx.set_fonts(fonts);
+}
+
+/// Register a custom text font as the primary proportional font.
+///
+/// Only available when the crate was built with `EGUI_SHADCN_CUSTOM_FONT_URL`
+/// set. The font is embedded from `OUT_DIR/custom_font.ttf` at compile time.
+///
+/// Call after [`register_font`] so the font definitions are merged correctly.
+///
+/// ```
+/// egui_shadcn::register_font(&cc.egui_ctx);
+/// egui_shadcn::register_custom_font(&cc.egui_ctx); // sets primary text font
+/// ```
+#[cfg(has_custom_font)]
+pub fn register_custom_font(ctx: &egui::Context) {
+    let mut fonts = ctx.fonts(|f| f.definitions().clone());
+    fonts.font_data.insert(
+        CUSTOM_FONT_NAME.to_owned(),
+        Arc::new(egui::FontData::from_static(include_bytes!(concat!(
+            env!("OUT_DIR"),
+            "/custom_font.ttf"
+        )))),
+    );
+    // Prepend to Proportional so it is used for all UI text,
+    // with the existing fonts as Unicode fallbacks.
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(0, CUSTOM_FONT_NAME.to_owned());
+    ctx.set_fonts(fonts);
+}
+
+/// Replace the MaterialIcons stub with real font bytes (WASM only).
+/// Call this from inside your `ehttp::fetch` completion callback.
+#[cfg(target_arch = "wasm32")]
+pub fn register_font_bytes(ctx: &egui::Context, bytes: Vec<u8>) {
+    let mut fonts = ctx.fonts(|f| f.definitions().clone());
+    fonts.font_data.insert(
+        "MaterialIcons".to_owned(),
+        Arc::new(egui::FontData::from_owned(bytes)),
+    );
+    fonts.families.insert(
+        egui::FontFamily::Name("MaterialIcons".into()),
+        vec!["MaterialIcons".to_owned()],
+    );
+    ctx.set_fonts(fonts);
+    ctx.request_repaint();
+}
