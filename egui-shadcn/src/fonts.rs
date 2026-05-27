@@ -10,7 +10,7 @@ include!(concat!(env!("OUT_DIR"), "/custom_font_name.rs"));
 pub fn font_definitions() -> egui::FontDefinitions {
     let mut fonts = egui::FontDefinitions::default();
 
-    #[cfg(has_material_icons)]
+    #[cfg(all(not(target_arch = "wasm32"), has_material_icons))]
     {
         fonts.font_data.insert(
             "MaterialIcons".to_owned(),
@@ -25,7 +25,9 @@ pub fn font_definitions() -> egui::FontDefinitions {
         );
     }
 
-    #[cfg(not(has_material_icons))]
+    // WASM and builds without font: stub so egui never panics on missing family.
+    // WASM loads the real font via ehttp at runtime (register_font_bytes).
+    #[cfg(not(all(not(target_arch = "wasm32"), has_material_icons)))]
     {
         let fallback = fonts
             .families

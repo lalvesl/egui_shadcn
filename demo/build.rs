@@ -38,6 +38,11 @@ fn main() {
     println!("cargo::rustc-check-cfg=cfg(has_fallback_font)");
     println!("cargo:rerun-if-changed=build.rs");
 
+    // WASM fetches fonts at runtime — skip embedding
+    if std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default() == "wasm32" {
+        return;
+    }
+
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
 
     if fetch_font(
