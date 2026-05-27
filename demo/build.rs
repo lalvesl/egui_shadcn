@@ -52,16 +52,9 @@ fn main() {
             MATERIAL_ICONS_URL,
             "Material Icons",
         );
-        fetch_font(
-            &wasm_assets.join("JetBrainsMonoNerdFont-Regular.ttf"),
-            NERD_FONT_URL,
-            "JetBrains Mono Nerd Font",
-        );
-        fetch_font(
-            &wasm_assets.join("Roboto-Regular.ttf"),
-            FALLBACK_FONT_URL,
-            "Roboto",
-        );
+        // JetBrainsMono NF and Roboto skipped for WASM: Nerd Font patching
+        // creates GPOS/GSUB offset tables that overflow 32-bit usize in epaint's
+        // font parser. egui's built-in Ubuntu-Light + Hack cover text rendering.
         return;
     }
 

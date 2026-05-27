@@ -26,15 +26,7 @@ pub fn start() -> Result<(), JsValue> {
                         egui_shadcn::register_font_bytes(&ctx, bytes);
                     });
 
-                    let ctx = cc.egui_ctx.clone();
-                    fetch_font("JetBrainsMonoNerdFont-Regular.ttf", move |bytes| {
-                        crate::fonts::register_nerd_font_bytes(&ctx, bytes);
-                    });
 
-                    let ctx = cc.egui_ctx.clone();
-                    fetch_font("Roboto-Regular.ttf", move |bytes| {
-                        crate::fonts::register_roboto_bytes(&ctx, bytes);
-                    });
 
                     Ok(Box::new(DemoApp::new(cc)))
                 }),
