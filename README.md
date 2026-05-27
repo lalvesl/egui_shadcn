@@ -29,31 +29,31 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 | Textarea        | ✅     | Multiline, configurable rows                                       |
 | Tooltip         | ✅     | On-hover popup via `on_hover_ui`                                   |
 | Typography      | ✅     | heading1–4, lead, body, muted, small, code helpers                 |
-| Alert Dialog    | 🚧     |                                                                    |
-| Breadcrumb      | 🚧     |                                                                    |
-| Button Group    | 🚧     |                                                                    |
-| Carousel        | 🚧     |                                                                    |
-| Chart           | 🚧     |                                                                    |
-| Collapsible     | 🚧     |                                                                    |
-| Combobox        | 🚧     |                                                                    |
-| Command         | 🚧     |                                                                    |
-| Context Menu    | 🚧     |                                                                    |
-| Data Table      | 🚧     | Sorting, filtering, pagination                                     |
-| Date Picker     | 🚧     | Popover wrapper around Calendar                                    |
-| Drawer          | 🚧     |                                                                    |
-| Dropdown Menu   | 🚧     |                                                                    |
-| Hover Card      | 🚧     |                                                                    |
-| Input OTP       | 🚧     |                                                                    |
-| Menubar         | 🚧     |                                                                    |
-| Navigation Menu | 🚧     |                                                                    |
-| Pagination      | 🚧     |                                                                    |
-| Popover         | 🚧     |                                                                    |
-| Resizable       | 🚧     |                                                                    |
-| Sheet           | 🚧     | Side-drawer                                                        |
-| Table           | 🚧     |                                                                    |
-| Toast           | 🚧     |                                                                    |
-| Toggle          | 🚧     |                                                                    |
-| Toggle Group    | 🚧     |                                                                    |
+| Alert Dialog    | ✅     | Confirmation modal with cancel/confirm, destructive variant        |
+| Breadcrumb      | ✅     | Path navigation with separator, returns clicked index              |
+| Button Group    | ✅     | Connected button strip, default/outline variants, single-select    |
+| Carousel        | ✅     | Slide content with prev/next buttons and dot indicators            |
+| Chart           | ✅     | Bar and line charts with grid, legend, auto-scale                  |
+| Collapsible     | ✅     | Expandable section with trigger and content callback               |
+| Combobox        | ✅     | Searchable select with filter input                                |
+| Command         | ✅     | Command palette with search, groups, keyboard navigation           |
+| Context Menu    | ✅     | Right-click popup with items, separators, shortcuts                |
+| Data Table      | ✅     | Sorting, filtering, pagination                                     |
+| Date Picker     | ✅     | Popover wrapper around Calendar                                    |
+| Drawer          | ✅     | Bottom slide-in panel with drag handle                             |
+| Dropdown Menu   | ✅     | Button-triggered menu with items, separators, disabled states      |
+| Hover Card      | ✅     | Delayed hover popup with configurable content                      |
+| Input OTP       | ✅     | N-digit boxes with separator, keyboard capture                     |
+| Menubar         | ✅     | Horizontal menubar with dropdown menus and shortcuts               |
+| Navigation Menu | ✅     | Horizontal/vertical nav links with active state and badges         |
+| Pagination      | ✅     | Page nav with ellipsis, returns new page on click                  |
+| Popover         | ✅     | Generic floating content popup with click-outside dismiss          |
+| Resizable       | ✅     | Two-panel split with draggable divider, horizontal/vertical        |
+| Sheet           | ✅     | Side-drawer sliding in from left or right edge                     |
+| Table           | ✅     | Striped table with fixed/flexible columns                          |
+| Toast           | ✅     | Global notification queue, auto-dismiss, 4 variants                |
+| Toggle          | ✅     | Two-state button with label/icon and enabled state                 |
+| Toggle Group    | ✅     | Segmented control, single-select, generic value binding            |
 
 > ✅ Implemented &nbsp; 🚧 Planned
 
