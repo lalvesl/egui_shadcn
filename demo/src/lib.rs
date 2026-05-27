@@ -22,22 +22,19 @@ pub fn start() -> Result<(), JsValue> {
                 web_options,
                 Box::new(|cc| {
                     let ctx = cc.egui_ctx.clone();
-                    fetch_font(
-                        "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf",
-                        move |bytes| egui_shadcn::register_font_bytes(&ctx, bytes),
-                    );
+                    fetch_font("MaterialIcons-Regular.ttf", move |bytes| {
+                        egui_shadcn::register_font_bytes(&ctx, bytes);
+                    });
 
                     let ctx = cc.egui_ctx.clone();
-                    fetch_font(
-                        "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf",
-                        move |bytes| crate::fonts::register_nerd_font_bytes(&ctx, bytes),
-                    );
+                    fetch_font("JetBrainsMonoNerdFont-Regular.ttf", move |bytes| {
+                        crate::fonts::register_nerd_font_bytes(&ctx, bytes);
+                    });
 
                     let ctx = cc.egui_ctx.clone();
-                    fetch_font(
-                        "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf",
-                        move |bytes| crate::fonts::register_roboto_bytes(&ctx, bytes),
-                    );
+                    fetch_font("Roboto-Regular.ttf", move |bytes| {
+                        crate::fonts::register_roboto_bytes(&ctx, bytes);
+                    });
 
                     Ok(Box::new(DemoApp::new(cc)))
                 }),
