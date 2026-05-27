@@ -2,9 +2,11 @@
 
 - Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
 - Add in Example of buttons one with icon;
-- Add possibility to add another font for all texts, with the same strategy of material icons font;
+- Calendar with cell content, when select some day or a current day no centralized on the number but centralized by the cell, and this is the problem the cell has another think causing a decentralization of the number;
 
 # Process
+
+- Add possibility to add another font for all texts, with the same strategy of material icons font;
 
 # Done
 

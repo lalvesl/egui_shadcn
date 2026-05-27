@@ -32,8 +32,7 @@ fn generate_consts(codepoints: &str) -> String {
         }
         out.push_str(&format!(
             "pub const {}: &str = \"\\u{{{}}}\";\n",
-            const_name,
-            hex,
+            const_name, hex,
         ));
     }
     out
@@ -41,9 +40,13 @@ fn generate_consts(codepoints: &str) -> String {
 
 fn main() {
     println!("cargo::rustc-check-cfg=cfg(has_material_icons)");
+    println!("cargo::rustc-check-cfg=cfg(has_custom_font)");
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CUSTOM_FONT_URL");
+    println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CUSTOM_FONT_NAME");
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
 
     // ── Icon codepoints → OUT_DIR/icon_consts.rs ─────────────────────────────
     let cp_path = out_dir.join("MaterialIcons-Regular.codepoints");
@@ -58,13 +61,44 @@ fn main() {
         fs::write(&cp_path, &bytes).expect("write codepoints");
         eprintln!("[egui-shadcn] codepoints cached → {}", cp_path.display());
     }
-
     let codepoints = fs::read_to_string(&cp_path).expect("read codepoints");
     fs::write(out_dir.join("icon_consts.rs"), generate_consts(&codepoints))
         .expect("write icon_consts.rs");
 
-    // ── Font (native only; WASM loads at runtime via ehttp) ───────────────────
-    let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    // ── Custom text font ──────────────────────────────────────────────────────
+    // Configure via env vars before building:
+    //   EGUI_SHADCN_CUSTOM_FONT_URL=https://…/Font.ttf
+    //   EGUI_SHADCN_CUSTOM_FONT_NAME=Inter   (default: "CustomFont")
+    if let Ok(url) = std::env::var("EGUI_SHADCN_CUSTOM_FONT_URL") {
+        let font_name = std::env::var("EGUI_SHADCN_CUSTOM_FONT_NAME")
+            .unwrap_or_else(|_| "CustomFont".to_string());
+
+        let custom_ttf = out_dir.join("custom_font.ttf");
+        if !custom_ttf.exists() {
+            eprintln!("[egui-shadcn] downloading custom font '{font_name}'…");
+            match download_bytes(&url) {
+                Ok(bytes) => {
+                    fs::write(&custom_ttf, &bytes).expect("write custom font");
+                    eprintln!("[egui-shadcn] custom font saved → {}", custom_ttf.display());
+                }
+                Err(e) => {
+                    eprintln!("[egui-shadcn] WARNING: could not download custom font: {e}");
+                }
+            }
+        }
+
+        if custom_ttf.exists() {
+            // Write font name as a generated constant so the lib can read it.
+            fs::write(
+                out_dir.join("custom_font_name.rs"),
+                format!("pub const CUSTOM_FONT_NAME: &str = {:?};\n", font_name),
+            )
+            .expect("write custom_font_name.rs");
+            println!("cargo:rustc-cfg=has_custom_font");
+        }
+    }
+
+    // ── Material Icons font (native only; WASM loads via ehttp) ──────────────
     if target_arch == "wasm32" {
         return;
     }
