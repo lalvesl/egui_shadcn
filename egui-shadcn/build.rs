@@ -46,7 +46,6 @@ fn main() {
     println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CUSTOM_FONT_NAME");
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
 
     // ── Icon codepoints → OUT_DIR/icon_consts.rs ─────────────────────────────
     let cp_path = out_dir.join("MaterialIcons-Regular.codepoints");
@@ -98,11 +97,7 @@ fn main() {
         }
     }
 
-    // ── Material Icons font (native only; WASM loads via ehttp) ──────────────
-    if target_arch == "wasm32" {
-        return;
-    }
-
+    // ── Material Icons font ───────────────────────────────────────────────────
     let ttf_path = out_dir.join("MaterialIcons-Regular.ttf");
     if !ttf_path.exists() {
         eprintln!("[egui-shadcn] downloading Material Icons font…");
@@ -113,7 +108,6 @@ fn main() {
             }
             Err(e) => {
                 eprintln!("[egui-shadcn] WARNING: could not download font: {e}");
-                eprintln!("[egui-shadcn] Material Icons will not render on native builds.");
             }
         }
     }

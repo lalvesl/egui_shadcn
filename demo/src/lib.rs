@@ -20,23 +20,7 @@ pub fn start() -> Result<(), JsValue> {
             .start(
                 canvas,
                 web_options,
-                Box::new(|cc| {
-                    // Kick off async font fetch while the app is starting.
-                    // register_font already registered a stub so no frame panics.
-                    let ctx = cc.egui_ctx.clone();
-                    ehttp::fetch(
-                        ehttp::Request::get("MaterialIcons-Regular.ttf"),
-                        move |result| {
-                            if let Ok(resp) = result {
-                                if resp.ok {
-                                    egui_shadcn::register_font_bytes(&ctx, resp.bytes);
-                                }
-                            }
-                        },
-                    );
-
-                    Ok(Box::new(DemoApp::new(cc)))
-                }),
+                Box::new(|cc| Ok(Box::new(DemoApp::new(cc)))),
             )
             .await
             .expect("failed to start eframe");

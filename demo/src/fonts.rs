@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 pub fn register_demo_fonts(ctx: &egui::Context) {
-    let mut fonts = ctx.fonts(|f| f.definitions().clone());
+    let mut fonts = egui_shadcn::font_definitions();
 
     #[cfg(has_fallback_font)]
     {
