@@ -739,7 +739,7 @@ impl DemoApp {
 
             // Scroll — fixed height, vertical scrollbar
             Textarea::new(&mut self.textarea_scroll)
-                .label("Scroll (fixed 3 rows, scrolls)")
+                .label("Scroll (fixed 3 rows)")
                 .placeholder("Keep typing — content scrolls inside…")
                 .rows(3)
                 .scroll(true)
