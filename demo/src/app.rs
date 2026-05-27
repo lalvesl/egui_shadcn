@@ -116,6 +116,7 @@ impl Default for DemoApp {
 impl DemoApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         egui_shadcn::register_font(&cc.egui_ctx);
+        crate::fonts::register_demo_fonts(&cc.egui_ctx);
 
         let dark = cc.egui_ctx.data_mut(|d| {
             d.get_persisted::<bool>(egui::Id::new("demo_dark"))

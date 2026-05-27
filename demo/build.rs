@@ -6,7 +6,7 @@ const NERD_FONT_URL: &str =
 
 // Roboto Regular — metrically clean fallback (used when Nerd Font unavailable)
 const FALLBACK_FONT_URL: &str =
-    "https://raw.githubusercontent.com/google/fonts/main/apache/roboto/static/Roboto-Regular.ttf";
+    "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf";
 
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let resp = ureq::get(url).call()?;

@@ -403,6 +403,7 @@ dependencies = [
  "egui",
  "egui-shadcn",
  "ehttp",
+ "ureq",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",

@@ -7,7 +7,7 @@
 
 # Process
 
-- Add possibility to add another font for all texts, with the same strategy of material icons font;
+- Remove the necessity of assets folder from @index.html, everythink this need to be automated by build.rs;
 
 # Done
 
@@ -19,6 +19,8 @@
 - The textarea share position of scroll between others textareas
 - The implementation of @build.rs is wrong, the location to download fonts need's to be inside target folder this is wrong, not in codespace;
 - The registry of icons is inside of codespace move to target and use include!(concat!(env!("OUT_DIR"), "/filename.rs"));
+- Add possibility to add another font for all texts, with the same strategy of material icons font;
+- In demo, use NerdFonts;
 
 # Not so necessary
 
