@@ -138,6 +138,7 @@ impl<'a> Textarea<'a> {
             // When content has reached max height switch to a ScrollArea.
             let resp = if inner_h >= max_h {
                 egui::ScrollArea::vertical()
+                    .id_salt(height_id)
                     .max_height(inner_rect.height())
                     .auto_shrink([false, false])
                     .show(&mut child, |ui| ui.add(te))
@@ -194,6 +195,7 @@ impl<'a> Textarea<'a> {
             child.set_clip_rect(inner_rect);
 
             egui::ScrollArea::vertical()
+                .id_salt(height_id)
                 .max_height(inner_rect.height())
                 .auto_shrink([false, false])
                 .show(&mut child, |ui| ui.add(te))
