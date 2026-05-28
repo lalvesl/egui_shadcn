@@ -38,7 +38,7 @@ impl<'a> NavigationMenu<'a> {
 
         let item_height = 36.0;
         let h_padding = 12.0;
-        let icon_font = egui::FontId::new(16.0, egui::FontFamily::Name("MaterialIcons".into()));
+        let icon_font = crate::icon_font_id(16.0);
         let label_font = egui::FontId::new(14.0, egui::FontFamily::Proportional);
         let badge_font = egui::FontId::new(11.0, egui::FontFamily::Proportional);
 

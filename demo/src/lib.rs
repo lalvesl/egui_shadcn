@@ -21,6 +21,11 @@ pub fn start() -> Result<(), JsValue> {
                 canvas,
                 web_options,
                 Box::new(|cc| {
+                    // skrifa's TrueType hint-table parser produces out-of-bounds
+                    // offsets for MaterialIcons on 32-bit WASM. Disable hinting so
+                    // skrifa skips the hint programs entirely.
+                    cc.egui_ctx.options_mut(|o| o.text_options.font_hinting = false);
+
                     let ctx = cc.egui_ctx.clone();
                     fetch_font("MaterialIcons-Regular.ttf", move |bytes| {
                         egui_shadcn::register_font_bytes(&ctx, bytes);

@@ -162,10 +162,7 @@ impl Toaster {
                             egui::Pos2::new(toast_rect.left() + 20.0, toast_rect.top() + 18.0),
                             egui::Align2::CENTER_CENTER,
                             icon,
-                            egui::FontId::new(
-                                16.0,
-                                egui::FontFamily::Name("MaterialIcons".into()),
-                            ),
+                            crate::icon_font_id(16.0),
                             accent_color,
                         );
 
@@ -213,10 +210,7 @@ impl Toaster {
                             close_rect.center(),
                             egui::Align2::CENTER_CENTER,
                             ICON_CLOSE,
-                            egui::FontId::new(
-                                14.0,
-                                egui::FontFamily::Name("MaterialIcons".into()),
-                            ),
+                            crate::icon_font_id(14.0),
                             if close_resp.hovered() {
                                 theme.foreground
                             } else {

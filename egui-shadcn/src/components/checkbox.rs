@@ -89,7 +89,7 @@ impl<'a> Checkbox<'a> {
                     box_rect.center(),
                     egui::Align2::CENTER_CENTER,
                     ICON_CHECK,
-                    egui::FontId::new(12.0, egui::FontFamily::Name("MaterialIcons".into())),
+                    crate::icon_font_id(12.0),
                     theme.primary_foreground,
                 );
             }

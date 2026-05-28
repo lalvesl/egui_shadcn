@@ -1,14 +1,12 @@
 # Todo
 
-- Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
 - Add in Example of buttons one with icon;
 - Calendar with cell content, when select some day or a current day no centralized on the number but centralized by the cell, and this is the problem the cell has another think causing a decentralization of the number;
 
-- Continue of implementation of next components, read @readme.md and update one by one the progress, remember to add all components in demo;
 
 # Process
 
-- Remove the necessity of assets folder from @index.html, everythink this need to be automated by build.rs;
+- Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
 
 # Done
 
@@ -22,6 +20,8 @@
 - The registry of icons is inside of codespace move to target and use include!(concat!(env!("OUT_DIR"), "/filename.rs"));
 - Add possibility to add another font for all texts, with the same strategy of material icons font;
 - In demo, use NerdFonts;
+- Remove the necessity of assets folder from @index.html, everythink this need to be automated by build.rs;
+- Continue of implementation of next components, read @readme.md and update one by one the progress, remember to add all components in demo;
 
 # Not so necessary
 

@@ -60,7 +60,7 @@ impl<'a> DatePicker<'a> {
             egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
             egui::Align2::LEFT_CENTER,
             ICON_CALENDAR_TODAY,
-            egui::FontId::new(16.0, egui::FontFamily::Name("MaterialIcons".into())),
+            crate::icon_font_id(16.0),
             theme.muted_foreground,
         );
 

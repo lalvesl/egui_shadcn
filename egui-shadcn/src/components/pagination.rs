@@ -111,7 +111,7 @@ impl Pagination {
                 rect.center(),
                 egui::Align2::CENTER_CENTER,
                 icon,
-                egui::FontId::new(18.0, egui::FontFamily::Name("MaterialIcons".into())),
+                crate::icon_font_id(18.0),
                 col,
             );
         }

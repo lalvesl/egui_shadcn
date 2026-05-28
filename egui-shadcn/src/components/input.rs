@@ -89,7 +89,7 @@ impl<'a> Input<'a> {
                 egui::Pos2::new(rect.left() + x_pad, rect.center().y),
                 egui::Align2::LEFT_CENTER,
                 icon,
-                egui::FontId::new(16.0, egui::FontFamily::Name("MaterialIcons".into())),
+                crate::icon_font_id(16.0),
                 theme.muted_foreground,
             );
         }

@@ -29,7 +29,7 @@ impl<'a> Toggle<'a> {
         let icon_g = self.icon.map(|ic| {
             ui.painter().layout_no_wrap(
                 ic.to_owned(),
-                egui::FontId::new(fs + 2.0, egui::FontFamily::Name("MaterialIcons".into())),
+                crate::icon_font_id(fs + 2.0),
                 Color32::TRANSPARENT,
             )
         });

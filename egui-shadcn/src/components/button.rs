@@ -71,10 +71,7 @@ impl<'a> Button<'a> {
         let icon_galley = self.icon.map(|i| {
             ui.painter().layout_no_wrap(
                 i.to_owned(),
-                egui::FontId::new(
-                    font_size + 2.0,
-                    egui::FontFamily::Name("MaterialIcons".into()),
-                ),
+                crate::icon_font_id(font_size + 2.0),
                 fg,
             )
         });

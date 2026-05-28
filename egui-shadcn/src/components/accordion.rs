@@ -56,7 +56,7 @@ impl<'a> Accordion<'a> {
             egui::Pos2::new(header_rect.right() - 20.0, header_rect.center().y),
             egui::Align2::CENTER_CENTER,
             icon,
-            egui::FontId::new(18.0, egui::FontFamily::Name("MaterialIcons".into())),
+            crate::icon_font_id(18.0),
             theme.muted_foreground,
         );
 

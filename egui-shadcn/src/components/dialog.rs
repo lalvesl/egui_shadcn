@@ -70,10 +70,7 @@ impl<'a> Dialog<'a> {
                         let close_resp = ui.add(
                             egui::Label::new(
                                 egui::RichText::new(ICON_CLOSE)
-                                    .font(egui::FontId::new(
-                                        18.0,
-                                        egui::FontFamily::Name("MaterialIcons".into()),
-                                    ))
+                                    .font(crate::icon_font_id(18.0))
                                     .color(theme.muted_foreground),
                             )
                             .sense(egui::Sense::click()),

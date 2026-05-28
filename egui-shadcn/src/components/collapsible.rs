@@ -24,7 +24,7 @@ impl<'a> Collapsible<'a> {
             egui::Pos2::new(rect.left() + 2.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
             icon,
-            egui::FontId::new(18.0, egui::FontFamily::Name("MaterialIcons".into())),
+            crate::icon_font_id(18.0),
             theme.muted_foreground,
         );
         let fg = if resp.hovered() { theme.foreground } else { theme.foreground };

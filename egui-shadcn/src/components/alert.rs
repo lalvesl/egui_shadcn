@@ -62,7 +62,7 @@ impl<'a> Alert<'a> {
                     // Icon
                     ui.label(
                         egui::RichText::new(icon)
-                            .font(FontId::new(18.0, FontFamily::Name("MaterialIcons".into())))
+                            .font(crate::icon_font_id(18.0))
                             .color(icon_color),
                     );
 
