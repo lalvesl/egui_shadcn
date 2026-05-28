@@ -6,9 +6,6 @@ const NERD_FONT_URL: &str =
 const FALLBACK_FONT_URL: &str =
     "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf";
 
-const MATERIAL_ICONS_URL: &str =
-    "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
-
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let resp = ureq::get(url).call()?;
     let mut bytes = Vec::new();
@@ -42,19 +39,10 @@ fn main() {
     let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
 
     if target_arch == "wasm32" {
-        // For web: download fonts to target/wasm_assets/ so Trunk serves them as
-        // static assets. The WASM binary fetches them at runtime via ehttp.
-        let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-        let wasm_assets = manifest_dir.join("../target/wasm_assets");
-        fs::create_dir_all(&wasm_assets).expect("create target/wasm_assets");
-        fetch_font(
-            &wasm_assets.join("MaterialIcons-Regular.ttf"),
-            MATERIAL_ICONS_URL,
-            "Material Icons",
-        );
-        // JetBrainsMono NF and Roboto skipped for WASM: Nerd Font patching
-        // creates GPOS/GSUB offset tables that overflow 32-bit usize in epaint's
-        // font parser. egui's built-in Ubuntu-Light + Hack cover text rendering.
+        // MaterialIcons cannot be served on WASM: skrifa's autohint_shaping reads
+        // GPOS/GSUB tables whose minimal offset headers trigger ReadError::OffsetOutOfBounds
+        // on 32-bit wasm32 (different usize arithmetic than 64-bit native).
+        // Icons degrade to invisible glyphs on web; native build embeds the font.
         return;
     }
 

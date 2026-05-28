@@ -20,36 +20,11 @@ pub fn start() -> Result<(), JsValue> {
             .start(
                 canvas,
                 web_options,
-                Box::new(|cc| {
-                    // skrifa's TrueType hint-table parser produces out-of-bounds
-                    // offsets for MaterialIcons on 32-bit WASM. Disable hinting so
-                    // skrifa skips the hint programs entirely.
-                    cc.egui_ctx.options_mut(|o| o.text_options.font_hinting = false);
-
-                    let ctx = cc.egui_ctx.clone();
-                    fetch_font("MaterialIcons-Regular.ttf", move |bytes| {
-                        egui_shadcn::register_font_bytes(&ctx, bytes);
-                    });
-
-
-
-                    Ok(Box::new(DemoApp::new(cc)))
-                }),
+                Box::new(|cc| Ok(Box::new(DemoApp::new(cc)))),
             )
             .await
             .expect("failed to start eframe");
     });
 
     Ok(())
-}
-
-#[cfg(target_arch = "wasm32")]
-fn fetch_font(url: &'static str, on_done: impl FnOnce(Vec<u8>) + Send + 'static) {
-    ehttp::fetch(ehttp::Request::get(url), move |result| {
-        if let Ok(resp) = result {
-            if resp.ok {
-                on_done(resp.bytes);
-            }
-        }
-    });
 }
