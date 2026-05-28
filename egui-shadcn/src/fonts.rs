@@ -69,11 +69,12 @@ pub fn register_custom_font(ctx: &egui::Context) {
     ctx.set_fonts(fonts);
 }
 
-/// Replace the MaterialIcons font with real bytes at runtime (WASM only).
-/// Call from inside your `ehttp::fetch` completion callback.
+/// Register the MaterialIcons font from raw bytes (WASM only).
+/// Safe to call during `eframe::CreationContext` — uses `font_definitions()` as
+/// base instead of `ctx.fonts()`, which would panic before `begin_frame`.
 #[cfg(target_arch = "wasm32")]
 pub fn register_font_bytes(ctx: &egui::Context, bytes: Vec<u8>) {
-    let mut fonts = ctx.fonts(|f| f.definitions().clone());
+    let mut fonts = font_definitions();
     fonts.font_data.insert(
         "MaterialIcons".to_owned(),
         Arc::new(egui::FontData::from_owned(bytes)),
@@ -83,5 +84,48 @@ pub fn register_font_bytes(ctx: &egui::Context, bytes: Vec<u8>) {
         vec!["MaterialIcons".to_owned()],
     );
     ctx.set_fonts(fonts);
-    ctx.request_repaint();
+}
+
+#[cfg(test)]
+mod tests {
+    /// Validates that the MaterialIcons font (as downloaded by build.rs) can be parsed
+    /// by skrifa using the exact same code path that epaint's FontFace::new uses.
+    ///
+    /// This test catches WASM-breaking font issues before they reach the browser.
+    /// If this test passes natively but WASM still crashes, the bug is 32-bit specific.
+    #[cfg(has_material_icons)]
+    #[test]
+    fn material_icons_parses_with_skrifa() {
+        use skrifa::MetadataProvider;
+        let font_path = concat!(env!("OUT_DIR"), "/MaterialIcons-Regular.ttf");
+        let bytes = std::fs::read(font_path).expect("MaterialIcons font file must exist (run cargo build first)");
+
+        // Step 1: FontRef::from_index — same call as epaint's FontFace::new
+        let font = skrifa::FontRef::from_index(&bytes, 0)
+            .expect("FontRef::from_index failed for MaterialIcons");
+
+        // Step 2: all non-fallible calls that epaint makes
+        let outline_glyphs = font.outline_glyphs();
+        let _charmap = font.charmap();
+        let _metrics = font.metrics(
+            skrifa::instance::Size::unscaled(),
+            skrifa::instance::LocationRef::default(),
+        );
+        let _glyph_metrics = font.glyph_metrics(
+            skrifa::instance::Size::unscaled(),
+            skrifa::instance::LocationRef::default(),
+        );
+
+        // Step 3: HintingInstance::new — the autohint path that reads GSUB/GPOS
+        // epaint wraps this in .ok() so failure = no hinting, but we want to see the error
+        let hinting_result = skrifa::outline::HintingInstance::new(
+            &outline_glyphs,
+            skrifa::instance::Size::unscaled(),
+            skrifa::instance::LocationRef::default(),
+            skrifa::outline::Target::default(),
+        );
+        if let Err(ref e) = hinting_result {
+            eprintln!("[test] HintingInstance::new failed (non-fatal, epaint uses .ok()): {e}");
+        }
+    }
 }

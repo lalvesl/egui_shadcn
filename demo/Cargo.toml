@@ -21,7 +21,12 @@ eframe = { workspace = true, features = ["default_fonts", "glow", "x11", "waylan
 eframe               = { workspace = true, features = ["default_fonts", "glow"] }
 wasm-bindgen         = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys              = { version = "0.3", features = ["Document", "HtmlCanvasElement", "Window"] }
+web-sys              = { version = "0.3", features = ["Document", "HtmlCanvasElement", "Window", "Response"] }
+js-sys               = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = "0.3"
+skrifa            = { version = "0.40", features = ["std", "autohint_shaping"] }
 
 [build-dependencies]
 ureq = { version = "2", features = ["tls"] }

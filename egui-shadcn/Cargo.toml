@@ -10,5 +10,8 @@ egui = { workspace = true }
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3"
 
+[dev-dependencies]
+skrifa = { version = "0.40", features = ["std", "autohint_shaping"] }
+
 [build-dependencies]
 ureq = { version = "2", features = ["tls"] }
