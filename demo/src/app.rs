@@ -3,25 +3,50 @@ use egui_shadcn::{
     ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE, ShadcnTheme,
     accordion::Accordion,
     alert::{Alert, AlertVariant},
+    alert_dialog::AlertDialog,
     avatar::{Avatar, AvatarSize},
     badge::{Badge, BadgeVariant},
+    breadcrumb::Breadcrumb,
     button::{Button, ButtonSize, ButtonVariant},
+    button_group::{ButtonGroup, ButtonGroupVariant},
     calendar::{CalDate, Calendar},
     card::{Card, card_header},
+    carousel::Carousel,
+    chart::{Chart, ChartDataset, ChartKind},
     checkbox::Checkbox,
+    collapsible::Collapsible,
+    combobox::Combobox,
+    command::{Command, CommandGroup, CommandItem},
+    context_menu::{ContextMenu, ContextItem},
+    data_table::{DataTable, DataColumn},
+    date_picker::DatePicker,
     dialog::Dialog,
+    drawer::Drawer,
+    dropdown_menu::{DropdownMenu, DropdownItem},
+    hover_card::HoverCard,
     input::Input,
+    input_otp::InputOtp,
     label::Label,
+    menubar::{Menubar, MenubarItem, MenubarMenuItem},
+    navigation_menu::{NavigationMenu, NavItem},
+    pagination::Pagination,
+    popover::Popover,
     progress::Progress,
     radio::Radio,
+    resizable::{Resizable, ResizeDir},
     select::Select,
     separator::Separator,
+    sheet::Sheet,
     skeleton::Skeleton,
     slider::Slider,
     spinner::Spinner,
     switch::Switch,
+    table::{Table, TableColumn},
     tabs::Tabs,
     textarea::Textarea,
+    toast::{Toaster, ToastVariant},
+    toggle::Toggle,
+    toggle_group::{ToggleGroup, ToggleGroupItem},
     tooltip::Tooltip,
     typography::*,
 };
@@ -42,6 +67,31 @@ const SECTIONS: &[&str] = &[
     "Overlays",
     "Data Display",
     "Calendar",
+    "Toggle",
+    "Toggle Group",
+    "Collapsible",
+    "Breadcrumb",
+    "Pagination",
+    "Alert Dialog",
+    "Button Group",
+    "Combobox",
+    "Date Picker",
+    "Dropdown Menu",
+    "Context Menu",
+    "Hover Card",
+    "Input OTP",
+    "Popover",
+    "Table",
+    "Data Table",
+    "Sheet",
+    "Drawer",
+    "Toast",
+    "Navigation Menu",
+    "Menubar",
+    "Carousel",
+    "Chart",
+    "Command",
+    "Resizable",
 ];
 
 // ── App state ─────────────────────────────────────────────────────────────────
@@ -76,6 +126,24 @@ pub struct DemoApp {
     cal_single: Option<CalDate>,
     cal_range_start: Option<CalDate>,
     cal_range_end: Option<CalDate>,
+    toggle1: bool,
+    toggle2: bool,
+    toggle_group_val: u8,
+    collapsible_open: bool,
+    pagination_page: usize,
+    alert_dialog_open: bool,
+    alert_dialog_confirmed: bool,
+    button_group_sel: Option<usize>,
+    combobox_val: Option<usize>,
+    date_picker_val: Option<CalDate>,
+    otp_val: String,
+    sheet_open: bool,
+    drawer_open: bool,
+    nav_active: usize,
+    command_open: bool,
+    data_table_filter: String,
+    context_last: Option<String>,
+    dropdown_last: Option<String>,
 }
 
 impl Default for DemoApp {
@@ -109,6 +177,24 @@ impl Default for DemoApp {
             cal_single: None,
             cal_range_start: None,
             cal_range_end: None,
+            toggle1: false,
+            toggle2: true,
+            toggle_group_val: 0,
+            collapsible_open: false,
+            pagination_page: 1,
+            alert_dialog_open: false,
+            alert_dialog_confirmed: false,
+            button_group_sel: Some(0),
+            combobox_val: None,
+            date_picker_val: None,
+            otp_val: String::new(),
+            sheet_open: false,
+            drawer_open: false,
+            nav_active: 0,
+            command_open: false,
+            data_table_filter: String::new(),
+            context_last: None,
+            dropdown_last: None,
         }
     }
 }
@@ -200,6 +286,7 @@ impl eframe::App for DemoApp {
 
         // ── Dialog (floating) ────────────────────────────────────────────────
         self.render_dialog(&ctx);
+        Toaster::show(&ctx);
     }
 }
 
@@ -446,6 +533,31 @@ impl DemoApp {
             10 => self.section_overlays(ui),
             11 => self.section_data_display(ui),
             12 => self.section_calendar(ui),
+            13 => self.section_toggle(ui),
+            14 => self.section_toggle_group(ui),
+            15 => self.section_collapsible(ui),
+            16 => self.section_breadcrumb(ui),
+            17 => self.section_pagination(ui),
+            18 => self.section_alert_dialog(ui),
+            19 => self.section_button_group(ui),
+            20 => self.section_combobox(ui),
+            21 => self.section_date_picker(ui),
+            22 => self.section_dropdown_menu(ui),
+            23 => self.section_context_menu(ui),
+            24 => self.section_hover_card(ui),
+            25 => self.section_input_otp(ui),
+            26 => self.section_popover(ui),
+            27 => self.section_table(ui),
+            28 => self.section_data_table(ui),
+            29 => self.section_sheet(ui),
+            30 => self.section_drawer(ui),
+            31 => self.section_toast(ui),
+            32 => self.section_navigation_menu(ui),
+            33 => self.section_menubar(ui),
+            34 => self.section_carousel(ui),
+            35 => self.section_chart(ui),
+            36 => self.section_command(ui),
+            37 => self.section_resizable(ui),
             _ => {}
         }
     }
@@ -1049,6 +1161,635 @@ impl DemoApp {
                     }
                 })
                 .show(ui);
+        });
+    }
+
+    fn section_toggle(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Toggle", "A two-state button that can be turned on or off.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Toggle", None);
+            ui.horizontal(|ui| {
+                Toggle::new(&mut self.toggle1, "Bold").show(ui);
+                Toggle::new(&mut self.toggle2, "Italic").show(ui);
+            });
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Disabled", None);
+            let mut dummy = true;
+            ui.horizontal(|ui| {
+                Toggle::new(&mut dummy, "Disabled On").enabled(false).show(ui);
+                let mut dummy2 = false;
+                Toggle::new(&mut dummy2, "Disabled Off").enabled(false).show(ui);
+            });
+        });
+    }
+
+    fn section_toggle_group(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Toggle Group", "A set of two-state buttons — only one active at a time.");
+
+        let items: &[(u8, ToggleGroupItem<'_>)] = &[
+            (0, ToggleGroupItem { label: "Day", icon: None }),
+            (1, ToggleGroupItem { label: "Week", icon: None }),
+            (2, ToggleGroupItem { label: "Month", icon: None }),
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "View", None);
+            ToggleGroup::new(items, &mut self.toggle_group_val).show(ui);
+            ui.add_space(4.0);
+            muted_text(ui, &format!("Selected: {}", ["Day", "Week", "Month"][self.toggle_group_val as usize]));
+        });
+    }
+
+    fn section_collapsible(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Collapsible", "An interactive component that expands/collapses a section.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Collapsible", None);
+            Collapsible::new("demo_collapsible", "Starred repositories", &mut self.collapsible_open)
+                .show(ui, |ui| {
+                    ui.add_space(4.0);
+                    muted_text(ui, "@radix-ui/primitives");
+                    ui.add_space(4.0);
+                    muted_text(ui, "@radix-ui/colors");
+                    ui.add_space(4.0);
+                    muted_text(ui, "@stitches/react");
+                });
+        });
+    }
+
+    fn section_breadcrumb(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Breadcrumb", "Displays the path to the current resource using a hierarchy of links.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Breadcrumb", None);
+            let items = ["Home", "Components", "Breadcrumb"];
+            if let Some(idx) = Breadcrumb::new(&items).show(ui) {
+                muted_text(ui, &format!("Navigated to: {}", items[idx]));
+            }
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Custom separator", None);
+            let items = ["Docs", "Components", "Breadcrumb"];
+            Breadcrumb::new(&items).separator("›").show(ui);
+        });
+    }
+
+    fn section_pagination(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Pagination", "Navigation for pages of data.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Pagination", None);
+            muted_text(ui, &format!("Page {} of 10", self.pagination_page));
+            ui.add_space(12.0);
+            if let Some(p) = Pagination::new(self.pagination_page, 10).show(ui) {
+                self.pagination_page = p;
+            }
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Many pages", None);
+            let page2 = 7usize;
+            Pagination::new(page2, 20).siblings(2).show(ui);
+        });
+    }
+
+    fn section_alert_dialog(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Alert Dialog", "A modal dialog that interrupts with important content.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Default", None);
+            if self.alert_dialog_confirmed {
+                muted_text(ui, "Action confirmed!");
+                ui.add_space(8.0);
+            }
+            if Button::new("Open Alert Dialog").show(ui).clicked() {
+                self.alert_dialog_open = true;
+                self.alert_dialog_confirmed = false;
+            }
+        });
+
+        ui.add_space(16.0);
+
+        let ctx = ui.ctx().clone();
+        let mut confirmed = false;
+        AlertDialog::new(
+            "Are you absolutely sure?",
+            "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+            &mut self.alert_dialog_open,
+        )
+        .destructive(true)
+        .confirm_label("Delete Account")
+        .show(&ctx, || { confirmed = true; });
+        if confirmed {
+            self.alert_dialog_confirmed = true;
+        }
+    }
+
+    fn section_button_group(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Button Group", "Multiple actions in a connected button strip.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Single select", None);
+            let labels = &["Months", "Weeks", "Days"];
+            if let Some(i) = ButtonGroup::new(labels).selected(self.button_group_sel).show(ui) {
+                self.button_group_sel = Some(i);
+            }
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Outline variant", None);
+            ButtonGroup::new(&["Left", "Center", "Right"]).variant(ButtonGroupVariant::Outline).show(ui);
+        });
+    }
+
+    fn section_combobox(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Combobox", "An input with autocomplete and filtering.");
+
+        let frameworks = &["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro", "SolidStart"];
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Framework", Some("Select a framework to use."));
+            Combobox::new("demo_combobox", &mut self.combobox_val, frameworks)
+                .placeholder("Select framework…")
+                .show(ui);
+            if let Some(i) = self.combobox_val {
+                ui.add_space(4.0);
+                muted_text(ui, &format!("Selected: {}", frameworks[i]));
+            }
+        });
+    }
+
+    fn section_date_picker(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Date Picker", "A date picker with popover calendar.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Pick a date", None);
+            DatePicker::new("demo_date_picker", &mut self.date_picker_val).show(ui);
+            if let Some(d) = self.date_picker_val {
+                ui.add_space(4.0);
+                muted_text(ui, &format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day));
+            }
+        });
+    }
+
+    fn section_dropdown_menu(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Dropdown Menu", "A menu triggered by a button.");
+
+        let items = &[
+            DropdownItem::Item { label: "Profile", disabled: false },
+            DropdownItem::Item { label: "Billing", disabled: false },
+            DropdownItem::Item { label: "Settings", disabled: false },
+            DropdownItem::Separator,
+            DropdownItem::Item { label: "Log out", disabled: false },
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Account Menu", None);
+            if let Some(i) = DropdownMenu::new("demo_dropdown", "My Account", items).show(ui) {
+                let label = match i {
+                    0 => "Profile", 1 => "Billing", 2 => "Settings", _ => "Log out",
+                };
+                self.dropdown_last = Some(label.to_owned());
+            }
+            if let Some(ref last) = self.dropdown_last {
+                ui.add_space(4.0);
+                muted_text(ui, &format!("Clicked: {last}"));
+            }
+        });
+    }
+
+    fn section_context_menu(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Context Menu", "A menu that appears on right-click.");
+
+        let items = &[
+            ContextItem::Item { label: "Back", shortcut: Some("⌘["), disabled: false },
+            ContextItem::Item { label: "Forward", shortcut: Some("⌘]"), disabled: true },
+            ContextItem::Item { label: "Reload", shortcut: Some("⌘R"), disabled: false },
+            ContextItem::Separator,
+            ContextItem::Item { label: "Save as…", shortcut: Some("⌘S"), disabled: false },
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Right-click area", Some("Right-click anywhere in the box below."));
+
+            let clicked = ContextMenu::new("demo_ctx", items).show(ui, |ui| {
+                let (rect, resp) = ui.allocate_exact_size(
+                    egui::Vec2::new(ui.available_width(), 80.0),
+                    egui::Sense::click(),
+                );
+                let theme = ShadcnTheme::get(ui.ctx());
+                ui.painter().rect_filled(rect, egui::CornerRadius::same(6), theme.muted);
+                ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "Right-click here",
+                    egui::FontId::new(13.0, egui::FontFamily::Proportional), theme.muted_foreground);
+                resp
+            });
+
+            if let Some(i) = clicked {
+                let label = match i { 0 => "Back", 1 => "Forward", 2 => "Reload", _ => "Save as…" };
+                self.context_last = Some(label.to_owned());
+            }
+            if let Some(ref last) = self.context_last {
+                ui.add_space(4.0);
+                muted_text(ui, &format!("Clicked: {last}"));
+            }
+        });
+    }
+
+    fn section_hover_card(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Hover Card", "A card that appears when hovering over a trigger.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Profile link", Some("Hover over the username below."));
+            ui.add_space(8.0);
+            HoverCard::new("demo_hover_card").show(ui,
+                |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    let resp = ui.add(egui::Label::new(
+                        egui::RichText::new("@egui_shadcn")
+                            .color(theme.primary)
+                            .underline()
+                    ).sense(egui::Sense::hover()));
+                    resp
+                },
+                |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    ui.horizontal(|ui| {
+                        Avatar::new("ES").size(AvatarSize::Sm).show(ui);
+                        ui.vertical(|ui| {
+                            ui.label(egui::RichText::new("egui-shadcn").color(theme.foreground).strong());
+                            ui.label(egui::RichText::new("@egui_shadcn").color(theme.muted_foreground).size(12.0));
+                        });
+                    });
+                    ui.add_space(8.0);
+                    muted_text(ui, "Shadcn/ui components for Rust egui. Dark/light, 25+ components.");
+                }
+            );
+        });
+    }
+
+    fn section_input_otp(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Input OTP", "Accessible one-time password component.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "One-Time Password", Some("Enter your one-time password."));
+            InputOtp::new(&mut self.otp_val, 6).separator_after(3).show(ui);
+            if self.otp_val.len() == 6 {
+                ui.add_space(4.0);
+                muted_text(ui, &format!("Code: {}", self.otp_val));
+            }
+        });
+    }
+
+    fn section_popover(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Popover", "Displays rich content in a portal, triggered by a button.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Open popover", None);
+            Popover::new("demo_popover").show(ui,
+                |ui| Button::new("Open").show(ui),
+                |ui| {
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    ui.label(egui::RichText::new("Dimensions").color(theme.foreground).strong());
+                    ui.add_space(8.0);
+                    muted_text(ui, "Set the dimensions for the layer.");
+                    ui.add_space(12.0);
+                    ui.label(egui::RichText::new("Width").color(theme.foreground).size(13.0));
+                    ui.add_space(4.0);
+                    let mut w = String::from("100%");
+                    Input::new(&mut w).show(ui);
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("Max. width").color(theme.foreground).size(13.0));
+                    ui.add_space(4.0);
+                    let mut mw = String::from("300px");
+                    Input::new(&mut mw).show(ui);
+                }
+            );
+        });
+    }
+
+    fn section_table(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Table", "A simple table with header and striped rows.");
+
+        let columns = &[
+            TableColumn { header: "Invoice", width: Some(120.0) },
+            TableColumn { header: "Status", width: Some(100.0) },
+            TableColumn { header: "Method", width: Some(120.0) },
+            TableColumn { header: "Amount", width: None },
+        ];
+
+        let data = &[
+            ("INV001", "Paid", "Credit Card", "$250.00"),
+            ("INV002", "Pending", "PayPal", "$150.00"),
+            ("INV003", "Unpaid", "Bank Transfer", "$350.00"),
+            ("INV004", "Paid", "Credit Card", "$450.00"),
+            ("INV005", "Paid", "PayPal", "$550.00"),
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Recent Invoices", None);
+            Table::new(columns).show(ui, data.len(), |row_idx, row| {
+                let (inv, status, method, amount) = data[row_idx];
+                row.cell(|ui| { muted_text(ui, inv); });
+                row.cell(|ui| { muted_text(ui, status); });
+                row.cell(|ui| { muted_text(ui, method); });
+                row.cell(|ui| { muted_text(ui, amount); });
+            });
+        });
+    }
+
+    fn section_data_table(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Data Table", "A powerful table with sorting and filtering.");
+
+        let columns = &[
+            DataColumn { header: "Status", width: Some(100.0), sortable: true },
+            DataColumn { header: "Email", width: None, sortable: true },
+            DataColumn { header: "Amount", width: Some(120.0), sortable: true },
+        ];
+
+        let data = &[
+            ("Success", "ken99@yahoo.com", "$316.00"),
+            ("Success", "abe45@gmail.com", "$242.00"),
+            ("Processing", "monserrat44@gmail.com", "$837.00"),
+            ("Success", "silas22@gmail.com", "$874.00"),
+            ("Failed", "carmella@hotmail.com", "$721.00"),
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Payments", None);
+            DataTable::new("demo_data_table", columns, &mut self.data_table_filter)
+                .page_size(3)
+                .show(ui, data.len(), |row_idx, row| {
+                    let (status, email, amount) = data[row_idx];
+                    row.cell(|ui| { muted_text(ui, status); });
+                    row.cell(|ui| { muted_text(ui, email); });
+                    row.cell(|ui| { muted_text(ui, amount); });
+                });
+        });
+    }
+
+    fn section_sheet(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Sheet", "Extends the dialog component to display content that slides in from the edge.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Right sheet", None);
+            if Button::new("Open Sheet").show(ui).clicked() {
+                self.sheet_open = true;
+            }
+        });
+
+        let ctx = ui.ctx().clone();
+        Sheet::new("Edit Profile", &mut self.sheet_open).show(&ctx, |ui| {
+            let theme = ShadcnTheme::get(ui.ctx());
+            ui.label(egui::RichText::new("Make changes to your profile here.").color(theme.muted_foreground).size(13.0));
+            ui.add_space(16.0);
+            let mut name = String::from("Pedro Duarte");
+            Input::new(&mut name).show(ui);
+            ui.add_space(8.0);
+            let mut username = String::from("@peduarte");
+            Input::new(&mut username).show(ui);
+            ui.add_space(16.0);
+            if Button::new("Save changes").show(ui).clicked() {
+                // saved
+            }
+        });
+    }
+
+    fn section_drawer(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Drawer", "A bottom panel that slides up from the edge.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Bottom drawer", None);
+            if Button::new("Open Drawer").show(ui).clicked() {
+                self.drawer_open = true;
+            }
+        });
+
+        let ctx = ui.ctx().clone();
+        Drawer::new("Move Goal", &mut self.drawer_open).show(&ctx, |ui| {
+            let theme = ShadcnTheme::get(ui.ctx());
+            ui.label(egui::RichText::new("Set your daily activity goal.").color(theme.muted_foreground).size(13.0));
+            ui.add_space(16.0);
+            let mut goal = String::from("350");
+            Input::new(&mut goal).show(ui);
+            ui.add_space(16.0);
+            if Button::new("Submit").show(ui).clicked() {
+                // submitted
+            }
+        });
+    }
+
+    fn section_toast(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Toast", "A succinct message that appears temporarily.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Toast variants", Some("Click to show a toast notification."));
+            ui.horizontal(|ui| {
+                let ctx = ui.ctx().clone();
+                if Button::new("Default").show(ui).clicked() {
+                    Toaster::push_with_desc(&ctx, "Scheduled", "Monday, January 3rd at 6:00pm", ToastVariant::Default);
+                }
+                if Button::new("Success").variant(ButtonVariant::Default).show(ui).clicked() {
+                    Toaster::push_with_desc(&ctx, "Success", "Your changes have been saved.", ToastVariant::Success);
+                }
+                if Button::new("Warning").show(ui).clicked() {
+                    Toaster::push_with_desc(&ctx, "Warning", "This action may have consequences.", ToastVariant::Warning);
+                }
+                if Button::new("Destructive").variant(ButtonVariant::Destructive).show(ui).clicked() {
+                    Toaster::push_with_desc(&ctx, "Destructive", "Your session has expired.", ToastVariant::Destructive);
+                }
+            });
+        });
+    }
+
+    fn section_navigation_menu(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Navigation Menu", "A navigation component with horizontal and vertical layouts.");
+
+        let items = &[
+            NavItem { label: "Dashboard", icon: None, badge: None },
+            NavItem { label: "Projects", icon: None, badge: Some("3") },
+            NavItem { label: "Team", icon: None, badge: None },
+            NavItem { label: "Settings", icon: None, badge: None },
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Horizontal", None);
+            if let Some(i) = NavigationMenu::new(items, self.nav_active).show(ui) {
+                self.nav_active = i;
+            }
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Vertical (sidebar)", None);
+            NavigationMenu::new(items, self.nav_active).vertical().show(ui);
+        });
+    }
+
+    fn section_menubar(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Menubar", "A visually persistent menu common in desktop apps.");
+
+        let menus = &[
+            MenubarItem {
+                label: "File",
+                items: &[
+                    MenubarMenuItem::Item { label: "New Tab", shortcut: Some("Ctrl+T"), disabled: false },
+                    MenubarMenuItem::Item { label: "New Window", shortcut: Some("Ctrl+N"), disabled: false },
+                    MenubarMenuItem::Separator,
+                    MenubarMenuItem::Item { label: "Share", shortcut: None, disabled: false },
+                    MenubarMenuItem::Item { label: "Print…", shortcut: Some("Ctrl+P"), disabled: false },
+                ],
+            },
+            MenubarItem {
+                label: "Edit",
+                items: &[
+                    MenubarMenuItem::Item { label: "Undo", shortcut: Some("Ctrl+Z"), disabled: false },
+                    MenubarMenuItem::Item { label: "Redo", shortcut: Some("Ctrl+Y"), disabled: false },
+                    MenubarMenuItem::Separator,
+                    MenubarMenuItem::Item { label: "Cut", shortcut: Some("Ctrl+X"), disabled: false },
+                    MenubarMenuItem::Item { label: "Copy", shortcut: Some("Ctrl+C"), disabled: false },
+                    MenubarMenuItem::Item { label: "Paste", shortcut: Some("Ctrl+V"), disabled: false },
+                ],
+            },
+            MenubarItem {
+                label: "View",
+                items: &[
+                    MenubarMenuItem::Item { label: "Zoom In", shortcut: Some("Ctrl++"), disabled: false },
+                    MenubarMenuItem::Item { label: "Zoom Out", shortcut: Some("Ctrl+-"), disabled: false },
+                ],
+            },
+        ];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Application Menu", None);
+            Menubar::new(menus).show(ui);
+        });
+    }
+
+    fn section_carousel(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Carousel", "A carousel with motion and swipe capabilities.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Items", None);
+            Carousel::new("demo_carousel", 5).height(180.0).show(ui, |idx, ui| {
+                let theme = ShadcnTheme::get(ui.ctx());
+                let (rect, _) = ui.allocate_exact_size(
+                    egui::Vec2::new(ui.available_width(), 160.0),
+                    egui::Sense::hover(),
+                );
+                ui.painter().rect_filled(rect, egui::CornerRadius::same(8), theme.muted);
+                ui.painter().text(
+                    rect.center(),
+                    egui::Align2::CENTER_CENTER,
+                    &format!("Slide {}", idx + 1),
+                    egui::FontId::new(24.0, egui::FontFamily::Proportional),
+                    theme.muted_foreground,
+                );
+            });
+        });
+    }
+
+    fn section_chart(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Chart", "Bar and line charts for data visualization.");
+
+        let months = &["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+        let desktop = &[186.0, 305.0, 237.0, 73.0, 209.0, 214.0];
+        let mobile = &[80.0, 200.0, 120.0, 190.0, 130.0, 140.0];
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Bar chart – Desktop vs Mobile", None);
+            let datasets = &[
+                ChartDataset { label: "Desktop", values: desktop, color: None },
+                ChartDataset { label: "Mobile", values: mobile, color: Some(egui::Color32::from_rgb(100, 160, 240)) },
+            ];
+            Chart::new(datasets, months).height(200.0).show_legend(true).show(ui);
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Line chart", None);
+            let datasets = &[
+                ChartDataset { label: "Desktop", values: desktop, color: None },
+            ];
+            Chart::new(datasets, months).kind(ChartKind::Line).height(200.0).show_grid(true).show(ui);
+        });
+    }
+
+    fn section_command(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Command", "Fast, composable, keyboard-first command menu.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Command palette", Some("Press the button or ⌘K to open."));
+            if Button::new("Open Command Palette").variant(ButtonVariant::Outline).show(ui).clicked() {
+                self.command_open = true;
+            }
+        });
+
+        let groups = &[
+            CommandGroup {
+                heading: Some("Suggestions"),
+                items: &[
+                    CommandItem { label: "Calendar", description: None, shortcut: None, icon: None },
+                    CommandItem { label: "Search Emoji", description: None, shortcut: None, icon: None },
+                    CommandItem { label: "Calculator", description: None, shortcut: None, icon: None },
+                ],
+            },
+            CommandGroup {
+                heading: Some("Settings"),
+                items: &[
+                    CommandItem { label: "Profile", description: Some("⌘P"), shortcut: None, icon: None },
+                    CommandItem { label: "Billing", description: None, shortcut: None, icon: None },
+                    CommandItem { label: "Settings", description: Some("⌘S"), shortcut: None, icon: None },
+                ],
+            },
+        ];
+
+        let ctx = ui.ctx().clone();
+        Command::new("demo_command", groups, &mut self.command_open)
+            .placeholder("Type a command or search…")
+            .show(&ctx);
+    }
+
+    fn section_resizable(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Resizable", "Accessible resizable panel groups and layouts.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Horizontal panels", None);
+            Resizable::new("demo_resizable_h")
+                .dir(ResizeDir::Horizontal)
+                .initial_split(0.5)
+                .show(ui,
+                    |ui| {
+                        let theme = ShadcnTheme::get(ui.ctx());
+                        let (rect, _) = ui.allocate_exact_size(
+                            egui::Vec2::new(ui.available_width(), 120.0), egui::Sense::hover()
+                        );
+                        ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.muted);
+                        ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "Panel A",
+                            egui::FontId::new(13.0, egui::FontFamily::Proportional), theme.muted_foreground);
+                    },
+                    |ui| {
+                        let theme = ShadcnTheme::get(ui.ctx());
+                        let (rect, _) = ui.allocate_exact_size(
+                            egui::Vec2::new(ui.available_width(), 120.0), egui::Sense::hover()
+                        );
+                        ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.muted);
+                        ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "Panel B",
+                            egui::FontId::new(13.0, egui::FontFamily::Proportional), theme.muted_foreground);
+                    }
+                );
         });
     }
 

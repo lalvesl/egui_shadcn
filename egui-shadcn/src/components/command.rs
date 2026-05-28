@@ -1,0 +1,374 @@
+use crate::{ShadcnTheme, ICON_CLOSE, ICON_SEARCH};
+use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Rect, Sense, Stroke, Vec2};
+
+
+pub struct CommandItem<'a> {
+    pub label: &'a str,
+    pub description: Option<&'a str>,
+    pub shortcut: Option<&'a str>,
+    pub icon: Option<&'a str>,
+}
+
+pub struct CommandGroup<'a> {
+    pub heading: Option<&'a str>,
+    pub items: &'a [CommandItem<'a>],
+}
+
+pub struct Command<'a> {
+    id: &'a str,
+    groups: &'a [CommandGroup<'a>],
+    open: &'a mut bool,
+    placeholder: &'a str,
+    width: f32,
+}
+
+impl<'a> Command<'a> {
+    pub fn new(id: &'a str, groups: &'a [CommandGroup<'a>], open: &'a mut bool) -> Self {
+        Self {
+            id,
+            groups,
+            open,
+            placeholder: "Type a command or search…",
+            width: 480.0,
+        }
+    }
+
+    pub fn placeholder(mut self, p: &'a str) -> Self {
+        self.placeholder = p;
+        self
+    }
+
+    pub fn width(mut self, w: f32) -> Self {
+        self.width = w;
+        self
+    }
+
+    pub fn show(self, ctx: &egui::Context) -> Option<(usize, usize)> {
+        if !*self.open {
+            return None;
+        }
+
+        let theme = ShadcnTheme::get(ctx);
+        let base_id = egui::Id::new(self.id);
+        let query_id = base_id.with("query");
+        let sel_id = base_id.with("selected");
+
+        // Read state
+        let mut query: String = ctx
+            .data(|d| d.get_temp::<String>(query_id).clone())
+            .unwrap_or_default();
+        let mut selected_idx: usize =
+            ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
+
+        // Build flat list of matching items: (group_idx, item_idx, &CommandItem)
+        let filtered: Vec<(usize, usize)> = self
+            .groups
+            .iter()
+            .enumerate()
+            .flat_map(|(gi, g)| {
+                g.items
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, item)| {
+                        query.is_empty()
+                            || item
+                                .label
+                                .to_lowercase()
+                                .contains(&query.to_lowercase())
+                    })
+                    .map(move |(ii, _)| (gi, ii))
+            })
+            .collect();
+
+        let total = filtered.len();
+        if selected_idx >= total && total > 0 {
+            selected_idx = total - 1;
+        }
+
+        // Keyboard input
+        let mut result: Option<(usize, usize)> = None;
+        let mut close = false;
+
+        ctx.input(|i| {
+            if i.key_pressed(Key::Escape) {
+                close = true;
+            }
+            if i.key_pressed(Key::ArrowDown) && total > 0 {
+                selected_idx = (selected_idx + 1) % total;
+            }
+            if i.key_pressed(Key::ArrowUp) && total > 0 {
+                selected_idx = if selected_idx == 0 {
+                    total - 1
+                } else {
+                    selected_idx - 1
+                };
+            }
+            if i.key_pressed(Key::Enter) && total > 0 {
+                let (gi, ii) = filtered[selected_idx];
+                result = Some((gi, ii));
+                close = true;
+            }
+        });
+
+        if close {
+            *self.open = false;
+            ctx.data_mut(|d| {
+                d.insert_temp(query_id, String::new());
+                d.insert_temp(sel_id, 0usize);
+            });
+            return result;
+        }
+
+        // Overlay
+        let screen = ctx.content_rect();
+        egui::Area::new(base_id.with("overlay"))
+            .fixed_pos(screen.min)
+            .order(egui::Order::Background)
+            .interactable(false)
+            .show(ctx, |ui| {
+                let (r, _) = ui.allocate_exact_size(screen.size(), Sense::hover());
+                ui.painter()
+                    .rect_filled(r, egui::CornerRadius::ZERO, Color32::from_black_alpha(160));
+            });
+
+        // Dialog
+        let dialog_max_h = 400.0;
+        let dialog_id = base_id.with("dialog");
+
+        egui::Area::new(dialog_id)
+            .fixed_pos(Pos2::new(
+                screen.center().x - self.width / 2.0,
+                screen.center().y - dialog_max_h / 2.0,
+            ))
+            .order(egui::Order::Foreground)
+            .show(ctx, |ui| {
+                Frame::new()
+                    .fill(theme.card)
+                    .corner_radius(CornerRadius::same(theme.radius as u8))
+                    .stroke(Stroke::new(1.0, theme.border))
+                    .shadow(egui::Shadow {
+                        offset: [0, 8],
+                        blur: 24,
+                        spread: 0,
+                        color: Color32::from_black_alpha(80),
+                    })
+                    .show(ui, |ui| {
+                        ui.set_min_width(self.width);
+                        ui.set_max_width(self.width);
+
+                        // Search row
+                        let search_height = 44.0;
+                        ui.horizontal(|ui| {
+                            ui.add_space(12.0);
+                            ui.painter().text(
+                                ui.cursor().left_top()
+                                    + Vec2::new(0.0, search_height / 2.0),
+                                egui::Align2::LEFT_CENTER,
+                                ICON_SEARCH,
+                                ShadcnTheme::icon_font(18.0),
+                                theme.muted_foreground,
+                            );
+                            ui.add_space(22.0);
+
+                            let te = egui::TextEdit::singleline(&mut query)
+                                .hint_text(self.placeholder)
+                                .frame(Frame::NONE)
+                                .font(ShadcnTheme::body_font())
+                                .text_color(theme.foreground)
+                                .desired_width(self.width - 90.0)
+                                .min_size(Vec2::new(self.width - 90.0, search_height));
+                            let te_resp = ui.add(te);
+                            te_resp.request_focus();
+
+                            // Close button
+                            let close_center = Pos2::new(
+                                ui.cursor().left() + 24.0,
+                                ui.cursor().top() + search_height / 2.0,
+                            );
+                            let close_rect =
+                                Rect::from_center_size(close_center, Vec2::splat(24.0));
+                            let close_resp =
+                                ui.interact(close_rect, base_id.with("close_btn"), Sense::click());
+                            let close_bg = if close_resp.hovered() {
+                                theme.accent
+                            } else {
+                                Color32::TRANSPARENT
+                            };
+                            ui.painter()
+                                .rect_filled(close_rect, CornerRadius::same(4), close_bg);
+                            ui.painter().text(
+                                close_center,
+                                egui::Align2::CENTER_CENTER,
+                                ICON_CLOSE,
+                                ShadcnTheme::icon_font(16.0),
+                                theme.muted_foreground,
+                            );
+                            if close_resp.clicked() {
+                                close = true;
+                            }
+                        });
+
+                        ui.painter().hline(
+                            ui.max_rect().x_range(),
+                            ui.cursor().top(),
+                            Stroke::new(1.0, theme.border),
+                        );
+
+                        // Scrollable results
+                        egui::ScrollArea::vertical()
+                            .max_height(dialog_max_h - search_height - 16.0)
+                            .show(ui, |ui| {
+                                ui.add_space(4.0);
+
+                                Frame::new()
+                                    .inner_margin(Margin::symmetric(4, 0))
+                                    .show(ui, |ui| {
+                                        let mut flat_idx = 0usize;
+                                        for (gi, group) in self.groups.iter().enumerate() {
+                                            // Filter items
+                                            let group_items: Vec<(usize, &CommandItem)> =
+                                                group.items
+                                                    .iter()
+                                                    .enumerate()
+                                                    .filter(|(_, item)| {
+                                                        query.is_empty()
+                                                            || item
+                                                                .label
+                                                                .to_lowercase()
+                                                                .contains(&query.to_lowercase())
+                                                    })
+                                                    .collect();
+                                            if group_items.is_empty() {
+                                                continue;
+                                            }
+
+                                            if let Some(heading) = group.heading {
+                                                ui.add_space(6.0);
+                                                let (hr, _) = ui.allocate_exact_size(
+                                                    Vec2::new(ui.available_width(), 20.0),
+                                                    Sense::hover(),
+                                                );
+                                                ui.painter().text(
+                                                    Pos2::new(hr.left() + 8.0, hr.center().y),
+                                                    egui::Align2::LEFT_CENTER,
+                                                    heading,
+                                                    ShadcnTheme::small_font(),
+                                                    theme.muted_foreground,
+                                                );
+                                                ui.add_space(2.0);
+                                            }
+
+                                            for (ii, item) in group_items {
+                                                let is_selected = flat_idx == selected_idx;
+                                                let (item_rect, item_resp) = ui.allocate_exact_size(
+                                                    Vec2::new(ui.available_width(), 36.0),
+                                                    Sense::click(),
+                                                );
+                                                let bg = if is_selected || item_resp.hovered() {
+                                                    theme.accent
+                                                } else {
+                                                    Color32::TRANSPARENT
+                                                };
+                                                ui.painter().rect_filled(
+                                                    item_rect,
+                                                    CornerRadius::same(4),
+                                                    bg,
+                                                );
+
+                                                let mut tx = item_rect.left() + 10.0;
+
+                                                // Icon
+                                                if let Some(icon) = item.icon {
+                                                    ui.painter().text(
+                                                        Pos2::new(tx, item_rect.center().y),
+                                                        egui::Align2::LEFT_CENTER,
+                                                        icon,
+                                                        ShadcnTheme::icon_font(16.0),
+                                                        theme.foreground,
+                                                    );
+                                                    tx += 22.0;
+                                                }
+
+                                                // Label
+                                                ui.painter().text(
+                                                    Pos2::new(tx, item_rect.center().y),
+                                                    egui::Align2::LEFT_CENTER,
+                                                    item.label,
+                                                    ShadcnTheme::body_font(),
+                                                    theme.foreground,
+                                                );
+
+                                                // Description (right side)
+                                                if let Some(desc) = item.description {
+                                                    ui.painter().text(
+                                                        Pos2::new(
+                                                            item_rect.right() - 8.0,
+                                                            item_rect.center().y,
+                                                        ),
+                                                        egui::Align2::RIGHT_CENTER,
+                                                        desc,
+                                                        ShadcnTheme::small_font(),
+                                                        theme.muted_foreground,
+                                                    );
+                                                }
+
+                                                // Shortcut
+                                                if let Some(sc) = item.shortcut {
+                                                    let sc_x = if item.description.is_some() {
+                                                        item_rect.right() - 80.0
+                                                    } else {
+                                                        item_rect.right() - 8.0
+                                                    };
+                                                    ui.painter().text(
+                                                        Pos2::new(sc_x, item_rect.center().y),
+                                                        egui::Align2::RIGHT_CENTER,
+                                                        sc,
+                                                        ShadcnTheme::small_font(),
+                                                        theme.muted_foreground,
+                                                    );
+                                                }
+
+                                                if item_resp.clicked() {
+                                                    result = Some((gi, ii));
+                                                    close = true;
+                                                }
+                                                if item_resp.hovered() {
+                                                    selected_idx = flat_idx;
+                                                }
+                                                flat_idx += 1;
+                                            }
+                                        }
+
+                                        if flat_idx == 0 {
+                                            ui.add_space(20.0);
+                                            ui.centered_and_justified(|ui| {
+                                                ui.label(
+                                                    egui::RichText::new("No results found.")
+                                                        .color(theme.muted_foreground),
+                                                );
+                                            });
+                                            ui.add_space(20.0);
+                                        }
+                                    });
+                                ui.add_space(4.0);
+                            });
+                    });
+            });
+
+        // Save state
+        ctx.data_mut(|d| {
+            d.insert_temp(query_id, query);
+            d.insert_temp(sel_id, selected_idx);
+        });
+
+        if close {
+            *self.open = false;
+            ctx.data_mut(|d| {
+                d.insert_temp(query_id, String::new());
+                d.insert_temp(sel_id, 0usize);
+            });
+        }
+
+        result
+    }
+}
