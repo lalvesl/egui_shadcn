@@ -8,6 +8,7 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs =
@@ -16,6 +17,7 @@
       nixpkgs,
       flake-utils,
       rust-overlay,
+      crane,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -86,6 +88,11 @@
           doCheck = false;
         };
 
+        # crane: compiles only crates needed for the specified target.
+        # Unlike importCargoLock, it won't try to build android-activity
+        # (gated cfg(target_os="android")) when target is wasm32-unknown-unknown.
+        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+
         # ── e2e tooling ────────────────────────────────────────────────────────
         e2ePython = pkgs.python3.withPackages (ps: [ ps.playwright ps.pillow ]);
       in
@@ -112,57 +119,56 @@
         };
 
         # ── nix build .#web — optimized WASM release build ────────────────────
-        packages.web = pkgs.stdenv.mkDerivation {
-          pname = "egui-shadcn-web";
-          version = "0.1.0";
-          src = ./.;
+        # crane compiles only crates needed for wasm32-unknown-unknown target,
+        # so android-activity (cfg(target_os="android")) is never built.
+        packages.web =
+          let
+            src = craneLib.cleanCargoSource ./.;
+            cargoArtifacts = craneLib.buildDepsOnly {
+              inherit src;
+              strictDeps = true;
+              CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+              cargoExtraArgs = "--target wasm32-unknown-unknown";
+              EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+              doCheck = false;
+            };
+          in
+          craneLib.mkCargoDerivation {
+            pname = "egui-shadcn-web";
+            version = "0.1.0";
+            inherit src cargoArtifacts;
+            strictDeps = true;
+            CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+            EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+            buildPhaseCargoCommand = "cargo build --release --target wasm32-unknown-unknown -p demo --lib";
+            nativeBuildInputs = [ wasmBindgenCli pkgs.binaryen pkgs.python3 ];
+            doInstallCargoArtifacts = false;
+            installPhase = ''
+              mkdir -p "$out/wasm_assets"
 
-          cargoDeps = rustPlatform.importCargoLock {
-            lockFile = ./Cargo.lock;
-          };
+              # Generate JS bindings
+              wasm-bindgen \
+                --out-dir "$out" \
+                --target web \
+                --no-typescript \
+                target/wasm32-unknown-unknown/release/demo.wasm
 
-          nativeBuildInputs = [
-            rustPlatform.cargoSetupHook
-            rustToolchain
-            wasmBindgenCli
-            pkgs.binaryen
-            pkgs.python3
-          ];
+              # Optimize WASM: shrink size, strip debug/producer metadata
+              wasm-opt -Oz \
+                --enable-bulk-memory \
+                --enable-nontrapping-float-to-int \
+                --enable-sign-ext \
+                --strip-debug \
+                --strip-producers \
+                --dce \
+                --merge-blocks \
+                --optimize-instructions \
+                --output "$out/demo_bg.wasm" \
+                "$out/demo_bg.wasm"
 
-          # Provide pre-fetched assets so build scripts skip network access.
-          EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
-
-          buildPhase = ''
-            export HOME=$(mktemp -d)
-            cargo build --release --target wasm32-unknown-unknown -p demo
-          '';
-
-          installPhase = ''
-            mkdir -p "$out/wasm_assets"
-
-            # Generate JS bindings
-            wasm-bindgen \
-              --out-dir "$out" \
-              --target web \
-              --no-typescript \
-              target/wasm32-unknown-unknown/release/demo.wasm
-
-            # Optimize WASM: shrink size, strip debug/producer metadata
-            wasm-opt -Oz \
-              --enable-bulk-memory \
-              --enable-nontrapping-float-to-int \
-              --enable-sign-ext \
-              --strip-debug \
-              --strip-producers \
-              --dce \
-              --merge-blocks \
-              --optimize-instructions \
-              --output "$out/demo_bg.wasm" \
-              "$out/demo_bg.wasm"
-
-            # Strip GPOS/GSUB from font so skrifa doesn't crash on wasm32,
-            # then serve it from wasm_assets/ (fetched by the app at runtime).
-            python3 -c "
+              # Strip GPOS/GSUB from font so skrifa doesn't crash on wasm32,
+              # then serve it from wasm_assets/ (fetched by the app at runtime).
+              python3 -c "
 data = bytearray(open('${materialIconsFont}', 'rb').read())
 n = (data[4] << 8) | data[5]
 for i in range(n):
@@ -172,8 +178,8 @@ for i in range(n):
 open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
 "
 
-            # Minimal HTML — no trunk directives, loads WASM as ES module
-            cat > "$out/index.html" <<'HTML'
+              # Minimal HTML — no trunk directives, loads WASM as ES module
+              cat > "$out/index.html" <<'HTML'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -194,8 +200,9 @@ open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
 </body>
 </html>
 HTML
-          '';
-        };
+            '';
+            doCheck = false;
+          };
 
         # ── nix run .#web — trunk serve (dev) ─────────────────────────────────
         apps.web = {
