@@ -44,22 +44,30 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CUSTOM_FONT_URL");
     println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CUSTOM_FONT_NAME");
+    println!("cargo:rerun-if-env-changed=EGUI_SHADCN_CODEPOINTS_PATH");
+    println!("cargo:rerun-if-env-changed=EGUI_SHADCN_FONT_PATH");
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
 
     // ── Icon codepoints → OUT_DIR/icon_consts.rs ─────────────────────────────
+    // EGUI_SHADCN_CODEPOINTS_PATH: pre-fetched file (e.g. from Nix FOD).
     let cp_path = out_dir.join("MaterialIcons-Regular.codepoints");
     if !cp_path.exists() {
-        eprintln!("[egui-shadcn] downloading Material Icons codepoints…");
-        let bytes = download_bytes(CODEPOINTS_URL).unwrap_or_else(|e| {
-            panic!(
-                "[egui-shadcn] could not download Material Icons codepoints: {e}\n\
-                 Internet access required on the first build (or after `cargo clean`)."
-            )
-        });
-        fs::write(&cp_path, &bytes).expect("write codepoints");
-        eprintln!("[egui-shadcn] codepoints cached → {}", cp_path.display());
+        if let Ok(src) = std::env::var("EGUI_SHADCN_CODEPOINTS_PATH") {
+            fs::copy(&src, &cp_path).expect("copy codepoints from EGUI_SHADCN_CODEPOINTS_PATH");
+        } else {
+            eprintln!("[egui-shadcn] downloading Material Icons codepoints…");
+            let bytes = download_bytes(CODEPOINTS_URL).unwrap_or_else(|e| {
+                panic!(
+                    "[egui-shadcn] could not download Material Icons codepoints: {e}\n\
+                     Internet access required on the first build (or after `cargo clean`).\n\
+                     For offline builds set EGUI_SHADCN_CODEPOINTS_PATH to a pre-fetched copy."
+                )
+            });
+            fs::write(&cp_path, &bytes).expect("write codepoints");
+            eprintln!("[egui-shadcn] codepoints cached → {}", cp_path.display());
+        }
     }
     let codepoints = fs::read_to_string(&cp_path).expect("read codepoints");
     fs::write(out_dir.join("icon_consts.rs"), generate_consts(&codepoints))
@@ -105,14 +113,18 @@ fn main() {
 
     let ttf_path = out_dir.join("MaterialIcons-Regular.ttf");
     if !ttf_path.exists() {
-        eprintln!("[egui-shadcn] downloading Material Icons font…");
-        match download_bytes(FONT_URL) {
-            Ok(bytes) => {
-                fs::write(&ttf_path, &bytes).expect("write font");
-                eprintln!("[egui-shadcn] font saved → {}", ttf_path.display());
-            }
-            Err(e) => {
-                eprintln!("[egui-shadcn] WARNING: could not download font: {e}");
+        if let Ok(src) = std::env::var("EGUI_SHADCN_FONT_PATH") {
+            fs::copy(&src, &ttf_path).expect("copy font from EGUI_SHADCN_FONT_PATH");
+        } else {
+            eprintln!("[egui-shadcn] downloading Material Icons font…");
+            match download_bytes(FONT_URL) {
+                Ok(bytes) => {
+                    fs::write(&ttf_path, &bytes).expect("write font");
+                    eprintln!("[egui-shadcn] font saved → {}", ttf_path.display());
+                }
+                Err(e) => {
+                    eprintln!("[egui-shadcn] WARNING: could not download font: {e}");
+                }
             }
         }
     }

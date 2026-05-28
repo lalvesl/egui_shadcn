@@ -26,7 +26,6 @@
           inherit system overlays;
         };
 
-        # Native toolchain (includes wasm32 so `cargo check --target wasm32-…` works)
         rustToolchain = pkgs.rust-bin.stable."1.95.0".default.override {
           extensions = [
             "rust-src"
@@ -47,9 +46,51 @@
           fontconfig
           openssl
         ];
+
+        # ── WASM build tooling ─────────────────────────────────────────────────
+        rustPlatform = pkgs.makeRustPlatform {
+          cargo = rustToolchain;
+          rustc = rustToolchain;
+        };
+
+        # Pre-fetched MaterialIcons font (raw) for the Nix sandbox build.
+        # Hash of: https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf
+        materialIconsFont = pkgs.fetchurl {
+          url = "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
+          hash = "sha256-7xSfCL3S/wmk4shXNHa3sPP7sVtiOVSt5ZiZ5xdb7do=";
+        };
+
+        # Pre-fetched icon codepoints so egui-shadcn/build.rs doesn't need internet.
+        # Hash of: https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints
+        materialIconsCodepoints = pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints";
+          hash = "sha256-Uw8lv3stccjh2pR21T+am7a34Ye/9pu3Eou2ebgZSJQ=";
+        };
+
+        # wasm-bindgen-cli at the version matching Cargo.lock (0.2.122).
+        # nixpkgs ships 0.2.121; a mismatch causes "schema version" errors.
+        wasmBindgenSrc = pkgs.fetchCrate {
+          pname = "wasm-bindgen-cli";
+          version = "0.2.122";
+          hash = "sha256-wWhvn+A4+EuJLBDTt0ibKR6xEFN0UBWeuX5fhGswRbw=";
+        };
+        wasmBindgenCli = rustPlatform.buildRustPackage {
+          pname = "wasm-bindgen-cli";
+          version = "0.2.122";
+          src = wasmBindgenSrc;
+          cargoLock = {
+            # Cargo.lock committed from wasm-bindgen-cli-0.2.122.crate so Nix
+            # can evaluate the dependency tree without fetching the FOD at eval time.
+            lockFile = ./nix/wasm-bindgen-cli-Cargo.lock;
+          };
+          doCheck = false;
+        };
+
+        # ── e2e tooling ────────────────────────────────────────────────────────
+        e2ePython = pkgs.python3.withPackages (ps: [ ps.playwright ps.pillow ]);
       in
       {
-        # ── Native dev shell ───────────────────────────────────────────────
+        # ── Native dev shell ───────────────────────────────────────────────────
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             pkg-config
@@ -70,7 +111,93 @@
           '';
         };
 
-        # ── nix run .#web — launches trunk serve ───────────────────────────
+        # ── nix build .#web — optimized WASM release build ────────────────────
+        packages.web = pkgs.stdenv.mkDerivation {
+          pname = "egui-shadcn-web";
+          version = "0.1.0";
+          src = ./.;
+
+          cargoDeps = rustPlatform.importCargoLock {
+            lockFile = ./Cargo.lock;
+          };
+
+          nativeBuildInputs = [
+            rustPlatform.cargoSetupHook
+            rustToolchain
+            wasmBindgenCli
+            pkgs.binaryen
+            pkgs.python3
+          ];
+
+          # Provide pre-fetched assets so build scripts skip network access.
+          EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+
+          buildPhase = ''
+            export HOME=$(mktemp -d)
+            cargo build --release --target wasm32-unknown-unknown -p demo
+          '';
+
+          installPhase = ''
+            mkdir -p "$out/wasm_assets"
+
+            # Generate JS bindings
+            wasm-bindgen \
+              --out-dir "$out" \
+              --target web \
+              --no-typescript \
+              target/wasm32-unknown-unknown/release/demo.wasm
+
+            # Optimize WASM: shrink size, strip debug/producer metadata
+            wasm-opt -Oz \
+              --enable-bulk-memory \
+              --enable-nontrapping-float-to-int \
+              --enable-sign-ext \
+              --strip-debug \
+              --strip-producers \
+              --dce \
+              --merge-blocks \
+              --optimize-instructions \
+              --output "$out/demo_bg.wasm" \
+              "$out/demo_bg.wasm"
+
+            # Strip GPOS/GSUB from font so skrifa doesn't crash on wasm32,
+            # then serve it from wasm_assets/ (fetched by the app at runtime).
+            python3 -c "
+data = bytearray(open('${materialIconsFont}', 'rb').read())
+n = (data[4] << 8) | data[5]
+for i in range(n):
+    b = 12 + i * 16
+    if b + 4 > len(data): break
+    if bytes(data[b:b+4]) in (b'GPOS', b'GSUB'): data[b] = ord('X')
+open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
+"
+
+            # Minimal HTML — no trunk directives, loads WASM as ES module
+            cat > "$out/index.html" <<'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>egui-shadcn demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #09090b; }
+    canvas { display: block; width: 100% !important; height: 100% !important; }
+  </style>
+</head>
+<body>
+  <canvas id="egui_canvas"></canvas>
+  <script type="module">
+    import init from './demo.js';
+    init();
+  </script>
+</body>
+</html>
+HTML
+          '';
+        };
+
+        # ── nix run .#web — trunk serve (dev) ─────────────────────────────────
         apps.web = {
           type = "app";
           program =
@@ -82,6 +209,50 @@
                 cd "$REPO/demo"
                 echo "Starting trunk serve on http://localhost:8080 …"
                 exec trunk serve --port 8080
+              '';
+            in
+            "${script}";
+        };
+
+        # ── nix run .#e2e — end-to-end browser test ───────────────────────────
+        apps.e2e = {
+          type = "app";
+          program =
+            let
+              script = pkgs.writeShellScript "egui-shadcn-e2e" ''
+                set -euo pipefail
+                export PATH="${rustToolchain}/bin:${pkgs.trunk}/bin:${pkgs.git}/bin:$PATH"
+                export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
+                export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
+                export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+                REPO="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+                echo "[e2e] Building WASM with trunk…"
+                (cd "$REPO/demo" && trunk build)
+
+                echo "[e2e] Serving demo/dist on :8081…"
+                ${pkgs.python3}/bin/python3 -m http.server 8081 \
+                  --directory "$REPO/demo/dist" &
+                SERVER_PID=$!
+                trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+
+                echo "[e2e] Waiting for server to be ready…"
+                ${pkgs.python3}/bin/python3 -c "
+import urllib.request, time, sys
+for _ in range(40):
+    try:
+        urllib.request.urlopen('http://localhost:8081/')
+        break
+    except Exception:
+        time.sleep(0.25)
+else:
+    print('[e2e] ERROR: HTTP server did not start', file=sys.stderr)
+    sys.exit(1)
+"
+
+                echo "[e2e] Running Playwright test…"
+                ${e2ePython}/bin/python3 "$REPO/e2e/test.py"
               '';
             in
             "${script}";
