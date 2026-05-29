@@ -73,6 +73,7 @@
         # nixpkgs ships 0.2.121; a mismatch causes "schema version" errors.
         wasmBindgenSrc = pkgs.fetchurl {
           url = "https://static.crates.io/crates/wasm-bindgen-cli/wasm-bindgen-cli-0.2.122.crate";
+          name = "wasm-bindgen-cli-0.2.122.tar.gz";
           hash = "sha256-wWhvn+A4+EuJLBDTt0ibKR6xEFN0UBWeuX5fhGswRbw=";
         };
         wasmBindgenCli = rustPlatform.buildRustPackage {
@@ -83,7 +84,7 @@
           # which sends User-Agent: cargo/X.Y.Z — avoids crates.io API 403.
           # cargoLock/importCargoLock would use Nix fetchers (User-Agent: Nix)
           # which crates.io now rejects.
-          cargoHash = pkgs.lib.fakeHash;
+          cargoHash = "sha256-Inup6vvJSG5ghNyeDPyZbfZo4d0LsMG2OJfStoaeDBs=";
           doCheck = false;
         };
 
