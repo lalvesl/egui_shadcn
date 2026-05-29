@@ -78,7 +78,11 @@ impl DemoApp {
             card_header(ui, "Breadcrumb", None);
             let items = ["Home", "Components", "Breadcrumb"];
             if let Some(idx) = Breadcrumb::new(&items).show(ui) {
-                muted_text(ui, &format!("Navigated to: {}", items[idx]));
+                self.breadcrumb_nav = Some(items[idx].to_string());
+            }
+            if let Some(nav) = &self.breadcrumb_nav {
+                Spacing::Xs.show(ui);
+                muted_text(ui, &format!("Navigated to: {}", nav));
             }
         });
 
@@ -87,7 +91,13 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Custom separator", None);
             let items = ["Docs", "Components", "Breadcrumb"];
-            Breadcrumb::new(&items).separator("›").show(ui);
+            if let Some(idx) = Breadcrumb::new(&items).separator("›").show(ui) {
+                self.breadcrumb_custom_nav = Some(items[idx].to_string());
+            }
+            if let Some(nav) = &self.breadcrumb_custom_nav {
+                Spacing::Xs.show(ui);
+                muted_text(ui, &format!("Navigated to: {}", nav));
+            }
         });
     }
 

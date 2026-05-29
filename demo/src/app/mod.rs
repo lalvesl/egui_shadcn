@@ -117,6 +117,8 @@ pub struct DemoApp {
     pub(super) data_table_filter: String,
     pub(super) context_last: Option<String>,
     pub(super) dropdown_last: Option<String>,
+    pub(super) breadcrumb_nav: Option<String>,
+    pub(super) breadcrumb_custom_nav: Option<String>,
 }
 
 impl Default for DemoApp {
@@ -174,6 +176,8 @@ impl Default for DemoApp {
             data_table_filter: String::new(),
             context_last: None,
             dropdown_last: None,
+            breadcrumb_nav: None,
+            breadcrumb_custom_nav: None,
         }
     }
 }
