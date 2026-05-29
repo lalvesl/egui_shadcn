@@ -1,12 +1,12 @@
 use egui_shadcn::{
     alert::{Alert, AlertVariant},
+    alert_dialog::AlertDialog,
     button::{Button, ButtonSize, ButtonVariant},
     card::{Card, card_header},
-    alert_dialog::AlertDialog,
     progress::Progress,
     skeleton::Skeleton,
     spinner::Spinner,
-    toast::{Toaster, ToastVariant},
+    toast::{ToastVariant, Toaster},
     typography::muted_text,
 };
 
@@ -87,7 +87,11 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_alert_dialog(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Alert Dialog", "A modal dialog that interrupts with important content.");
+        self.section_title(
+            ui,
+            "Alert Dialog",
+            "A modal dialog that interrupts with important content.",
+        );
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Default", None);
@@ -122,20 +126,52 @@ impl DemoApp {
         self.section_title(ui, "Toast", "A succinct message that appears temporarily.");
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Toast variants", Some("Click to show a toast notification."));
+            card_header(
+                ui,
+                "Toast variants",
+                Some("Click to show a toast notification."),
+            );
             ui.horizontal(|ui| {
                 let ctx = ui.ctx().clone();
                 if Button::new("Default").show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Scheduled", "Monday, January 3rd at 6:00pm", ToastVariant::Default);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        "Scheduled",
+                        "Monday, January 3rd at 6:00pm",
+                        ToastVariant::Default,
+                    );
                 }
-                if Button::new("Success").variant(ButtonVariant::Default).show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Success", "Your changes have been saved.", ToastVariant::Success);
+                if Button::new("Success")
+                    .variant(ButtonVariant::Default)
+                    .show(ui)
+                    .clicked()
+                {
+                    Toaster::push_with_desc(
+                        &ctx,
+                        "Success",
+                        "Your changes have been saved.",
+                        ToastVariant::Success,
+                    );
                 }
                 if Button::new("Warning").show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Warning", "This action may have consequences.", ToastVariant::Warning);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        "Warning",
+                        "This action may have consequences.",
+                        ToastVariant::Warning,
+                    );
                 }
-                if Button::new("Destructive").variant(ButtonVariant::Destructive).show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Destructive", "Your session has expired.", ToastVariant::Destructive);
+                if Button::new("Destructive")
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui)
+                    .clicked()
+                {
+                    Toaster::push_with_desc(
+                        &ctx,
+                        "Destructive",
+                        "Your session has expired.",
+                        ToastVariant::Destructive,
+                    );
                 }
             });
         });

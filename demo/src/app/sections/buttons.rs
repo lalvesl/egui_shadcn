@@ -1,6 +1,6 @@
 use egui_shadcn::{
-    ICON_SEND, ICON_MAIL, ICON_DOWNLOAD, ICON_SEARCH, ICON_ADD,
-    ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_UNDERLINE, ICON_FORMAT_STRIKETHROUGH,
+    ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_STRIKETHROUGH,
+    ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH, ICON_SEND,
     alert::Alert,
     badge::{Badge, BadgeVariant},
     button::{Button, ButtonSize, ButtonVariant},
@@ -122,12 +122,19 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_button_group(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Button Group", "Multiple actions in a connected button strip.");
+        self.section_title(
+            ui,
+            "Button Group",
+            "Multiple actions in a connected button strip.",
+        );
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Single select", None);
             let labels = &["Months", "Weeks", "Days"];
-            if let Some(i) = ButtonGroup::new(labels).selected(self.button_group_sel).show(ui) {
+            if let Some(i) = ButtonGroup::new(labels)
+                .selected(self.button_group_sel)
+                .show(ui)
+            {
                 self.button_group_sel = Some(i);
             }
         });
@@ -147,7 +154,11 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_toggle(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Toggle", "A two-state button that can be turned on or off.");
+        self.section_title(
+            ui,
+            "Toggle",
+            "A two-state button that can be turned on or off.",
+        );
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Toggle", None);
@@ -185,27 +196,59 @@ impl DemoApp {
             card_header(ui, "Disabled", None);
             let mut dummy = true;
             ui.horizontal(|ui| {
-                Toggle::new(&mut dummy, "Disabled On").enabled(false).show(ui);
+                Toggle::new(&mut dummy, "Disabled On")
+                    .enabled(false)
+                    .show(ui);
                 let mut dummy2 = false;
-                Toggle::new(&mut dummy2, "Disabled Off").enabled(false).show(ui);
+                Toggle::new(&mut dummy2, "Disabled Off")
+                    .enabled(false)
+                    .show(ui);
             });
         });
     }
 
     pub(in crate::app) fn section_toggle_group(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Toggle Group", "A set of two-state buttons — only one active at a time.");
+        self.section_title(
+            ui,
+            "Toggle Group",
+            "A set of two-state buttons — only one active at a time.",
+        );
 
         let items: &[(u8, ToggleGroupItem<'_>)] = &[
-            (0, ToggleGroupItem { label: "Day", icon: None }),
-            (1, ToggleGroupItem { label: "Week", icon: None }),
-            (2, ToggleGroupItem { label: "Month", icon: None }),
+            (
+                0,
+                ToggleGroupItem {
+                    label: "Day",
+                    icon: None,
+                },
+            ),
+            (
+                1,
+                ToggleGroupItem {
+                    label: "Week",
+                    icon: None,
+                },
+            ),
+            (
+                2,
+                ToggleGroupItem {
+                    label: "Month",
+                    icon: None,
+                },
+            ),
         ];
 
         Card::new().show(ui, |ui| {
             card_header(ui, "View", None);
             ToggleGroup::new(items, &mut self.toggle_group_val).show(ui);
             ui.add_space(4.0);
-            muted_text(ui, &format!("Selected: {}", ["Day", "Week", "Month"][self.toggle_group_val as usize]));
+            muted_text(
+                ui,
+                &format!(
+                    "Selected: {}",
+                    ["Day", "Week", "Month"][self.toggle_group_val as usize]
+                ),
+            );
         });
     }
 }

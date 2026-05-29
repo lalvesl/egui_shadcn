@@ -7,6 +7,7 @@ use egui_shadcn::{
     collapsible::Collapsible,
     data_table::{DataTable, DataColumn},
     label::Label,
+    separator::Separator,
     table::{Table, TableColumn},
     typography::{body_text, muted_text},
 };
@@ -233,6 +234,40 @@ impl DemoApp {
                     row.cell(|ui| { muted_text(ui, email); });
                     row.cell(|ui| { muted_text(ui, amount); });
                 });
+        });
+    }
+
+    pub(in crate::app) fn section_separator(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Separator", "Visually separates content — horizontal or vertical.");
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Horizontal", None);
+            muted_text(ui, "My Account");
+            ui.add_space(12.0);
+            Separator::horizontal().show(ui);
+            ui.add_space(12.0);
+            muted_text(ui, "Profile");
+            ui.add_space(4.0);
+            muted_text(ui, "Billing");
+            ui.add_space(4.0);
+            muted_text(ui, "Settings");
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Vertical", None);
+            ui.horizontal(|ui| {
+                muted_text(ui, "Blog");
+                ui.add_space(8.0);
+                Separator::vertical().length(16.0).show(ui);
+                ui.add_space(8.0);
+                muted_text(ui, "Docs");
+                ui.add_space(8.0);
+                Separator::vertical().length(16.0).show(ui);
+                ui.add_space(8.0);
+                muted_text(ui, "Source");
+            });
         });
     }
 }

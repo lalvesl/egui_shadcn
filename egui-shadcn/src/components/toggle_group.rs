@@ -23,6 +23,7 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
         let h_pad = 12.0;
         let height = 36.0;
         let fs = 13.0;
+        eprintln!("[ToggleGroup] show called, {} items", self.items.len());
 
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 0.0;
@@ -37,6 +38,7 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
                     egui::FontId::new(fs, egui::FontFamily::Proportional),
                     Color32::PLACEHOLDER,
                 );
+                eprintln!("[ToggleGroup] item {i}: label={:?} size={:?}", item.label, text_g.size());
                 let icon_g = item.icon.map(|ic| {
                     ui.painter().layout_no_wrap(
                         ic.to_owned(),
@@ -59,6 +61,7 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
                     *self.selected = value.clone();
                 }
 
+                eprintln!("[ToggleGroup] item {i}: rect={rect:?}, visible={}", ui.is_rect_visible(rect));
                 if ui.is_rect_visible(rect) {
                     let r = theme.radius as u8;
                     let cr = CornerRadius {

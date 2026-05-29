@@ -10,6 +10,7 @@ pub enum Orientation {
 pub struct Separator {
     orientation: Orientation,
     thickness: f32,
+    length: Option<f32>,
 }
 
 impl Default for Separator {
@@ -17,6 +18,7 @@ impl Default for Separator {
         Self {
             orientation: Orientation::Horizontal,
             thickness: 1.0,
+            length: None,
         }
     }
 }
@@ -30,6 +32,7 @@ impl Separator {
         Self {
             orientation: Orientation::Vertical,
             thickness: 1.0,
+            length: None,
         }
     }
 
@@ -38,12 +41,24 @@ impl Separator {
         self
     }
 
+    /// Override the separator's length (width for horizontal, height for vertical).
+    pub fn length(mut self, l: f32) -> Self {
+        self.length = Some(l);
+        self
+    }
+
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
         let size = match self.orientation {
-            Orientation::Horizontal => Vec2::new(ui.available_width(), self.thickness),
-            Orientation::Vertical => Vec2::new(self.thickness, ui.available_height()),
+            Orientation::Horizontal => Vec2::new(
+                self.length.unwrap_or_else(|| ui.available_width()),
+                self.thickness,
+            ),
+            Orientation::Vertical => Vec2::new(
+                self.thickness,
+                self.length.unwrap_or_else(|| ui.available_height()),
+            ),
         };
 
         let (rect, _) = ui.allocate_exact_size(size, Sense::hover());

@@ -55,6 +55,7 @@ const SECTIONS: &[&str] = &[
     "Chart",
     "Command",
     "Resizable",
+    "Separator",
 ];
 
 // ── App state ─────────────────────────────────────────────────────────────────
@@ -120,7 +121,7 @@ impl Default for DemoApp {
             dark: true,
             primary_hue: None,
             show_hue_picker: false,
-            current_section: 0,
+            current_section: 14,
             btn_clicked: false,
             checkbox1: true,
             checkbox2: false,
@@ -531,6 +532,7 @@ impl DemoApp {
             35 => self.section_chart(ui),
             36 => self.section_command(ui),
             37 => self.section_resizable(ui),
+            38 => self.section_separator(ui),
             _ => {}
         }
     }

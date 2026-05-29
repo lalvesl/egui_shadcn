@@ -1,10 +1,16 @@
 # Todo
 
+- The Alert Dialog does not re use components already created like typography, buttons, spaces and cards;
 - Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
+- Many components does not reuse components, that's a big problem;
+
+- In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
+- The pagination does not show the number inside of current page;
+- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui;
 
 # Process
 
-- Reimplement Toggle group to be near of new toggle;
+- Create component separator (vertical and horizontal);
 
 # Done
 
@@ -24,6 +30,7 @@
 - Continue of implementation of next components, read @readme.md and update one by one the progress, remember to add all components in demo;
 - Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
 - Calendar with cell content, when select some day or a current day no centralized on the number but centralized by the cell, and this is the problem the cell has another think causing a decentralization of the number;
+- Reimplement Toggle group to be near of new toggle;
 
 # Not so necessary
 
