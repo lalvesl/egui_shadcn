@@ -130,6 +130,7 @@ pub struct DemoApp {
     pub(super) breadcrumb_nav: Option<String>,
     pub(super) breadcrumb_custom_nav: Option<String>,
     pub(super) scroll_to_section: Option<usize>,
+    pub(super) sidebar_needs_scroll: bool,
 }
 
 impl Default for DemoApp {
@@ -189,6 +190,7 @@ impl Default for DemoApp {
             breadcrumb_nav: None,
             breadcrumb_custom_nav: None,
             scroll_to_section: None,
+            sidebar_needs_scroll: false,
         }
     }
 }
