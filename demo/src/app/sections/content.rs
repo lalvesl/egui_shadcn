@@ -2,6 +2,7 @@ use egui::Color32;
 use egui_shadcn::{
     ShadcnTheme,
     avatar::{Avatar, AvatarSize},
+    boxed::Boxed,
     calendar::Calendar,
     card::{Card, card_header},
     collapsible::Collapsible,
@@ -315,6 +316,56 @@ impl DemoApp {
             muted_text(ui, "Block B  (Lg = 16px gap above)");
             Spacing::Xl.show(ui);
             muted_text(ui, "Block C  (Xl = 24px gap above)");
+        });
+    }
+
+    pub(in crate::app) fn section_boxed(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Boxed", "Transparent layout container with standard padding and margin.");
+
+        let theme = egui_shadcn::ShadcnTheme::get(ui.ctx());
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Padding variants", None);
+
+            for (label, pad) in [
+                ("Xs (4px)",  Spacing::Xs),
+                ("Sm (8px)",  Spacing::Sm),
+                ("Md (12px)", Spacing::Md),
+                ("Lg (16px)", Spacing::Lg),
+                ("Xl (24px)", Spacing::Xl),
+            ] {
+                muted_text(ui, label);
+                Boxed::new().padding(pad).show(ui, |ui| {
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::Vec2::new(ui.available_width(), 24.0),
+                        egui::Sense::hover(),
+                    );
+                    ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.accent);
+                });
+            }
+        });
+
+        Spacing::Lg.show(ui);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Padding + margin", Some("Padding inside, margin outside."));
+            Boxed::new()
+                .padding(Spacing::Lg)
+                .margin(Spacing::Sm)
+                .show(ui, |ui| {
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::Vec2::new(ui.available_width(), 40.0),
+                        egui::Sense::hover(),
+                    );
+                    ui.painter().rect_filled(rect, egui::CornerRadius::same(6), theme.primary);
+                    ui.painter().text(
+                        rect.center(),
+                        egui::Align2::CENTER_CENTER,
+                        "Lg padding · Sm margin",
+                        egui::FontId::new(12.0, egui::FontFamily::Proportional),
+                        theme.primary_foreground,
+                    );
+                });
         });
     }
 }

@@ -6,9 +6,9 @@
 - Many components does not reuse components, that's a big problem;
 - In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
 
-- Create component Boxed (not Box because Rust already have Box structure), this is a simple box with standart padding and margin, yes this component need to recive dynamic childs internally, egui already supports awesome this part;
-
 # Process
+
+- Create component Boxed (not Box because Rust already have Box structure), this is a simple box with standart padding and margin, yes this component need to recive dynamic childs internally, egui already supports awesome this part;
 
 # Done
 

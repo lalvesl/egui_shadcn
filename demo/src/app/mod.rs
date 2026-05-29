@@ -58,6 +58,7 @@ const SECTIONS: &[&str] = &[
     "Resizable",
     "Separator",
     "Spacing",
+    "Boxed",
 ];
 
 // ── App state ─────────────────────────────────────────────────────────────────
@@ -539,6 +540,7 @@ impl DemoApp {
             37 => self.section_resizable(ui),
             38 => self.section_separator(ui),
             39 => self.section_spacing(ui),
+            40 => self.section_boxed(ui),
             _ => {}
         }
     }
