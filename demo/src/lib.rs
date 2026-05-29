@@ -18,11 +18,9 @@ async fn fetch_material_icons() -> Option<Vec<u8>> {
     use wasm_bindgen_futures::JsFuture;
 
     let window = web_sys::window()?;
-    let resp = JsFuture::from(
-        window.fetch_with_str("wasm_assets/MaterialIcons-Regular.ttf?v=2"),
-    )
-    .await
-    .ok()?;
+    let resp = JsFuture::from(window.fetch_with_str("wasm_assets/MaterialIcons-Regular.ttf?v=2"))
+        .await
+        .ok()?;
     let resp: web_sys::Response = resp.dyn_into().ok()?;
     let array_buf = JsFuture::from(resp.array_buffer().ok()?).await.ok()?;
     Some(js_sys::Uint8Array::new(&array_buf).to_vec())
@@ -83,8 +81,9 @@ mod tests {
         use skrifa::MetadataProvider;
         let bytes = super::MATERIAL_ICONS_TEST;
 
-        let font = skrifa::FontRef::from_index(bytes, 0)
-            .expect("skrifa::FontRef::from_index failed on wasm32 — the stripped font bytes are invalid");
+        let font = skrifa::FontRef::from_index(bytes, 0).expect(
+            "skrifa::FontRef::from_index failed on wasm32 — the stripped font bytes are invalid",
+        );
 
         let outline_glyphs = font.outline_glyphs();
         let _charmap = font.charmap();

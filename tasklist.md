@@ -2,14 +2,13 @@
 
 - Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
 
-- Reimplement Toggle group to be near of new toggle;
-
 # Process
 
-- Split the app from demo, extreme huge;
+- Reimplement Toggle group to be near of new toggle;
 
 # Done
 
+- Split the app from demo, extreme huge;
 - Add in Example of buttons one with icon;
 - The dialog not close if click out or press esc;
 - In the dialog, contains an input of element, this input not using the component, only diracly egui input;
