@@ -105,6 +105,7 @@ impl DemoApp {
             Resizable::new("demo_resizable_h")
                 .dir(ResizeDir::Horizontal)
                 .initial_split(0.5)
+                .height(120.0)
                 .show(ui,
                     |ui| {
                         let theme = ShadcnTheme::get(ui.ctx());

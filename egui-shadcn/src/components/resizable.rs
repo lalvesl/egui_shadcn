@@ -12,6 +12,7 @@ pub struct Resizable {
     initial_split: f32,
     min_size: f32,
     handle_size: f32,
+    height: Option<f32>,
 }
 
 impl Resizable {
@@ -22,6 +23,7 @@ impl Resizable {
             initial_split: 0.5,
             min_size: 50.0,
             handle_size: 5.0,
+            height: None,
         }
     }
 
@@ -37,6 +39,11 @@ impl Resizable {
 
     pub fn min_size(mut self, m: f32) -> Self {
         self.min_size = m;
+        self
+    }
+
+    pub fn height(mut self, h: f32) -> Self {
+        self.height = Some(h);
         self
     }
 
@@ -58,7 +65,7 @@ impl Resizable {
         match self.dir {
             ResizeDir::Horizontal => {
                 let total_w = avail.width();
-                let total_h = avail.height();
+                let total_h = self.height.unwrap_or_else(|| avail.height());
 
                 // Clamp split so each panel respects min_size
                 let min_frac = self.min_size / total_w;
@@ -124,7 +131,7 @@ impl Resizable {
             }
             ResizeDir::Vertical => {
                 let total_w = avail.width();
-                let total_h = avail.height();
+                let total_h = self.height.unwrap_or_else(|| avail.height());
 
                 let min_frac = self.min_size / total_h;
                 let max_frac = 1.0 - self.min_size / total_h;

@@ -450,6 +450,11 @@ impl DemoApp {
                     fg,
                 );
 
+                if is_active && self.sidebar_needs_scroll {
+                    resp.scroll_to_me(Some(egui::Align::Center));
+                    self.sidebar_needs_scroll = false;
+                }
+
                 if resp.clicked() {
                     self.current_section = i;
                     self.scroll_to_section = Some(i);
@@ -537,6 +542,9 @@ impl DemoApp {
             // Auto-highlight sidebar: last section whose top is at or above viewport top
             let section_top = ui.cursor().top();
             if !was_scrolling && section_top <= clip_top + 40.0 {
+                if self.current_section != i {
+                    self.sidebar_needs_scroll = true;
+                }
                 self.current_section = i;
             }
 
