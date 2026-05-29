@@ -1,5 +1,6 @@
 # Todo
 
+- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Avatar,
 - Split the app from demo, extreme huge;
 
 # Process

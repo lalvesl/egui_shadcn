@@ -2,6 +2,7 @@ use egui::Color32;
 use egui_shadcn::{
     ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE,
     ICON_MAIL, ICON_SEND, ICON_DOWNLOAD, ICON_SEARCH, ICON_ADD,
+    ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_UNDERLINE, ICON_FORMAT_STRIKETHROUGH,
     ShadcnTheme,
     accordion::Accordion,
     alert::{Alert, AlertVariant},
@@ -130,6 +131,10 @@ pub struct DemoApp {
     cal_range_end: Option<CalDate>,
     toggle1: bool,
     toggle2: bool,
+    toggle_bold: bool,
+    toggle_italic: bool,
+    toggle_underline: bool,
+    toggle_strikethrough: bool,
     toggle_group_val: u8,
     collapsible_open: bool,
     pagination_page: usize,
@@ -181,6 +186,10 @@ impl Default for DemoApp {
             cal_range_end: None,
             toggle1: false,
             toggle2: true,
+            toggle_bold: false,
+            toggle_italic: false,
+            toggle_underline: false,
+            toggle_strikethrough: false,
             toggle_group_val: 0,
             collapsible_open: false,
             pagination_page: 1,
@@ -1202,6 +1211,28 @@ impl DemoApp {
             ui.horizontal(|ui| {
                 Toggle::new(&mut self.toggle1, "Bold").show(ui);
                 Toggle::new(&mut self.toggle2, "Italic").show(ui);
+            });
+        });
+
+        ui.add_space(16.0);
+        Card::new().show(ui, |ui| {
+            card_header(ui, "With Icon", None);
+            ui.horizontal(|ui| {
+                Toggle::new(&mut self.toggle_bold, "Bold")
+                    .icon(ICON_FORMAT_BOLD)
+                    .show(ui);
+                ui.add_space(4.0);
+                Toggle::new(&mut self.toggle_italic, "Italic")
+                    .icon(ICON_FORMAT_ITALIC)
+                    .show(ui);
+                ui.add_space(4.0);
+                Toggle::new(&mut self.toggle_underline, "Underline")
+                    .icon(ICON_FORMAT_UNDERLINE)
+                    .show(ui);
+                ui.add_space(4.0);
+                Toggle::new(&mut self.toggle_strikethrough, "Strikethrough")
+                    .icon(ICON_FORMAT_STRIKETHROUGH)
+                    .show(ui);
             });
         });
 
