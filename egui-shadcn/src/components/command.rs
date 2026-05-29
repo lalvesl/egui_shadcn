@@ -1,6 +1,11 @@
+use super::button::{Button, ButtonSize, ButtonVariant};
+use super::card::Card;
+use super::input::Input;
+use super::separator::Separator;
 use super::spacing::Spacing;
-use crate::{ShadcnTheme, ICON_CLOSE, ICON_SEARCH};
-use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Rect, Sense, Stroke, Vec2};
+use super::typography::{muted_text, small_text};
+use crate::{ShadcnTheme, ICON_SEARCH};
+use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Sense, Vec2};
 
 
 pub struct CommandItem<'a> {
@@ -54,14 +59,12 @@ impl<'a> Command<'a> {
         let query_id = base_id.with("query");
         let sel_id = base_id.with("selected");
 
-        // Read state
         let mut query: String = ctx
             .data(|d| d.get_temp::<String>(query_id).clone())
             .unwrap_or_default();
         let mut selected_idx: usize =
             ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
 
-        // Build flat list of matching items: (group_idx, item_idx, &CommandItem)
         let filtered: Vec<(usize, usize)> = self
             .groups
             .iter()
@@ -72,10 +75,7 @@ impl<'a> Command<'a> {
                     .enumerate()
                     .filter(|(_, item)| {
                         query.is_empty()
-                            || item
-                                .label
-                                .to_lowercase()
-                                .contains(&query.to_lowercase())
+                            || item.label.to_lowercase().contains(&query.to_lowercase())
                     })
                     .map(move |(ii, _)| (gi, ii))
             })
@@ -86,23 +86,16 @@ impl<'a> Command<'a> {
             selected_idx = total - 1;
         }
 
-        // Keyboard input
         let mut result: Option<(usize, usize)> = None;
         let mut close = false;
 
         ctx.input(|i| {
-            if i.key_pressed(Key::Escape) {
-                close = true;
-            }
+            if i.key_pressed(Key::Escape) { close = true; }
             if i.key_pressed(Key::ArrowDown) && total > 0 {
                 selected_idx = (selected_idx + 1) % total;
             }
             if i.key_pressed(Key::ArrowUp) && total > 0 {
-                selected_idx = if selected_idx == 0 {
-                    total - 1
-                } else {
-                    selected_idx - 1
-                };
+                selected_idx = if selected_idx == 0 { total - 1 } else { selected_idx - 1 };
             }
             if i.key_pressed(Key::Enter) && total > 0 {
                 let (gi, ii) = filtered[selected_idx];
@@ -120,7 +113,7 @@ impl<'a> Command<'a> {
             return result;
         }
 
-        // Overlay
+        // Dim overlay
         let screen = ctx.content_rect();
         egui::Area::new(base_id.with("overlay"))
             .fixed_pos(screen.min)
@@ -128,25 +121,21 @@ impl<'a> Command<'a> {
             .interactable(false)
             .show(ctx, |ui| {
                 let (r, _) = ui.allocate_exact_size(screen.size(), Sense::hover());
-                ui.painter()
-                    .rect_filled(r, egui::CornerRadius::ZERO, Color32::from_black_alpha(160));
+                ui.painter().rect_filled(r, egui::CornerRadius::ZERO, Color32::from_black_alpha(160));
             });
 
-        // Dialog
         let dialog_max_h = 400.0;
-        let dialog_id = base_id.with("dialog");
+        let search_h = 44.0;
 
-        egui::Area::new(dialog_id)
+        egui::Area::new(base_id.with("dialog"))
             .fixed_pos(Pos2::new(
                 screen.center().x - self.width / 2.0,
                 screen.center().y - dialog_max_h / 2.0,
             ))
             .order(egui::Order::Foreground)
             .show(ctx, |ui| {
-                Frame::new()
-                    .fill(theme.card)
-                    .corner_radius(CornerRadius::same(theme.radius as u8))
-                    .stroke(Stroke::new(1.0, theme.border))
+                Card::new()
+                    .padding(0.0)
                     .shadow(egui::Shadow {
                         offset: [0, 8],
                         blur: 24,
@@ -158,66 +147,31 @@ impl<'a> Command<'a> {
                         ui.set_max_width(self.width);
 
                         // Search row
-                        let search_height = 44.0;
+                        Spacing::Xs.show(ui);
                         ui.horizontal(|ui| {
-                            Spacing::Md.show(ui);
-                            ui.painter().text(
-                                ui.cursor().left_top()
-                                    + Vec2::new(0.0, search_height / 2.0),
-                                egui::Align2::LEFT_CENTER,
-                                ICON_SEARCH,
-                                ShadcnTheme::icon_font(18.0),
-                                theme.muted_foreground,
-                            );
-                            ui.add_space(22.0);
+                            Input::new(&mut query)
+                                .icon_left(ICON_SEARCH)
+                                .placeholder(self.placeholder)
+                                .bordered(false)
+                                .width(self.width - 44.0)
+                                .show(ui)
+                                .request_focus();
 
-                            let te = egui::TextEdit::singleline(&mut query)
-                                .hint_text(self.placeholder)
-                                .frame(Frame::NONE)
-                                .font(ShadcnTheme::body_font())
-                                .text_color(theme.foreground)
-                                .desired_width(self.width - 90.0)
-                                .min_size(Vec2::new(self.width - 90.0, search_height));
-                            let te_resp = ui.add(te);
-                            te_resp.request_focus();
-
-                            // Close button
-                            let close_center = Pos2::new(
-                                ui.cursor().left() + 24.0,
-                                ui.cursor().top() + search_height / 2.0,
-                            );
-                            let close_rect =
-                                Rect::from_center_size(close_center, Vec2::splat(24.0));
-                            let close_resp =
-                                ui.interact(close_rect, base_id.with("close_btn"), Sense::click());
-                            let close_bg = if close_resp.hovered() {
-                                theme.accent
-                            } else {
-                                Color32::TRANSPARENT
-                            };
-                            ui.painter()
-                                .rect_filled(close_rect, CornerRadius::same(4), close_bg);
-                            ui.painter().text(
-                                close_center,
-                                egui::Align2::CENTER_CENTER,
-                                ICON_CLOSE,
-                                ShadcnTheme::icon_font(16.0),
-                                theme.muted_foreground,
-                            );
-                            if close_resp.clicked() {
+                            let close_btn = Button::new("")
+                                .variant(ButtonVariant::Ghost)
+                                .size(ButtonSize::Icon)
+                                .show(ui);
+                            if close_btn.clicked() {
                                 close = true;
                             }
                         });
+                        Spacing::Xs.show(ui);
 
-                        ui.painter().hline(
-                            ui.max_rect().x_range(),
-                            ui.cursor().top(),
-                            Stroke::new(1.0, theme.border),
-                        );
+                        Separator::horizontal().show(ui);
 
-                        // Scrollable results
+                        // Results
                         egui::ScrollArea::vertical()
-                            .max_height(dialog_max_h - search_height - 16.0)
+                            .max_height(dialog_max_h - search_h - 16.0)
                             .show(ui, |ui| {
                                 Spacing::Xs.show(ui);
 
@@ -225,37 +179,31 @@ impl<'a> Command<'a> {
                                     .inner_margin(Margin::symmetric(4, 0))
                                     .show(ui, |ui| {
                                         let mut flat_idx = 0usize;
+
                                         for (gi, group) in self.groups.iter().enumerate() {
-                                            // Filter items
-                                            let group_items: Vec<(usize, &CommandItem)> =
-                                                group.items
-                                                    .iter()
-                                                    .enumerate()
-                                                    .filter(|(_, item)| {
-                                                        query.is_empty()
-                                                            || item
-                                                                .label
-                                                                .to_lowercase()
-                                                                .contains(&query.to_lowercase())
-                                                    })
-                                                    .collect();
+                                            let group_items: Vec<(usize, &CommandItem)> = group
+                                                .items
+                                                .iter()
+                                                .enumerate()
+                                                .filter(|(_, item)| {
+                                                    query.is_empty()
+                                                        || item
+                                                            .label
+                                                            .to_lowercase()
+                                                            .contains(&query.to_lowercase())
+                                                })
+                                                .collect();
+
                                             if group_items.is_empty() {
                                                 continue;
                                             }
 
                                             if let Some(heading) = group.heading {
-                                                ui.add_space(6.0);
-                                                let (hr, _) = ui.allocate_exact_size(
-                                                    Vec2::new(ui.available_width(), 20.0),
-                                                    Sense::hover(),
-                                                );
-                                                ui.painter().text(
-                                                    Pos2::new(hr.left() + 8.0, hr.center().y),
-                                                    egui::Align2::LEFT_CENTER,
-                                                    heading,
-                                                    ShadcnTheme::small_font(),
-                                                    theme.muted_foreground,
-                                                );
+                                                Spacing::Xs.show(ui);
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(8.0);
+                                                    small_text(ui, heading);
+                                                });
                                                 ui.add_space(2.0);
                                             }
 
@@ -270,15 +218,10 @@ impl<'a> Command<'a> {
                                                 } else {
                                                     Color32::TRANSPARENT
                                                 };
-                                                ui.painter().rect_filled(
-                                                    item_rect,
-                                                    CornerRadius::same(4),
-                                                    bg,
-                                                );
+                                                ui.painter().rect_filled(item_rect, CornerRadius::same(4), bg);
 
                                                 let mut tx = item_rect.left() + 10.0;
 
-                                                // Icon
                                                 if let Some(icon) = item.icon {
                                                     ui.painter().text(
                                                         Pos2::new(tx, item_rect.center().y),
@@ -290,7 +233,6 @@ impl<'a> Command<'a> {
                                                     tx += 22.0;
                                                 }
 
-                                                // Label
                                                 ui.painter().text(
                                                     Pos2::new(tx, item_rect.center().y),
                                                     egui::Align2::LEFT_CENTER,
@@ -299,13 +241,9 @@ impl<'a> Command<'a> {
                                                     theme.foreground,
                                                 );
 
-                                                // Description (right side)
                                                 if let Some(desc) = item.description {
                                                     ui.painter().text(
-                                                        Pos2::new(
-                                                            item_rect.right() - 8.0,
-                                                            item_rect.center().y,
-                                                        ),
+                                                        Pos2::new(item_rect.right() - 8.0, item_rect.center().y),
                                                         egui::Align2::RIGHT_CENTER,
                                                         desc,
                                                         ShadcnTheme::small_font(),
@@ -313,7 +251,6 @@ impl<'a> Command<'a> {
                                                     );
                                                 }
 
-                                                // Shortcut
                                                 if let Some(sc) = item.shortcut {
                                                     let sc_x = if item.description.is_some() {
                                                         item_rect.right() - 80.0
@@ -343,20 +280,17 @@ impl<'a> Command<'a> {
                                         if flat_idx == 0 {
                                             ui.add_space(20.0);
                                             ui.centered_and_justified(|ui| {
-                                                ui.label(
-                                                    egui::RichText::new("No results found.")
-                                                        .color(theme.muted_foreground),
-                                                );
+                                                muted_text(ui, "No results found.");
                                             });
                                             ui.add_space(20.0);
                                         }
                                     });
+
                                 Spacing::Xs.show(ui);
                             });
                     });
             });
 
-        // Save state
         ctx.data_mut(|d| {
             d.insert_temp(query_id, query);
             d.insert_temp(sel_id, selected_idx);

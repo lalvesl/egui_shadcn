@@ -4,14 +4,14 @@ use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
 pub struct Card {
     padding: f32,
-    shadow: bool,
+    shadow: Option<egui::Shadow>,
 }
 
 impl Default for Card {
     fn default() -> Self {
         Self {
             padding: 24.0,
-            shadow: true,
+            shadow: None,
         }
     }
 }
@@ -24,19 +24,23 @@ impl Card {
         self.padding = p;
         self
     }
-    pub fn shadow(mut self, s: bool) -> Self {
-        self.shadow = s;
+    pub fn shadow(mut self, s: egui::Shadow) -> Self {
+        self.shadow = Some(s);
         self
     }
 
     pub fn show(self, ui: &mut Ui, content: impl FnOnce(&mut Ui)) {
         let theme = ShadcnTheme::get(ui.ctx());
 
-        let frame = Frame::new()
+        let mut frame = Frame::new()
             .fill(theme.card)
             .corner_radius(CornerRadius::same(theme.radius as u8))
             .stroke(Stroke::new(1.0, theme.border))
             .inner_margin(Margin::same(self.padding as i8));
+
+        if let Some(shadow) = self.shadow {
+            frame = frame.shadow(shadow);
+        }
 
         frame.show(ui, content);
     }

@@ -10,6 +10,7 @@ pub struct Input<'a> {
     enabled: bool,
     icon_left: Option<&'a str>,
     width: Option<f32>,
+    bordered: bool,
 }
 
 impl<'a> Input<'a> {
@@ -22,6 +23,7 @@ impl<'a> Input<'a> {
             enabled: true,
             icon_left: None,
             width: None,
+            bordered: true,
         }
     }
 
@@ -49,6 +51,10 @@ impl<'a> Input<'a> {
         self.width = Some(w);
         self
     }
+    pub fn bordered(mut self, b: bool) -> Self {
+        self.bordered = b;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> egui::Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -73,14 +79,15 @@ impl<'a> Input<'a> {
 
         let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
 
-        // Draw background and border using temporary painter borrows
-        ui.painter().rect_filled(rect, cr, bg);
-        ui.painter().rect_stroke(
-            rect,
-            cr,
-            Stroke::new(1.0, theme.border),
-            egui::StrokeKind::Inside,
-        );
+        if self.bordered {
+            ui.painter().rect_filled(rect, cr, bg);
+            ui.painter().rect_stroke(
+                rect,
+                cr,
+                Stroke::new(1.0, theme.border),
+                egui::StrokeKind::Inside,
+            );
+        }
 
         let x_pad = 12.0;
         let icon_w = if self.icon_left.is_some() { 24.0 } else { 0.0 };
@@ -120,7 +127,7 @@ impl<'a> Input<'a> {
         );
         let resp = child.add(te);
 
-        if resp.has_focus() {
+        if self.bordered && resp.has_focus() {
             ui.painter().rect_stroke(
                 rect.expand(1.0),
                 cr,
