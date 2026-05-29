@@ -7,9 +7,10 @@ use egui_shadcn::{
     dialog::Dialog,
     input::Input,
     button::{Button, ButtonVariant},
+    popover::Popover,
     separator::Separator,
     toast::Toaster,
-    typography::{heading2, muted_text},
+    typography::{body_text, heading2, heading4, muted_text, small_text},
     slider::Slider,
 };
 
@@ -66,7 +67,6 @@ const SECTIONS: &[&str] = &[
 pub struct DemoApp {
     pub(super) dark: bool,
     pub(super) primary_hue: Option<f32>,
-    pub(super) show_hue_picker: bool,
     pub(super) current_section: usize,
 
     pub(super) btn_clicked: bool,
@@ -126,7 +126,6 @@ impl Default for DemoApp {
         Self {
             dark: true,
             primary_hue: None,
-            show_hue_picker: false,
             current_section: 0,
             btn_clicked: false,
             checkbox1: true,
@@ -281,166 +280,109 @@ impl DemoApp {
         let theme = ShadcnTheme::get(ui.ctx());
 
         ui.horizontal(|ui| {
-            ui.label(
-                egui::RichText::new("egui-shadcn")
-                    .font(egui::FontId::new(18.0, egui::FontFamily::Proportional))
-                    .color(theme.foreground)
-                    .strong(),
-            );
-            ui.label(
-                egui::RichText::new("component demo")
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-                    .color(theme.muted_foreground),
-            );
+            heading4(ui, "egui-shadcn");
+            Spacing::Sm.show(ui);
+            muted_text(ui, "component demo");
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Dark/light toggle
-                let moon_sun = if self.dark {
-                    ICON_BRIGHTNESS_7
-                } else {
-                    ICON_BRIGHTNESS_4
-                };
+                let moon_sun = if self.dark { ICON_BRIGHTNESS_7 } else { ICON_BRIGHTNESS_4 };
                 let icon_resp = ui.add(
                     egui::Label::new(
                         egui::RichText::new(moon_sun)
-                            .font(egui::FontId::new(
-                                20.0,
-                                egui::FontFamily::Name("MaterialIcons".into()),
-                            ))
+                            .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
                             .color(theme.foreground),
                     )
                     .sense(egui::Sense::click()),
                 );
-                if icon_resp.clicked() {
-                    self.dark = !self.dark;
-                }
-                if icon_resp.hovered() {
-                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                }
+                if icon_resp.clicked() { self.dark = !self.dark; }
+                if icon_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
 
                 Spacing::Sm.show(ui);
 
-                // Color picker icon
-                let palette_color = self
-                    .primary_hue
+                // Theme color picker via Popover
+                let palette_color = self.primary_hue
                     .map(|h| egui_shadcn::theme::hsl(h, 0.8, 0.55))
                     .unwrap_or(theme.foreground);
-                let palette_resp = ui.add(
-                    egui::Label::new(
-                        egui::RichText::new(ICON_PALETTE)
-                            .font(egui::FontId::new(
-                                20.0,
-                                egui::FontFamily::Name("MaterialIcons".into()),
-                            ))
-                            .color(palette_color),
-                    )
-                    .sense(egui::Sense::click()),
-                );
-                if palette_resp.clicked() {
-                    self.show_hue_picker = !self.show_hue_picker;
-                }
-                if palette_resp.hovered() {
-                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                }
+                let dark = self.dark;
 
-                if self.show_hue_picker {
-                    let theme = ShadcnTheme::get(ui.ctx());
-                    let dark = self.dark;
-                    egui::Window::new("Primary Color")
-                        .id(egui::Id::new("hue_picker"))
-                        .collapsible(false)
-                        .resizable(false)
-                        .default_width(260.0)
-                        .anchor(egui::Align2::RIGHT_TOP, [-8.0, 48.0])
-                        .frame(
-                            egui::Frame::new()
-                                .fill(theme.card)
-                                .stroke(egui::Stroke::new(1.0, theme.border))
-                                .corner_radius(egui::CornerRadius::same(theme.radius as u8))
-                                .inner_margin(egui::Margin::same(16)),
+                Popover::new("hue_picker").width(260.0).show(
+                    ui,
+                    |ui| {
+                        ui.add(
+                            egui::Label::new(
+                                egui::RichText::new(ICON_PALETTE)
+                                    .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                                    .color(palette_color),
+                            )
+                            .sense(egui::Sense::click()),
                         )
-                        .title_bar(false)
-                        .show(ui.ctx(), |ui| {
-                            ui.label(
-                                egui::RichText::new("Primary Color")
-                                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-                                    .color(theme.foreground)
-                                    .strong(),
-                            );
-                            Spacing::Md.show(ui);
+                    },
+                    |ui| {
+                        let theme = ShadcnTheme::get(ui.ctx());
+                        heading4(ui, "Primary Color");
+                        Spacing::Md.show(ui);
 
-                            let presets: &[(Option<f32>, &str)] = &[
-                                (None, "Zinc"),
-                                (Some(0.0), "Red"),
-                                (Some(25.0), "Orange"),
-                                (Some(48.0), "Yellow"),
-                                (Some(142.0), "Green"),
-                                (Some(217.0), "Blue"),
-                                (Some(263.0), "Violet"),
-                                (Some(300.0), "Pink"),
-                            ];
+                        let presets: &[(Option<f32>, &str)] = &[
+                            (None, "Zinc"),
+                            (Some(0.0), "Red"),
+                            (Some(25.0), "Orange"),
+                            (Some(48.0), "Yellow"),
+                            (Some(142.0), "Green"),
+                            (Some(217.0), "Blue"),
+                            (Some(263.0), "Violet"),
+                            (Some(300.0), "Pink"),
+                        ];
 
-                            ui.horizontal_wrapped(|ui| {
-                                for (hue, name) in presets {
-                                    let color = match hue {
-                                        None => egui_shadcn::theme::hsl(
-                                            240.0,
-                                            0.059,
-                                            if dark { 0.5 } else { 0.3 },
-                                        ),
-                                        Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
-                                    };
-
-                                    let is_sel = *hue == self.primary_hue;
-                                    let (swatch_rect, swatch_resp) = ui.allocate_exact_size(
-                                        egui::Vec2::splat(28.0),
-                                        egui::Sense::click(),
+                        ui.horizontal_wrapped(|ui| {
+                            for (hue, name) in presets {
+                                let color = match hue {
+                                    None => egui_shadcn::theme::hsl(240.0, 0.059, if dark { 0.5 } else { 0.3 }),
+                                    Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
+                                };
+                                let is_sel = *hue == self.primary_hue;
+                                let (swatch_rect, swatch_resp) = ui.allocate_exact_size(
+                                    egui::Vec2::splat(28.0),
+                                    egui::Sense::click(),
+                                );
+                                ui.painter().circle_filled(swatch_rect.center(), 12.0, color);
+                                if is_sel {
+                                    ui.painter().circle_stroke(
+                                        swatch_rect.center(),
+                                        14.0,
+                                        egui::Stroke::new(2.0, theme.foreground),
                                     );
-
-                                    ui.painter()
-                                        .circle_filled(swatch_rect.center(), 12.0, color);
-                                    if is_sel {
-                                        ui.painter().circle_stroke(
-                                            swatch_rect.center(),
-                                            14.0,
-                                            egui::Stroke::new(2.0, theme.foreground),
-                                        );
-                                    }
-                                    if swatch_resp.hovered() {
-                                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                                        ui.painter().text(
-                                            swatch_rect.center_bottom() + egui::Vec2::new(0.0, 4.0),
-                                            egui::Align2::CENTER_TOP,
-                                            *name,
-                                            egui::FontId::new(10.0, egui::FontFamily::Proportional),
-                                            theme.foreground,
-                                        );
-                                    }
-                                    if swatch_resp.clicked() {
-                                        self.primary_hue = *hue;
-                                    }
                                 }
-                            });
-
-                            Spacing::Md.show(ui);
-                            let mut hue = self.primary_hue.unwrap_or(240.0);
-                            ui.label(
-                                egui::RichText::new("Custom hue")
-                                    .font(egui::FontId::new(12.0, egui::FontFamily::Proportional))
-                                    .color(theme.muted_foreground),
-                            );
-                            let hue_resp = Slider::new(&mut hue, 0.0, 360.0).show(ui);
-                            if hue_resp.dragged() || hue_resp.changed() {
-                                self.primary_hue = Some(hue);
-                            }
-
-                            Spacing::Sm.show(ui);
-                            if ui.button("Reset to Zinc").clicked() {
-                                self.primary_hue = None;
-                                self.show_hue_picker = false;
+                                if swatch_resp.hovered() {
+                                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                                    ui.painter().text(
+                                        swatch_rect.center_bottom() + egui::Vec2::new(0.0, 4.0),
+                                        egui::Align2::CENTER_TOP,
+                                        *name,
+                                        egui::FontId::new(10.0, egui::FontFamily::Proportional),
+                                        theme.foreground,
+                                    );
+                                }
+                                if swatch_resp.clicked() {
+                                    self.primary_hue = *hue;
+                                }
                             }
                         });
-                }
+
+                        Spacing::Md.show(ui);
+                        small_text(ui, "Custom hue");
+                        let mut hue = self.primary_hue.unwrap_or(240.0);
+                        let hue_resp = Slider::new(&mut hue, 0.0, 360.0).show(ui);
+                        if hue_resp.dragged() || hue_resp.changed() {
+                            self.primary_hue = Some(hue);
+                        }
+
+                        Spacing::Sm.show(ui);
+                        if Button::new("Reset to Zinc").variant(ButtonVariant::Secondary).show(ui).clicked() {
+                            self.primary_hue = None;
+                        }
+                    },
+                );
             });
         });
     }
@@ -448,21 +390,16 @@ impl DemoApp {
     fn show_sidebar(&mut self, ui: &mut egui::Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
+        // Separator after these indices (0-based section index)
+        const SEP_AFTER: &[usize] = &[0, 8, 10, 17, 26, 28, 31, 37];
+
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.set_width(184.0);
 
             for (i, section) in SECTIONS.iter().enumerate() {
                 let is_active = self.current_section == i;
-                let bg = if is_active {
-                    theme.accent
-                } else {
-                    Color32::TRANSPARENT
-                };
-                let fg = if is_active {
-                    theme.accent_foreground
-                } else {
-                    theme.foreground
-                };
+                let bg = if is_active { theme.accent } else { Color32::TRANSPARENT };
+                let fg = if is_active { theme.accent_foreground } else { theme.foreground };
 
                 let (rect, resp) =
                     ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
@@ -475,11 +412,7 @@ impl DemoApp {
                     );
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 } else {
-                    ui.painter().rect_filled(
-                        rect,
-                        egui::CornerRadius::same(theme.radius as u8),
-                        bg,
-                    );
+                    ui.painter().rect_filled(rect, egui::CornerRadius::same(theme.radius as u8), bg);
                 }
 
                 ui.painter().text(
@@ -493,7 +426,14 @@ impl DemoApp {
                 if resp.clicked() {
                     self.current_section = i;
                 }
-                ui.add_space(2.0);
+
+                if SEP_AFTER.contains(&i) {
+                    Spacing::Xs.show(ui);
+                    Separator::horizontal().show(ui);
+                    Spacing::Xs.show(ui);
+                } else {
+                    ui.add_space(2.0);
+                }
             }
         });
     }
@@ -563,20 +503,9 @@ impl DemoApp {
         let input = &mut self.dialog_input;
 
         Dialog::new("Confirm Action", &mut self.dialog_open).show(ctx, |ui| {
-            let theme = ShadcnTheme::get(ui.ctx());
-            ui.label(
-                egui::RichText::new(
-                    "Are you sure you want to perform this action? This cannot be undone.",
-                )
-                .font(egui::FontId::new(13.0, egui::FontFamily::Proportional))
-                .color(theme.muted_foreground),
-            );
+            muted_text(ui, "Are you sure you want to perform this action? This cannot be undone.");
             Spacing::Lg.show(ui);
-            ui.label(
-                egui::RichText::new("Type CONFIRM to proceed")
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-                    .color(theme.foreground),
-            );
+            body_text(ui, "Type CONFIRM to proceed");
             Spacing::Xs.show(ui);
             Input::new(input).placeholder("CONFIRM").show(ui);
             Spacing::Lg.show(ui);

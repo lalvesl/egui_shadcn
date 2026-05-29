@@ -1,6 +1,8 @@
+use super::button::{Button, ButtonVariant};
 use super::spacing::Spacing;
+use super::typography::{heading4, muted_text};
 use crate::ShadcnTheme;
-use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Vec2};
+use egui::{Color32, CornerRadius, Frame, Margin, Stroke};
 
 pub struct AlertDialog<'a> {
     title: &'a str,
@@ -82,95 +84,35 @@ impl<'a> AlertDialog<'a> {
             )
             .title_bar(false)
             .show(ctx, |ui| {
-                ui.label(
-                    egui::RichText::new(self.title)
-                        .font(egui::FontId::new(18.0, egui::FontFamily::Proportional))
-                        .color(theme.foreground)
-                        .strong(),
-                );
-
+                heading4(ui, self.title);
                 Spacing::Sm.show(ui);
-
-                ui.label(
-                    egui::RichText::new(self.description)
-                        .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-                        .color(theme.muted_foreground),
-                );
-
-                ui.add_space(20.0);
+                muted_text(ui, self.description);
+                Spacing::Xl.show(ui);
 
                 ui.horizontal(|ui| {
-                    let btn_h = 36.0;
-                    let btn_w = 96.0;
-
-                    let (cancel_rect, cancel_resp) =
-                        ui.allocate_exact_size(Vec2::new(btn_w, btn_h), Sense::click());
-                    let cr = CornerRadius::same(theme.radius as u8);
-
-                    let cancel_bg = if cancel_resp.is_pointer_button_down_on() {
-                        theme.secondary
-                    } else if cancel_resp.hovered() {
-                        ShadcnTheme::with_alpha(theme.secondary, 200)
-                    } else {
-                        Color32::TRANSPARENT
-                    };
-
-                    ui.painter().rect_filled(cancel_rect, cr, cancel_bg);
-                    ui.painter().rect_stroke(
-                        cancel_rect,
-                        cr,
-                        Stroke::new(1.0, theme.border),
-                        egui::StrokeKind::Inside,
-                    );
-                    ui.painter().text(
-                        cancel_rect.center(),
-                        egui::Align2::CENTER_CENTER,
-                        self.cancel_label,
-                        egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                        theme.foreground,
-                    );
-
-                    if cancel_resp.clicked() {
+                    if Button::new(self.cancel_label)
+                        .variant(ButtonVariant::Outline)
+                        .show(ui)
+                        .clicked()
+                    {
                         *self.open = false;
-                    }
-                    if cancel_resp.hovered() {
-                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
 
                     Spacing::Sm.show(ui);
 
-                    let (confirm_rect, confirm_resp) =
-                        ui.allocate_exact_size(Vec2::new(btn_w, btn_h), Sense::click());
-
-                    let (confirm_bg, confirm_fg) = if self.destructive {
-                        (theme.destructive, theme.destructive_foreground)
+                    let confirm_variant = if self.destructive {
+                        ButtonVariant::Destructive
                     } else {
-                        (theme.primary, theme.primary_foreground)
+                        ButtonVariant::Default
                     };
 
-                    let actual_bg = if confirm_resp.is_pointer_button_down_on() {
-                        ShadcnTheme::with_alpha(confirm_bg, 200)
-                    } else if confirm_resp.hovered() {
-                        ShadcnTheme::with_alpha(confirm_bg, 220)
-                    } else {
-                        confirm_bg
-                    };
-
-                    ui.painter().rect_filled(confirm_rect, cr, actual_bg);
-                    ui.painter().text(
-                        confirm_rect.center(),
-                        egui::Align2::CENTER_CENTER,
-                        self.confirm_label,
-                        egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                        confirm_fg,
-                    );
-
-                    if confirm_resp.clicked() {
+                    if Button::new(self.confirm_label)
+                        .variant(confirm_variant)
+                        .show(ui)
+                        .clicked()
+                    {
                         confirmed = true;
                         *self.open = false;
-                    }
-                    if confirm_resp.hovered() {
-                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
                 });
             });
@@ -193,4 +135,3 @@ impl<'a> AlertDialog<'a> {
         confirmed
     }
 }
-
