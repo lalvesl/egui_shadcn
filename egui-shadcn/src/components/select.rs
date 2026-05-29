@@ -27,7 +27,7 @@ impl<'a> Select<'a> {
 
     pub fn show(self, ui: &mut Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
-        let width = self.width.unwrap_or(200.0);
+        let width = self.width.unwrap_or_else(|| ui.available_width());
         let height = self.size.height();
 
         let popup_id = egui::Id::new("shadcn_select").with(self.placeholder);

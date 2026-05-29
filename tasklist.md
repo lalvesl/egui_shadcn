@@ -1,11 +1,13 @@
 # Todo
 
-- Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
 - The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
 - You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
+- For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 - Fix the clippy warnings;
 
 # Process
+
+- Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
 
 # Done
 

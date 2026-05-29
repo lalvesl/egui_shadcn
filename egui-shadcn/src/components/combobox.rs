@@ -7,22 +7,22 @@ pub struct Combobox<'a> {
     current: &'a mut Option<usize>,
     options: &'a [&'a str],
     placeholder: &'a str,
-    width: f32,
+    width: Option<f32>,
     size: Size,
 }
 
 impl<'a> Combobox<'a> {
     pub fn new(id: &'a str, current: &'a mut Option<usize>, options: &'a [&'a str]) -> Self {
-        Self { id, current, options, placeholder: "Select…", width: 200.0, size: Size::Default }
+        Self { id, current, options, placeholder: "Select…", width: None, size: Size::Default }
     }
 
     pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
-    pub fn width(mut self, w: f32) -> Self { self.width = w; self }
+    pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
     pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
-        let width = self.width;
+        let width = self.width.unwrap_or_else(|| ui.available_width());
         let height = self.size.height();
 
         let popup_id = egui::Id::new("shadcn_combobox").with(self.id);

@@ -1,7 +1,7 @@
 use egui_shadcn::spacing::Spacing;
 use egui::Color32;
 use egui_shadcn::{
-    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE,
+    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE,
     ShadcnTheme,
     calendar::CalDate,
     dialog::Dialog,
@@ -78,6 +78,7 @@ pub struct DemoApp {
     pub(super) dark: bool,
     pub(super) primary_hue: Option<f32>,
     pub(super) current_section: usize,
+    pub(super) sidebar_open: bool,
 
     pub(super) btn_clicked: bool,
     pub(super) checkbox1: bool,
@@ -135,6 +136,7 @@ impl Default for DemoApp {
             dark: true,
             primary_hue: None,
             current_section: 0,
+            sidebar_open: true,
             btn_clicked: false,
             checkbox1: true,
             checkbox2: false,
@@ -243,18 +245,20 @@ impl eframe::App for DemoApp {
             });
 
         // ── Sidebar ─────────────────────────────────────────────────────────
-        let theme = ShadcnTheme::get(&ctx);
-        egui::Panel::left("sidebar")
-            .exact_size(200.0)
-            .frame(
-                egui::Frame::new()
-                    .fill(theme.card)
-                    .inner_margin(egui::Margin::symmetric(8, 12))
-                    .stroke(egui::Stroke::new(1.0, theme.border)),
-            )
-            .show_inside(ui, |ui| {
-                self.show_sidebar(ui);
-            });
+        if self.sidebar_open {
+            let theme = ShadcnTheme::get(&ctx);
+            egui::Panel::left("sidebar")
+                .exact_size(200.0)
+                .frame(
+                    egui::Frame::new()
+                        .fill(theme.card)
+                        .inner_margin(egui::Margin::symmetric(8, 12))
+                        .stroke(egui::Stroke::new(1.0, theme.border)),
+                )
+                .show_inside(ui, |ui| {
+                    self.show_sidebar(ui);
+                });
+        }
 
         // ── Content ─────────────────────────────────────────────────────────
         let theme = ShadcnTheme::get(&ctx);
@@ -286,6 +290,18 @@ impl DemoApp {
         let theme = ShadcnTheme::get(ui.ctx());
 
         ui.horizontal(|ui| {
+            let hamburger_resp = ui.add(
+                egui::Label::new(
+                    egui::RichText::new(ICON_MENU)
+                        .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                        .color(theme.foreground),
+                )
+                .sense(egui::Sense::click()),
+            );
+            if hamburger_resp.clicked() { self.sidebar_open = !self.sidebar_open; }
+            if hamburger_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+
+            Spacing::Sm.show(ui);
             heading4(ui, "egui-shadcn");
             Spacing::Sm.show(ui);
             muted_text(ui, "component demo");
