@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui::Color32;
 use egui_shadcn::{
     ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE,
@@ -252,13 +253,13 @@ impl eframe::App for DemoApp {
                 .id_salt(self.current_section)
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
-                    ui.add_space(24.0);
+                    Spacing::Xl.show(ui);
                     egui::Frame::new()
                         .inner_margin(egui::Margin::symmetric(24, 0))
                         .show(ui, |ui| {
                             self.render_section(ui);
                         });
-                    ui.add_space(48.0);
+                    Spacing::Xl3.show(ui);
                 });
         });
 
@@ -312,7 +313,7 @@ impl DemoApp {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 }
 
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
 
                 // Color picker icon
                 let palette_color = self
@@ -361,7 +362,7 @@ impl DemoApp {
                                     .color(theme.foreground)
                                     .strong(),
                             );
-                            ui.add_space(12.0);
+                            Spacing::Md.show(ui);
 
                             let presets: &[(Option<f32>, &str)] = &[
                                 (None, "Zinc"),
@@ -416,7 +417,7 @@ impl DemoApp {
                                 }
                             });
 
-                            ui.add_space(12.0);
+                            Spacing::Md.show(ui);
                             let mut hue = self.primary_hue.unwrap_or(240.0);
                             ui.label(
                                 egui::RichText::new("Custom hue")
@@ -428,7 +429,7 @@ impl DemoApp {
                                 self.primary_hue = Some(hue);
                             }
 
-                            ui.add_space(8.0);
+                            Spacing::Sm.show(ui);
                             if ui.button("Reset to Zinc").clicked() {
                                 self.primary_hue = None;
                                 self.show_hue_picker = false;
@@ -544,11 +545,11 @@ impl DemoApp {
 
     pub(super) fn section_title(&self, ui: &mut egui::Ui, title: &str, subtitle: &str) {
         heading2(ui, title);
-        ui.add_space(4.0);
+        Spacing::Xs.show(ui);
         muted_text(ui, subtitle);
-        ui.add_space(24.0);
+        Spacing::Xl.show(ui);
         Separator::horizontal().show(ui);
-        ui.add_space(24.0);
+        Spacing::Xl.show(ui);
     }
 
     fn render_dialog(&mut self, ctx: &egui::Context) {
@@ -564,15 +565,15 @@ impl DemoApp {
                 .font(egui::FontId::new(13.0, egui::FontFamily::Proportional))
                 .color(theme.muted_foreground),
             );
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
             ui.label(
                 egui::RichText::new("Type CONFIRM to proceed")
                     .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
                     .color(theme.foreground),
             );
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             Input::new(input).placeholder("CONFIRM").show(ui);
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
 
             let ok = input.as_str() == "CONFIRM";
             ui.horizontal(|ui| {
@@ -583,7 +584,7 @@ impl DemoApp {
                 {
                     close = true;
                 }
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 if Button::new("Continue")
                     .variant(ButtonVariant::Destructive)
                     .enabled(ok)

@@ -26,12 +26,12 @@ impl DemoApp {
             );
             body_text(ui, "Card body content goes here.");
         });
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().padding(16.0).show(ui, |ui| {
             card_header(ui, "User Card", None);
             ui.horizontal(|ui| {
                 Avatar::new("JD").show(ui);
-                ui.add_space(12.0);
+                Spacing::Md.show(ui);
                 ui.vertical(|ui| {
                     body_text(ui, "John Doe");
                     muted_text(ui, "john@example.com");
@@ -47,22 +47,22 @@ impl DemoApp {
             card_header(ui, "Avatar", None);
             ui.horizontal(|ui| {
                 Avatar::new("JD").size(AvatarSize::Sm).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Avatar::new("Alice").show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Avatar::new("Bob").size(AvatarSize::Lg).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Avatar::new("XY")
                     .color(Color32::from_rgb(139, 92, 246))
                     .show(ui);
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Label", None);
             Label::new("Username").show(ui);
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             Label::new("Email").required(true).show(ui);
         });
     }
@@ -83,12 +83,12 @@ impl DemoApp {
                 None => "No date selected".to_owned(),
             };
             muted_text(ui, &label);
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             Calendar::single("demo_cal_single", &mut self.cal_single).show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         // ── Range date ───────────────────────────────────────────────────────
         Card::new().show(ui, |ui| {
@@ -109,7 +109,7 @@ impl DemoApp {
                 _ => "No range selected".to_owned(),
             };
             muted_text(ui, &label);
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             Calendar::range(
                 "demo_cal_range",
@@ -119,7 +119,7 @@ impl DemoApp {
             .show(ui);
 
             if self.cal_range_start.is_some() {
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 if ui.button("Clear").clicked() {
                     self.cal_range_start = None;
                     self.cal_range_end = None;
@@ -127,7 +127,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         // ── With cell content ─────────────────────────────────────────────────
         Card::new().show(ui, |ui| {
@@ -137,7 +137,7 @@ impl DemoApp {
                 Some("Custom badges inside specific date cells."),
             );
             muted_text(ui, "Cells on the 1st, 10th, and 20th have event badges.");
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             let theme = ShadcnTheme::get(ui.ctx());
             let accent = theme.primary;
@@ -168,11 +168,11 @@ impl DemoApp {
             card_header(ui, "Collapsible", None);
             Collapsible::new("demo_collapsible", "Starred repositories", &mut self.collapsible_open)
                 .show(ui, |ui| {
-                    ui.add_space(4.0);
+                    Spacing::Xs.show(ui);
                     muted_text(ui, "@radix-ui/primitives");
-                    ui.add_space(4.0);
+                    Spacing::Xs.show(ui);
                     muted_text(ui, "@radix-ui/colors");
-                    ui.add_space(4.0);
+                    Spacing::Xs.show(ui);
                     muted_text(ui, "@stitches/react");
                 });
         });
@@ -244,29 +244,29 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Horizontal", None);
             muted_text(ui, "My Account");
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             Separator::horizontal().show(ui);
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             muted_text(ui, "Profile");
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             muted_text(ui, "Billing");
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             muted_text(ui, "Settings");
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Vertical", None);
             ui.horizontal(|ui| {
                 muted_text(ui, "Blog");
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Separator::vertical().length(16.0).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 muted_text(ui, "Docs");
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Separator::vertical().length(16.0).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 muted_text(ui, "Source");
             });
         });
@@ -294,7 +294,7 @@ impl DemoApp {
                 ui.horizontal(|ui| {
                     let label = format!("{:<4}  {:>2}px", name, u32::from(*sp));
                     muted_text(ui, &label);
-                    ui.add_space(12.0);
+                    Spacing::Md.show(ui);
                     let bar_w = sp.px();
                     let (rect, _) = ui.allocate_exact_size(
                         egui::Vec2::new(bar_w, 8.0),
@@ -302,11 +302,11 @@ impl DemoApp {
                     );
                     ui.painter().rect_filled(rect, egui::CornerRadius::same(2), theme.primary);
                 });
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Usage", Some("Spacing::Lg.show(ui)  or  f32::from(Spacing::Lg)"));

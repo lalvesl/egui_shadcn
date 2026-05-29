@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ICON_ERROR_OUTLINE, ICON_INFO, ICON_WARNING, ShadcnTheme};
 use egui::{CornerRadius, FontFamily, FontId, Frame, Margin, Stroke, Ui};
 
@@ -66,7 +67,7 @@ impl<'a> Alert<'a> {
                             .color(icon_color),
                     );
 
-                    ui.add_space(8.0);
+                    Spacing::Sm.show(ui);
 
                     ui.vertical(|ui| {
                         ui.label(

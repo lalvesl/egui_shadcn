@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Vec2};
 
@@ -88,7 +89,7 @@ impl<'a> AlertDialog<'a> {
                         .strong(),
                 );
 
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
 
                 ui.label(
                     egui::RichText::new(self.description)
@@ -136,7 +137,7 @@ impl<'a> AlertDialog<'a> {
                         ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
 
-                    ui.add_space(8.0);
+                    Spacing::Sm.show(ui);
 
                     let (confirm_rect, confirm_resp) =
                         ui.allocate_exact_size(Vec2::new(btn_w, btn_h), Sense::click());

@@ -4,16 +4,16 @@
 - Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
 
 - Many components does not reuse components, that's a big problem;
-
 - In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
-- Now i need to track every time executed add_space replace by new space component;
+
+- Create component Boxed (not Box because Rust already have Box structure), this is a simple box with standart padding and margin, yes this component need to recive dynamic childs internally, egui already supports awesome this part;
 
 # Process
 
-- Problem of transition of "Many pages" in pagination example;
-
 # Done
 
+- Now i need to track every time executed add_space replace by new space component;
+- Problem of transition of "Many pages" in pagination example;
 - The pagination does not show the number inside of current page;
 - Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui and another From to execute into to automatically transform in f32 or another types of numbers;
 - Create component separator (vertical and horizontal);

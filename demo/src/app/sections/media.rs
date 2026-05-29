@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ShadcnTheme,
     button::{Button, ButtonVariant},
@@ -50,7 +51,7 @@ impl DemoApp {
             Chart::new(datasets, months).height(200.0).show_legend(true).show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Line chart", None);

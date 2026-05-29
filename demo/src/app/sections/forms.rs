@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     card::{Card, card_header},
     checkbox::Checkbox,
@@ -25,40 +26,40 @@ impl DemoApp {
             Checkbox::new(&mut self.checkbox1)
                 .label("Accept terms and conditions")
                 .show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Checkbox::new(&mut self.checkbox2)
                 .label("Subscribe to newsletter")
                 .show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Checkbox::new(&mut self.checkbox3)
                 .label("Disabled option")
                 .enabled(false)
                 .show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Radio Group", None);
             Radio::new(&mut self.radio_val, 0u32)
                 .label("Option A")
                 .show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Radio::new(&mut self.radio_val, 1u32)
                 .label("Option B")
                 .show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Radio::new(&mut self.radio_val, 2u32)
                 .label("Option C")
                 .show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Switch", None);
             Switch::new(&mut self.switch1)
                 .label("Enable notifications")
                 .show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Switch::new(&mut self.switch2)
                 .label("Disabled switch")
                 .enabled(false)
@@ -75,7 +76,7 @@ impl DemoApp {
                 .label("Username")
                 .placeholder("Enter your username…")
                 .show(ui);
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             Input::new(&mut self.password_text)
                 .label("Password")
                 .placeholder("••••••••")
@@ -83,7 +84,7 @@ impl DemoApp {
                 .show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Textarea", None);
 
@@ -94,7 +95,7 @@ impl DemoApp {
                 .rows(4)
                 .show(ui);
 
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             // Scroll — fixed height, vertical scrollbar
             Textarea::new(&mut self.textarea_scroll)
@@ -104,7 +105,7 @@ impl DemoApp {
                 .scroll(true)
                 .show(ui);
 
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             // Grow Y — expands up to 8 rows, then scrolls
             Textarea::new(&mut self.textarea_grow_y)
@@ -114,7 +115,7 @@ impl DemoApp {
                 .max_rows(8)
                 .show(ui);
 
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             // Grow X — capped width (doesn't fill panel)
             Textarea::new(&mut self.textarea_grow_x)
@@ -124,7 +125,7 @@ impl DemoApp {
                 .max_width(280.0)
                 .show(ui);
 
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
 
             // Grow both — capped width + grow Y
             Textarea::new(&mut self.textarea_grow_both)
@@ -136,21 +137,21 @@ impl DemoApp {
                 .show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Select", None);
             Label::new("Framework").show(ui);
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             Select::new(&mut self.select_val, &["React", "Vue", "Svelte", "egui"])
                 .placeholder("Pick a framework…")
                 .show(ui);
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Slider", None);
             muted_text(ui, &format!("Value: {:.0}", self.slider_val));
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Slider::new(&mut self.slider_val, 0.0, 100.0).show(ui);
         });
     }
@@ -165,7 +166,7 @@ impl DemoApp {
                 .placeholder("Select framework…")
                 .show(ui);
             if let Some(i) = self.combobox_val {
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 muted_text(ui, &format!("Selected: {}", frameworks[i]));
             }
         });
@@ -178,7 +179,7 @@ impl DemoApp {
             card_header(ui, "One-Time Password", Some("Enter your one-time password."));
             InputOtp::new(&mut self.otp_val, 6).separator_after(3).show(ui);
             if self.otp_val.len() == 6 {
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 muted_text(ui, &format!("Code: {}", self.otp_val));
             }
         });
@@ -191,7 +192,7 @@ impl DemoApp {
             card_header(ui, "Pick a date", None);
             DatePicker::new("demo_date_picker", &mut self.date_picker_val).show(ui);
             if let Some(d) = self.date_picker_val {
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 muted_text(ui, &format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day));
             }
         });

@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CLOSE};
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Vec2};
 
@@ -92,7 +93,7 @@ impl<'a> Drawer<'a> {
                             theme.muted_foreground,
                         );
                     });
-                    ui.add_space(12.0);
+                    Spacing::Md.show(ui);
                 }
 
                 // Title row with close button
@@ -121,9 +122,9 @@ impl<'a> Drawer<'a> {
                     });
                 });
 
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 ui.separator();
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
 
                 content(ui);
             });

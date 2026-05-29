@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CLOSE};
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
@@ -84,9 +85,9 @@ impl<'a> Dialog<'a> {
                     });
                 });
 
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 ui.separator();
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
 
                 content(ui);
             });

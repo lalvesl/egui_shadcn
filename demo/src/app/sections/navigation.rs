@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     accordion::Accordion,
     breadcrumb::Breadcrumb,
@@ -23,7 +24,7 @@ impl DemoApp {
                 &mut self.tab_index,
             )
             .show(ui, |ui, tab| {
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 match tab {
                     0 => body_text(ui, "Account settings go here."),
                     1 => body_text(ui, "Change your password."),
@@ -33,7 +34,7 @@ impl DemoApp {
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Accordion", None);
             Accordion::new("acc_0", "What is egui-shadcn?", &mut self.accordion_open[0]).show(
@@ -81,7 +82,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Custom separator", None);
@@ -96,18 +97,18 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Pagination", None);
             muted_text(ui, &format!("Page {} of 10", self.pagination_page));
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             if let Some(p) = Pagination::new(self.pagination_page, 10).show(ui) {
                 self.pagination_page = p;
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Many pages", None);
             muted_text(ui, &format!("Page {} of 20", self.pagination_page2));
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             if let Some(p) = Pagination::new(self.pagination_page2, 20).siblings(2).show(ui) {
                 self.pagination_page2 = p;
             }
@@ -131,7 +132,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Vertical (sidebar)", None);

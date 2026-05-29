@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Sense, Stroke, Ui, Vec2};
 
@@ -105,7 +106,7 @@ impl<'t> Tabs<'t> {
             x += *w + 2.0;
         }
 
-        ui.add_space(8.0);
+        Spacing::Sm.show(ui);
 
         content(ui, *self.current);
     }

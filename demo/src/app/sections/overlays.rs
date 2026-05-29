@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ShadcnTheme,
     avatar::{Avatar, AvatarSize},
@@ -27,7 +28,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Tooltip", None);
             Tooltip::new("This is a helpful tooltip").wrap(ui, |ui| {
@@ -58,7 +59,7 @@ impl DemoApp {
                 self.dropdown_last = Some(label.to_owned());
             }
             if let Some(ref last) = self.dropdown_last {
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 muted_text(ui, &format!("Clicked: {last}"));
             }
         });
@@ -95,7 +96,7 @@ impl DemoApp {
                 self.context_last = Some(label.to_owned());
             }
             if let Some(ref last) = self.context_last {
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 muted_text(ui, &format!("Clicked: {last}"));
             }
         });
@@ -106,7 +107,7 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Profile link", Some("Hover over the username below."));
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             HoverCard::new("demo_hover_card").show(ui,
                 |ui| {
                     let theme = ShadcnTheme::get(ui.ctx());
@@ -126,7 +127,7 @@ impl DemoApp {
                             ui.label(egui::RichText::new("@egui_shadcn").color(theme.muted_foreground).size(12.0));
                         });
                     });
-                    ui.add_space(8.0);
+                    Spacing::Sm.show(ui);
                     muted_text(ui, "Shadcn/ui components for Rust egui. Dark/light, 25+ components.");
                 }
             );
@@ -143,16 +144,16 @@ impl DemoApp {
                 |ui| {
                     let theme = ShadcnTheme::get(ui.ctx());
                     ui.label(egui::RichText::new("Dimensions").color(theme.foreground).strong());
-                    ui.add_space(8.0);
+                    Spacing::Sm.show(ui);
                     muted_text(ui, "Set the dimensions for the layer.");
-                    ui.add_space(12.0);
+                    Spacing::Md.show(ui);
                     ui.label(egui::RichText::new("Width").color(theme.foreground).size(13.0));
-                    ui.add_space(4.0);
+                    Spacing::Xs.show(ui);
                     let mut w = String::from("100%");
                     Input::new(&mut w).show(ui);
-                    ui.add_space(8.0);
+                    Spacing::Sm.show(ui);
                     ui.label(egui::RichText::new("Max. width").color(theme.foreground).size(13.0));
-                    ui.add_space(4.0);
+                    Spacing::Xs.show(ui);
                     let mut mw = String::from("300px");
                     Input::new(&mut mw).show(ui);
                 }
@@ -174,13 +175,13 @@ impl DemoApp {
         Sheet::new("Edit Profile", &mut self.sheet_open).show(&ctx, |ui| {
             let theme = ShadcnTheme::get(ui.ctx());
             ui.label(egui::RichText::new("Make changes to your profile here.").color(theme.muted_foreground).size(13.0));
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
             let mut name = String::from("Pedro Duarte");
             Input::new(&mut name).show(ui);
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             let mut username = String::from("@peduarte");
             Input::new(&mut username).show(ui);
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
             if Button::new("Save changes").show(ui).clicked() {
                 // saved
             }
@@ -201,10 +202,10 @@ impl DemoApp {
         Drawer::new("Move Goal", &mut self.drawer_open).show(&ctx, |ui| {
             let theme = ShadcnTheme::get(ui.ctx());
             ui.label(egui::RichText::new("Set your daily activity goal.").color(theme.muted_foreground).size(13.0));
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
             let mut goal = String::from("350");
             Input::new(&mut goal).show(ui);
-            ui.add_space(16.0);
+            Spacing::Lg.show(ui);
             if Button::new("Submit").show(ui).clicked() {
                 // submitted
             }

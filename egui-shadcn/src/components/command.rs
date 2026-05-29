@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CLOSE, ICON_SEARCH};
 use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Rect, Sense, Stroke, Vec2};
 
@@ -159,7 +160,7 @@ impl<'a> Command<'a> {
                         // Search row
                         let search_height = 44.0;
                         ui.horizontal(|ui| {
-                            ui.add_space(12.0);
+                            Spacing::Md.show(ui);
                             ui.painter().text(
                                 ui.cursor().left_top()
                                     + Vec2::new(0.0, search_height / 2.0),
@@ -218,7 +219,7 @@ impl<'a> Command<'a> {
                         egui::ScrollArea::vertical()
                             .max_height(dialog_max_h - search_height - 16.0)
                             .show(ui, |ui| {
-                                ui.add_space(4.0);
+                                Spacing::Xs.show(ui);
 
                                 Frame::new()
                                     .inner_margin(Margin::symmetric(4, 0))
@@ -350,7 +351,7 @@ impl<'a> Command<'a> {
                                             ui.add_space(20.0);
                                         }
                                     });
-                                ui.add_space(4.0);
+                                Spacing::Xs.show(ui);
                             });
                     });
             });

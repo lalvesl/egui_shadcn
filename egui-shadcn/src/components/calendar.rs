@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::ShadcnTheme;
 use egui::{CornerRadius, Direction, Layout, Sense, Stroke, Ui, Vec2};
 
@@ -209,7 +210,7 @@ impl<'a> Calendar<'a> {
                         cell_h,
                         cell_fn,
                     });
-                    ui.add_space(24.0);
+                    Spacing::Xl.show(ui);
                     let (_, c1) = draw_month(ui, &theme, DrawConfig {
                         view: right_view,
                         sel_start: s_start,

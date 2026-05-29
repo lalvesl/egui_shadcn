@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     alert::{Alert, AlertVariant},
     alert_dialog::AlertDialog,
@@ -18,12 +19,12 @@ impl DemoApp {
         Alert::new("Heads up!")
             .description("This is an informational alert with a description.")
             .show(ui);
-        ui.add_space(12.0);
+        Spacing::Md.show(ui);
         Alert::new("Destructive")
             .description("Something went wrong. Please check your inputs.")
             .variant(AlertVariant::Destructive)
             .show(ui);
-        ui.add_space(12.0);
+        Spacing::Md.show(ui);
         Alert::new("Warning")
             .description("This action cannot be undone. Proceed with caution.")
             .variant(AlertVariant::Warning)
@@ -36,9 +37,9 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Progress", None);
             muted_text(ui, &format!("{:.0}%", self.progress_val * 100.0));
-            ui.add_space(8.0);
+            Spacing::Sm.show(ui);
             Progress::new(self.progress_val).show(ui);
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             ui.horizontal(|ui| {
                 if Button::new("−10%")
                     .size(ButtonSize::Sm)
@@ -48,38 +49,38 @@ impl DemoApp {
                 {
                     self.progress_val = (self.progress_val - 0.1).max(0.0);
                 }
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 if Button::new("+10%").size(ButtonSize::Sm).show(ui).clicked() {
                     self.progress_val = (self.progress_val + 0.1).min(1.0);
                 }
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Spinner", None);
             ui.horizontal(|ui| {
                 Spinner::new().size(16.0).show(ui);
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 Spinner::new().size(24.0).show(ui);
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 Spinner::new().size(40.0).show(ui);
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Skeleton", None);
             ui.horizontal(|ui| {
                 Skeleton::circle(40.0).show(ui);
-                ui.add_space(12.0);
+                Spacing::Md.show(ui);
                 ui.vertical(|ui| {
                     Skeleton::new(180.0, 14.0).radius(4.0).show(ui);
                     ui.add_space(6.0);
                     Skeleton::new(120.0, 12.0).radius(4.0).show(ui);
                 });
             });
-            ui.add_space(12.0);
+            Spacing::Md.show(ui);
             Skeleton::new(ui.available_width(), 120.0)
                 .radius(8.0)
                 .show(ui);
@@ -97,7 +98,7 @@ impl DemoApp {
             card_header(ui, "Default", None);
             if self.alert_dialog_confirmed {
                 muted_text(ui, "Action confirmed!");
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
             }
             if Button::new("Open Alert Dialog").show(ui).clicked() {
                 self.alert_dialog_open = true;
@@ -105,7 +106,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         let ctx = ui.ctx().clone();
         let mut confirmed = false;

@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CLOSE};
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Vec2};
 
@@ -122,9 +123,9 @@ impl<'a> Sheet<'a> {
                     });
                 });
 
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 ui.separator();
-                ui.add_space(12.0);
+                Spacing::Md.show(ui);
 
                 content(ui);
             });

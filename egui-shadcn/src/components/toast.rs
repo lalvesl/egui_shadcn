@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING};
 use egui::{Color32, CornerRadius, Frame, Stroke, Vec2};
 
@@ -221,7 +222,7 @@ impl Toaster {
                             ids_to_remove.push(toast_id);
                         }
 
-                        ui.add_space(8.0);
+                        Spacing::Sm.show(ui);
                     }
                 });
             });

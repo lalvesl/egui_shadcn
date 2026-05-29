@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
@@ -54,7 +55,7 @@ pub fn card_header(ui: &mut Ui, title: &str, description: Option<&str>) {
     );
 
     if let Some(desc) = description {
-        ui.add_space(4.0);
+        Spacing::Xs.show(ui);
         ui.label(
             egui::RichText::new(desc)
                 .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
@@ -62,13 +63,13 @@ pub fn card_header(ui: &mut Ui, title: &str, description: Option<&str>) {
         );
     }
 
-    ui.add_space(8.0);
+    Spacing::Sm.show(ui);
 }
 
 pub fn card_footer(ui: &mut Ui, content: impl FnOnce(&mut Ui)) {
     let theme = ShadcnTheme::get(ui.ctx());
     ui.separator();
-    ui.add_space(4.0);
+    Spacing::Xs.show(ui);
 
     Frame::new()
         .fill(Color32::TRANSPARENT)

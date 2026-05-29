@@ -1,3 +1,4 @@
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_STRIKETHROUGH,
     ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH, ICON_SEND,
@@ -23,25 +24,25 @@ impl DemoApp {
                 if Button::new("Default").show(ui).clicked() {
                     self.btn_clicked = true;
                 }
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Destructive")
                     .variant(ButtonVariant::Destructive)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Outline")
                     .variant(ButtonVariant::Outline)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Secondary")
                     .variant(ButtonVariant::Secondary)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Ghost").variant(ButtonVariant::Ghost).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Link").variant(ButtonVariant::Link).show(ui);
             });
             if self.btn_clicked {
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Alert::new("Button clicked!").show(ui);
                 if ui.small_button("Dismiss").clicked() {
                     self.btn_clicked = false;
@@ -49,49 +50,49 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "Sizes", None);
             ui.horizontal(|ui| {
                 Button::new("Small").size(ButtonSize::Sm).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Default").show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Large").size(ButtonSize::Lg).show(ui);
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "States", None);
             ui.horizontal(|ui| {
                 Button::new("Enabled").show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Disabled").enabled(false).show(ui);
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "With Icon", None);
             ui.horizontal_wrapped(|ui| {
                 Button::new("Send").icon(ICON_SEND).show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Mail")
                     .icon(ICON_MAIL)
                     .variant(ButtonVariant::Outline)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Download")
                     .icon(ICON_DOWNLOAD)
                     .variant(ButtonVariant::Secondary)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Search")
                     .icon(ICON_SEARCH)
                     .variant(ButtonVariant::Ghost)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Button::new("Add")
                     .icon(ICON_ADD)
                     .variant(ButtonVariant::Destructive)
@@ -105,15 +106,15 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             ui.horizontal(|ui| {
                 Badge::new("Default").show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Badge::new("Secondary")
                     .variant(BadgeVariant::Secondary)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Badge::new("Destructive")
                     .variant(BadgeVariant::Destructive)
                     .show(ui);
-                ui.add_space(8.0);
+                Spacing::Sm.show(ui);
                 Badge::new("Outline")
                     .variant(BadgeVariant::Outline)
                     .show(ui);
@@ -139,7 +140,7 @@ impl DemoApp {
             }
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Outline variant", None);
@@ -168,29 +169,29 @@ impl DemoApp {
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, "With Icon", None);
             ui.horizontal(|ui| {
                 Toggle::new(&mut self.toggle_bold, "Bold")
                     .icon(ICON_FORMAT_BOLD)
                     .show(ui);
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 Toggle::new(&mut self.toggle_italic, "Italic")
                     .icon(ICON_FORMAT_ITALIC)
                     .show(ui);
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 Toggle::new(&mut self.toggle_underline, "Underline")
                     .icon(ICON_FORMAT_UNDERLINE)
                     .show(ui);
-                ui.add_space(4.0);
+                Spacing::Xs.show(ui);
                 Toggle::new(&mut self.toggle_strikethrough, "Strikethrough")
                     .icon(ICON_FORMAT_STRIKETHROUGH)
                     .show(ui);
             });
         });
 
-        ui.add_space(16.0);
+        Spacing::Lg.show(ui);
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Disabled", None);
@@ -241,7 +242,7 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "View", None);
             ToggleGroup::new(items, &mut self.toggle_group_val).show(ui);
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
             muted_text(
                 ui,
                 &format!(

@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::ShadcnTheme;
 use egui::{CornerRadius, Rect, Sense, Stroke, Ui, Vec2};
 
@@ -73,7 +74,7 @@ impl<'a> Textarea<'a> {
                     .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
                     .color(theme.foreground),
             );
-            ui.add_space(4.0);
+            Spacing::Xs.show(ui);
         }
 
         let line_h = 20.0;

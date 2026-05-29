@@ -1,3 +1,4 @@
+use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH};
 use egui::{Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2};
 
@@ -294,7 +295,7 @@ impl<'a> DataTable<'a> {
                             ui.ctx().data_mut(|d| d.insert_temp(page_id, current_page));
                         }
 
-                        ui.add_space(8.0);
+                        Spacing::Sm.show(ui);
                         ui.label(
                             egui::RichText::new(format!(
                                 "Page {} of {}",
@@ -304,7 +305,7 @@ impl<'a> DataTable<'a> {
                             .font(ShadcnTheme::small_font())
                             .color(theme.muted_foreground),
                         );
-                        ui.add_space(8.0);
+                        Spacing::Sm.show(ui);
 
                         // Next button
                         let can_next = current_page + 1 < total_pages;
