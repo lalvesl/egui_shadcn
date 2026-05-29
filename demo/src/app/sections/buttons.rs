@@ -136,7 +136,13 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Outline variant", None);
-            ButtonGroup::new(&["Left", "Center", "Right"]).variant(ButtonGroupVariant::Outline).show(ui);
+            if let Some(i) = ButtonGroup::new(&["Left", "Center", "Right"])
+                .variant(ButtonGroupVariant::Outline)
+                .selected(self.button_group_outline_sel)
+                .show(ui)
+            {
+                self.button_group_outline_sel = Some(i);
+            }
         });
     }
 
