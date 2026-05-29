@@ -71,20 +71,19 @@
 
         # wasm-bindgen-cli at the version matching Cargo.lock (0.2.122).
         # nixpkgs ships 0.2.121; a mismatch causes "schema version" errors.
-        wasmBindgenSrc = pkgs.fetchCrate {
-          pname = "wasm-bindgen-cli";
-          version = "0.2.122";
+        wasmBindgenSrc = pkgs.fetchurl {
+          url = "https://static.crates.io/crates/wasm-bindgen-cli/wasm-bindgen-cli-0.2.122.crate";
           hash = "sha256-wWhvn+A4+EuJLBDTt0ibKR6xEFN0UBWeuX5fhGswRbw=";
         };
         wasmBindgenCli = rustPlatform.buildRustPackage {
           pname = "wasm-bindgen-cli";
           version = "0.2.122";
           src = wasmBindgenSrc;
-          cargoLock = {
-            # Cargo.lock committed from wasm-bindgen-cli-0.2.122.crate so Nix
-            # can evaluate the dependency tree without fetching the FOD at eval time.
-            lockFile = ./nix/wasm-bindgen-cli-Cargo.lock;
-          };
+          # cargoHash uses fetchCargoVendor (runs `cargo vendor` in an FOD)
+          # which sends User-Agent: cargo/X.Y.Z — avoids crates.io API 403.
+          # cargoLock/importCargoLock would use Nix fetchers (User-Agent: Nix)
+          # which crates.io now rejects.
+          cargoHash = pkgs.lib.fakeHash;
           doCheck = false;
         };
 
@@ -126,6 +125,8 @@
             src = craneLib.cleanCargoSource ./.;
             cargoArtifacts = craneLib.buildDepsOnly {
               inherit src;
+              pname = "egui-shadcn-web";
+              version = "0.1.0";
               strictDeps = true;
               CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
               cargoExtraArgs = "--target wasm32-unknown-unknown";
