@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Sense, Stroke, Ui, Vec2};
 
@@ -12,38 +13,23 @@ pub struct ButtonGroup<'a> {
     buttons: &'a [&'a str],
     selected: Option<usize>,
     variant: ButtonGroupVariant,
-    size: f32,
+    size: Size,
 }
 
 impl<'a> ButtonGroup<'a> {
     pub fn new(buttons: &'a [&'a str]) -> Self {
-        Self {
-            buttons,
-            selected: None,
-            variant: ButtonGroupVariant::Default,
-            size: 36.0,
-        }
+        Self { buttons, selected: None, variant: ButtonGroupVariant::Default, size: Size::Default }
     }
 
-    pub fn selected(mut self, s: Option<usize>) -> Self {
-        self.selected = s;
-        self
-    }
-
-    pub fn variant(mut self, v: ButtonGroupVariant) -> Self {
-        self.variant = v;
-        self
-    }
-
-    pub fn size(mut self, s: f32) -> Self {
-        self.size = s;
-        self
-    }
+    pub fn selected(mut self, s: Option<usize>) -> Self { self.selected = s; self }
+    pub fn variant(mut self, v: ButtonGroupVariant) -> Self { self.variant = v; self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
         let theme = ShadcnTheme::get(ui.ctx());
-        let height = self.size;
-        let h_pad = 16.0;
+        let height = self.size.height();
+        let h_pad = self.size.h_pad();
+        let fs = self.size.font_size();
         let r = theme.radius as u8;
         let n = self.buttons.len();
         let mut clicked_idx: Option<usize> = None;
@@ -58,26 +44,23 @@ impl<'a> ButtonGroup<'a> {
 
                 let text_g = ui.painter().layout_no_wrap(
                     label.to_owned(),
-                    egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                    Color32::TRANSPARENT,
+                    egui::FontId::new(fs, egui::FontFamily::Proportional),
+                    Color32::PLACEHOLDER,
                 );
 
                 let btn_w = (text_g.size().x + h_pad * 2.0).max(height);
                 let size = Vec2::new(btn_w, height);
                 let (rect, resp) = ui.allocate_exact_size(size, Sense::click());
 
-                if resp.clicked() {
-                    clicked_idx = Some(i);
-                }
+                if resp.clicked() { clicked_idx = Some(i); }
 
                 if ui.is_rect_visible(rect) {
                     let cr = CornerRadius {
                         nw: if is_first { r } else { 0 },
-                        ne: if is_last { r } else { 0 },
+                        ne: if is_last  { r } else { 0 },
                         sw: if is_first { r } else { 0 },
-                        se: if is_last { r } else { 0 },
+                        se: if is_last  { r } else { 0 },
                     };
-
                     let (bg, fg) = if is_selected {
                         (theme.primary, theme.primary_foreground)
                     } else if resp.hovered() {
@@ -85,31 +68,16 @@ impl<'a> ButtonGroup<'a> {
                     } else {
                         match self.variant {
                             ButtonGroupVariant::Default => (theme.background, theme.foreground),
-                            ButtonGroupVariant::Outline => {
-                                (Color32::TRANSPARENT, theme.foreground)
-                            }
+                            ButtonGroupVariant::Outline => (Color32::TRANSPARENT, theme.foreground),
                         }
                     };
-
                     ui.painter().rect_filled(rect, cr, bg);
-                    ui.painter().rect_stroke(
-                        rect,
-                        cr,
-                        Stroke::new(1.0, theme.border),
-                        egui::StrokeKind::Inside,
+                    ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Inside);
+                    ui.painter().galley(
+                        egui::Pos2::new(rect.center().x - text_g.size().x / 2.0, rect.center().y - text_g.size().y / 2.0),
+                        text_g, fg,
                     );
-
-                    ui.painter().text(
-                        rect.center(),
-                        egui::Align2::CENTER_CENTER,
-                        label,
-                        egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                        fg,
-                    );
-
-                    if resp.hovered() {
-                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                    }
+                    if resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
                 }
             }
         });

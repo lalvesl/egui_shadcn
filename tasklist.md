@@ -3,14 +3,17 @@
 - The Alert Dialog does not re use components already created like typography, buttons, spaces and cards;
 - Many components does not reuse components, that's a big problem;
 
-- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
+- Re use components of buind demo UI, the use Title and description, use typography, theme selector use popover, the slider, and "reset to zinc" use secondary buttom, for the sidebar re use Sparator too;
+
+- Re use components to build demo UI, each "tab" of componet there's a utilization of title such as component of headding;
 
 # Process
 
-- In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
+- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
 
 # Done
 
+- In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
 - Create component Boxed (not Box because Rust already have Box structure), this is a simple box with standart padding and margin, yes this component need to recive dynamic childs internally, egui already supports awesome this part;
 - Now i need to track every time executed add_space replace by new space component;
 - Problem of transition of "Many pages" in pagination example;

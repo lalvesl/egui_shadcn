@@ -1,4 +1,5 @@
 use egui_shadcn::spacing::Spacing;
+use egui_shadcn::size::Size;
 use egui_shadcn::{
     alert::{Alert, AlertVariant},
     alert_dialog::AlertDialog,
@@ -60,11 +61,11 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Spinner", None);
             ui.horizontal(|ui| {
-                Spinner::new().size(16.0).show(ui);
+                Spinner::new().size(Size::Sm).show(ui);
                 Spacing::Xs.show(ui);
-                Spinner::new().size(24.0).show(ui);
+                Spinner::new().size(Size::Default).show(ui);
                 Spacing::Xs.show(ui);
-                Spinner::new().size(40.0).show(ui);
+                Spinner::new().size(Size::Lg).show(ui);
             });
         });
 

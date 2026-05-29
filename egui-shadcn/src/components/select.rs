@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 
@@ -6,6 +7,7 @@ pub struct Select<'a> {
     options: &'a [&'a str],
     placeholder: &'a str,
     width: Option<f32>,
+    size: Size,
 }
 
 impl<'a> Select<'a> {
@@ -15,22 +17,18 @@ impl<'a> Select<'a> {
             options,
             placeholder: "Select…",
             width: None,
+            size: Size::Default,
         }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self {
-        self.placeholder = p;
-        self
-    }
-    pub fn width(mut self, w: f32) -> Self {
-        self.width = Some(w);
-        self
-    }
+    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
+    pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
         let width = self.width.unwrap_or(200.0);
-        let height = 36.0;
+        let height = self.size.height();
 
         let popup_id = egui::Id::new("shadcn_select").with(self.placeholder);
 
@@ -65,7 +63,7 @@ impl<'a> Select<'a> {
             egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
             egui::Align2::LEFT_CENTER,
             display,
-            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
             text_color,
         );
         ui.painter().text(
@@ -126,7 +124,7 @@ impl<'a> Select<'a> {
                                     egui::Pos2::new(item_rect.left() + 8.0, item_rect.center().y),
                                     egui::Align2::LEFT_CENTER,
                                     *opt,
-                                    egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                                    egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
                                     text_col,
                                 );
 

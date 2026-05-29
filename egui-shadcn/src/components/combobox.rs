@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 
@@ -7,33 +8,22 @@ pub struct Combobox<'a> {
     options: &'a [&'a str],
     placeholder: &'a str,
     width: f32,
+    size: Size,
 }
 
 impl<'a> Combobox<'a> {
     pub fn new(id: &'a str, current: &'a mut Option<usize>, options: &'a [&'a str]) -> Self {
-        Self {
-            id,
-            current,
-            options,
-            placeholder: "Select…",
-            width: 200.0,
-        }
+        Self { id, current, options, placeholder: "Select…", width: 200.0, size: Size::Default }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self {
-        self.placeholder = p;
-        self
-    }
-
-    pub fn width(mut self, w: f32) -> Self {
-        self.width = w;
-        self
-    }
+    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
+    pub fn width(mut self, w: f32) -> Self { self.width = w; self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
         let width = self.width;
-        let height = 36.0;
+        let height = self.size.height();
 
         let popup_id = egui::Id::new("shadcn_combobox").with(self.id);
         let query_id = popup_id.with("query");
@@ -73,7 +63,7 @@ impl<'a> Combobox<'a> {
             egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
             egui::Align2::LEFT_CENTER,
             display,
-            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
             text_color,
         );
         ui.painter().text(
@@ -134,7 +124,7 @@ impl<'a> Combobox<'a> {
                             let te = egui::TextEdit::singleline(&mut query)
                                 .desired_width(inner.width())
                                 .hint_text("Search…")
-                                .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
+                                .font(egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional))
                                 .text_color(theme.foreground)
                                 .frame(egui::Frame::new());
 
@@ -190,7 +180,7 @@ impl<'a> Combobox<'a> {
                                             ),
                                             egui::Align2::LEFT_CENTER,
                                             *opt,
-                                            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                                            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
                                             text_col,
                                         );
 

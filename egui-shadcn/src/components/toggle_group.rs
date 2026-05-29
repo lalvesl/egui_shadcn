@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Sense, Stroke, Ui, Vec2};
 
@@ -10,19 +11,21 @@ pub struct ToggleGroup<'a, T: PartialEq + Clone> {
     items: &'a [(T, ToggleGroupItem<'a>)],
     selected: &'a mut T,
     enabled: bool,
+    size: Size,
 }
 
 impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
     pub fn new(items: &'a [(T, ToggleGroupItem<'a>)], selected: &'a mut T) -> Self {
-        Self { items, selected, enabled: true }
+        Self { items, selected, enabled: true, size: Size::Default }
     }
     pub fn enabled(mut self, e: bool) -> Self { self.enabled = e; self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
-        let h_pad = 12.0;
-        let height = 36.0;
-        let fs = 13.0;
+        let h_pad = self.size.h_pad();
+        let height = self.size.height();
+        let fs = self.size.font_size();
 
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 0.0;
@@ -38,11 +41,7 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
                     Color32::PLACEHOLDER,
                 );
                 let icon_g = item.icon.map(|ic| {
-                    ui.painter().layout_no_wrap(
-                        ic.to_owned(),
-                        crate::icon_font_id(fs + 2.0),
-                        Color32::PLACEHOLDER,
-                    )
+                    ui.painter().layout_no_wrap(ic.to_owned(), crate::icon_font_id(fs + 2.0), Color32::PLACEHOLDER)
                 });
 
                 let icon_w = icon_g.as_ref().map(|g| g.size().x + 6.0).unwrap_or(0.0);
@@ -67,7 +66,6 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
                         sw: if is_first { r } else { 0 },
                         se: if is_last  { r } else { 0 },
                     };
-
                     let (bg, fg) = if !self.enabled {
                         let base_bg = if is_selected { theme.primary } else { theme.secondary };
                         let base_fg = if is_selected { theme.primary_foreground } else { theme.secondary_foreground };
@@ -79,23 +77,16 @@ impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
                     } else {
                         (theme.secondary, theme.secondary_foreground)
                     };
-
                     ui.painter().rect_filled(rect, cr, bg);
-                    ui.painter().rect_stroke(
-                        rect, cr,
-                        Stroke::new(1.0, theme.border),
-                        egui::StrokeKind::Inside,
-                    );
+                    ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Inside);
 
                     let start_x = rect.center().x - total_content_w / 2.0;
                     let mut cx = start_x;
-
                     if let Some(g) = icon_g {
                         let pos = egui::Pos2::new(cx, rect.center().y - g.size().y / 2.0);
                         ui.painter().galley(pos, g, fg);
                         cx += icon_w;
                     }
-
                     let ty = rect.center().y - text_g.size().y / 2.0;
                     ui.painter().galley(egui::Pos2::new(cx, ty), text_g, fg);
 

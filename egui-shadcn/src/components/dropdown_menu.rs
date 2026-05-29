@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 
@@ -11,32 +12,22 @@ pub struct DropdownMenu<'a> {
     trigger_label: &'a str,
     items: &'a [DropdownItem<'a>],
     width: f32,
+    size: Size,
 }
 
 impl<'a> DropdownMenu<'a> {
-    pub fn new(
-        id: &'a str,
-        trigger_label: &'a str,
-        items: &'a [DropdownItem<'a>],
-    ) -> Self {
-        Self {
-            id,
-            trigger_label,
-            items,
-            width: 200.0,
-        }
+    pub fn new(id: &'a str, trigger_label: &'a str, items: &'a [DropdownItem<'a>]) -> Self {
+        Self { id, trigger_label, items, width: 200.0, size: Size::Default }
     }
 
-    pub fn width(mut self, w: f32) -> Self {
-        self.width = w;
-        self
-    }
+    pub fn width(mut self, w: f32) -> Self { self.width = w; self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
         let theme = ShadcnTheme::get(ui.ctx());
         let popup_id = egui::Id::new("shadcn_dropdown_menu").with(self.id);
 
-        let trigger_height = 36.0;
+        let trigger_height = self.size.height();
         let (trigger_rect, resp) =
             ui.allocate_exact_size(Vec2::new(self.width, trigger_height), Sense::click());
 
@@ -68,7 +59,7 @@ impl<'a> DropdownMenu<'a> {
             egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
             egui::Align2::LEFT_CENTER,
             self.trigger_label,
-            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
             fg,
         );
         ui.painter().text(
@@ -157,7 +148,7 @@ impl<'a> DropdownMenu<'a> {
                                             ),
                                             egui::Align2::LEFT_CENTER,
                                             *label,
-                                            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                                            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
                                             text_col,
                                         );
 

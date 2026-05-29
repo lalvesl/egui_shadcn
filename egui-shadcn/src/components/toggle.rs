@@ -1,3 +1,4 @@
+use super::size::Size;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Response, Sense, Ui, Vec2};
 
@@ -6,34 +7,30 @@ pub struct Toggle<'a> {
     label: &'a str,
     icon: Option<&'a str>,
     enabled: bool,
+    size: Size,
 }
 
 impl<'a> Toggle<'a> {
     pub fn new(pressed: &'a mut bool, label: &'a str) -> Self {
-        Self { pressed, label, icon: None, enabled: true }
+        Self { pressed, label, icon: None, enabled: true, size: Size::Default }
     }
     pub fn icon(mut self, i: &'a str) -> Self { self.icon = Some(i); self }
     pub fn enabled(mut self, e: bool) -> Self { self.enabled = e; self }
+    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
-        let h_pad = 12.0;
-        let height = 36.0;
-        let fs = 13.0;
+        let h_pad = self.size.h_pad();
+        let height = self.size.height();
+        let fs = self.size.font_size();
 
-        // PLACEHOLDER lets painter.galley() substitute the real color at paint time.
-        // TRANSPARENT would bake invisible vertices — override has no effect.
         let text_g = ui.painter().layout_no_wrap(
             self.label.to_owned(),
             egui::FontId::new(fs, egui::FontFamily::Proportional),
             Color32::PLACEHOLDER,
         );
         let icon_g = self.icon.map(|ic| {
-            ui.painter().layout_no_wrap(
-                ic.to_owned(),
-                crate::icon_font_id(fs + 2.0),
-                Color32::PLACEHOLDER,
-            )
+            ui.painter().layout_no_wrap(ic.to_owned(), crate::icon_font_id(fs + 2.0), Color32::PLACEHOLDER)
         });
 
         let icon_w = icon_g.as_ref().map(|g| g.size().x + 6.0).unwrap_or(0.0);

@@ -1,7 +1,7 @@
 use egui::Color32;
 use egui_shadcn::{
     ShadcnTheme,
-    avatar::{Avatar, AvatarSize},
+    avatar::Avatar, size::Size,
     boxed::Boxed,
     calendar::Calendar,
     card::{Card, card_header},
@@ -47,11 +47,11 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, "Avatar", None);
             ui.horizontal(|ui| {
-                Avatar::new("JD").size(AvatarSize::Sm).show(ui);
+                Avatar::new("JD").size(Size::Sm).show(ui);
                 Spacing::Sm.show(ui);
                 Avatar::new("Alice").show(ui);
                 Spacing::Sm.show(ui);
-                Avatar::new("Bob").size(AvatarSize::Lg).show(ui);
+                Avatar::new("Bob").size(Size::Lg).show(ui);
                 Spacing::Sm.show(ui);
                 Avatar::new("XY")
                     .color(Color32::from_rgb(139, 92, 246))

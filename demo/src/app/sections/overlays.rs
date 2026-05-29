@@ -1,7 +1,7 @@
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ShadcnTheme,
-    avatar::{Avatar, AvatarSize},
+    avatar::Avatar, size::Size,
     button::{Button, ButtonVariant},
     card::{Card, card_header},
     context_menu::{ContextMenu, ContextItem},
@@ -121,7 +121,7 @@ impl DemoApp {
                 |ui| {
                     let theme = ShadcnTheme::get(ui.ctx());
                     ui.horizontal(|ui| {
-                        Avatar::new("ES").size(AvatarSize::Sm).show(ui);
+                        Avatar::new("ES").size(Size::Sm).show(ui);
                         ui.vertical(|ui| {
                             ui.label(egui::RichText::new("egui-shadcn").color(theme.foreground).strong());
                             ui.label(egui::RichText::new("@egui_shadcn").color(theme.muted_foreground).size(12.0));
