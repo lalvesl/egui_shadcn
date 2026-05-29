@@ -369,19 +369,26 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
                     let in_range = matches!((cfg.sel_start, cfg.sel_end), (Some(s), Some(e)) if date > s && date < e);
                     let is_today = date == cfg.today;
                     let hovered  = resp.hovered();
-                    let r        = (cell_w.min(cfg.cell_h) / 2.0 - 2.0).max(1.0);
+                    // When cell has extra content, pin the number near the top;
+                    // all highlight geometry is anchored to the same point.
+                    let num_center = if cfg.cell_fn.is_some() {
+                        egui::Pos2::new(rect.center().x, rect.top() + 10.0)
+                    } else {
+                        rect.center()
+                    };
+                    let r = (cell_w / 2.0 - 2.0).max(1.0);
 
                     if is_start || is_end {
-                        ui.painter().circle_filled(rect.center(), r, theme.primary);
+                        ui.painter().circle_filled(num_center, r, theme.primary);
                     } else if in_range {
                         ui.painter().rect_filled(rect, CornerRadius::ZERO, theme.accent);
                     } else if hovered {
-                        ui.painter().circle_filled(rect.center(), r, theme.accent);
+                        ui.painter().circle_filled(num_center, r, theme.accent);
                     }
 
                     if is_today && !is_start && !is_end {
                         ui.painter().circle_stroke(
-                            rect.center(), r,
+                            num_center, r,
                             Stroke::new(1.5, theme.primary),
                         );
                     }
@@ -390,10 +397,8 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
                                     else if is_today      { theme.primary }
                                     else                  { theme.foreground };
 
-                    let num_y = if cfg.cell_fn.is_some() { rect.top() + 10.0 } else { rect.center().y };
-
                     ui.painter().text(
-                        egui::Pos2::new(rect.center().x, num_y),
+                        num_center,
                         egui::Align2::CENTER_CENTER,
                         format!("{day}"),
                         egui::FontId::new(13.0, egui::FontFamily::Proportional),
@@ -402,7 +407,7 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
 
                     if let Some(f) = cfg.cell_fn {
                         let inner = egui::Rect::from_min_max(
-                            egui::Pos2::new(rect.left() + 1.0, num_y + 12.0),
+                            egui::Pos2::new(rect.left() + 1.0, num_center.y + 12.0),
                             rect.max - egui::Vec2::splat(1.0),
                         );
                         if inner.height() > 4.0 {
