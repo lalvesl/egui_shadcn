@@ -98,12 +98,13 @@ impl<'a> Textarea<'a> {
             .interactive(self.enabled)
             .frame(egui::Frame::new());
 
-        if !self.scroll && self.max_rows.is_some() {
+        if !self.scroll
+            && let Some(max_rows) = self.max_rows
+        {
             // ── Grow mode ─────────────────────────────────────────────────────
             // Use the previous frame's measured content height so the border
             // frame matches actual rendered text (wrapping lines, not newlines).
             // One-frame lag is imperceptible during normal typing.
-            let max_rows = self.max_rows.unwrap();
             let min_h = line_h * self.rows as f32;
             let max_h = line_h * max_rows as f32;
 

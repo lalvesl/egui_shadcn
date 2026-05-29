@@ -33,16 +33,16 @@ impl Pagination {
             let pages = self.visible_pages();
             let mut prev_page: Option<usize> = None;
             for page in &pages {
-                if let Some(pp) = prev_page {
-                    if *page > pp + 1 {
-                        // ellipsis
-                        Self::ellipsis(ui, &theme, btn_size);
-                    }
+                if let Some(pp) = prev_page
+                    && *page > pp + 1
+                {
+                    // ellipsis
+                    Self::ellipsis(ui, &theme, btn_size);
                 }
-                if Self::page_btn(ui, &theme, *page, self.current == *page, btn_size, r) {
-                    if self.current != *page {
-                        result = Some(*page);
-                    }
+                if Self::page_btn(ui, &theme, *page, self.current == *page, btn_size, r)
+                    && self.current != *page
+                {
+                    result = Some(*page);
                 }
                 prev_page = Some(*page);
             }

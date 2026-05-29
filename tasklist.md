@@ -1,16 +1,17 @@
 # Todo
 
-- Many components do not reuse existing components; this is a major issue.
+- Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
 - The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
-- Reuse components to build the demo UI. Each component tab should utilize standard headings, separator components, spacing, typography, and Boxed or Card components.
-- Improve the demo showcase: group related components, rewrite the demo to use only one component per tab, ordered alphabetically, maximize reuse of the current component stack, and add component descriptions. Keep the overview section and update the count of currently implemented components (currently 56).
+- You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
+- Fix the clippy warnings;
 
 # Process
 
-- Reuse components to build the demo UI: use Title and description typography, a Popover for the theme selector, standard Slider components, a secondary Button for "reset to zinc", and a Separator for the sidebar.
-
 # Done
 
+- Improve the demo showcase: group related components, rewrite the demo to use only one component per tab, ordered alphabetically, maximize reuse of the current component stack, and add component descriptions. Keep the overview section and update the count of currently implemented components (currently 56).
+- Reuse components to build the demo UI: use Title and description typography, a Popover for the theme selector, standard Slider components, a secondary Button for "reset to zinc", and a Separator for the sidebar.
+- Reuse components to build the demo UI. Each component tab should utilize standard headings, separator components, spacing, typography, and Boxed or Card components.
 - The Alert Dialog does not reuse already created components like typography, buttons, spaces, and cards.
 - Create a default size enum (like button sizes) and implement it for other components: Badge, Select, Slider, Spinner, Radio Group, Checkbox, Avatar, Switch, Toggle, Toggle Group, Button Group, Combobox, and Dropdown Menu.
 - In the Breadcrumb example, clicking does not trigger the correct feedback message (likely a demo-only bug), and the custom separator does not trigger any action when clicked.
@@ -41,4 +42,3 @@
 # Not so necessary
 
 - Create a separate `demo-macro` crate with a macro to extract/copy the component implementation code, and expose it in the demo UI to showcase both the component and its source code.
-

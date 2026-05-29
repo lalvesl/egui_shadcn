@@ -19,47 +19,57 @@ mod sections;
 // ── Nav sections ──────────────────────────────────────────────────────────────
 
 const SECTIONS: &[&str] = &[
-    "Overview",
-    "Typography",
-    "Buttons",
-    "Badges",
-    "Alerts",
-    "Cards",
-    "Form",
-    "Inputs",
-    "Feedback",
-    "Navigation",
-    "Overlays",
-    "Data Display",
-    "Calendar",
-    "Toggle",
-    "Toggle Group",
-    "Collapsible",
-    "Breadcrumb",
-    "Pagination",
-    "Alert Dialog",
-    "Button Group",
-    "Combobox",
-    "Date Picker",
-    "Dropdown Menu",
-    "Context Menu",
-    "Hover Card",
-    "Input OTP",
-    "Popover",
-    "Table",
-    "Data Table",
-    "Sheet",
-    "Drawer",
-    "Toast",
-    "Navigation Menu",
-    "Menubar",
-    "Carousel",
-    "Chart",
-    "Command",
-    "Resizable",
-    "Separator",
-    "Spacing",
-    "Boxed",
+    "Overview",        // 0
+    "Accordion",       // 1
+    "Alert",           // 2
+    "Alert Dialog",    // 3
+    "Avatar",          // 4
+    "Badge",           // 5
+    "Boxed",           // 6
+    "Breadcrumb",      // 7
+    "Button",          // 8
+    "Button Group",    // 9
+    "Calendar",        // 10
+    "Card",            // 11
+    "Carousel",        // 12
+    "Chart",           // 13
+    "Checkbox",        // 14
+    "Collapsible",     // 15
+    "Combobox",        // 16
+    "Command",         // 17
+    "Context Menu",    // 18
+    "Data Table",      // 19
+    "Date Picker",     // 20
+    "Dialog",          // 21
+    "Drawer",          // 22
+    "Dropdown Menu",   // 23
+    "Hover Card",      // 24
+    "Input",           // 25
+    "Input OTP",       // 26
+    "Label",           // 27
+    "Menubar",         // 28
+    "Navigation Menu", // 29
+    "Pagination",      // 30
+    "Popover",         // 31
+    "Progress",        // 32
+    "Radio",           // 33
+    "Resizable",       // 34
+    "Select",          // 35
+    "Separator",       // 36
+    "Sheet",           // 37
+    "Skeleton",        // 38
+    "Slider",          // 39
+    "Spacing",         // 40
+    "Spinner",         // 41
+    "Switch",          // 42
+    "Table",           // 43
+    "Tabs",            // 44
+    "Textarea",        // 45
+    "Toast",           // 46
+    "Toggle",          // 47
+    "Toggle Group",    // 48
+    "Tooltip",         // 49
+    "Typography",      // 50
 ];
 
 // ── App state ─────────────────────────────────────────────────────────────────
@@ -84,8 +94,6 @@ pub struct DemoApp {
     pub(super) textarea_text: String,
     pub(super) textarea_scroll: String,
     pub(super) textarea_grow_y: String,
-    pub(super) textarea_grow_x: String,
-    pub(super) textarea_grow_both: String,
     pub(super) select_val: Option<usize>,
     pub(super) accordion_open: [bool; 3],
     pub(super) dialog_open: bool,
@@ -142,8 +150,6 @@ impl Default for DemoApp {
             textarea_text: String::new(),
             textarea_scroll: String::new(),
             textarea_grow_y: String::new(),
-            textarea_grow_x: String::new(),
-            textarea_grow_both: String::new(),
             select_val: None,
             accordion_open: [true, false, false],
             dialog_open: false,
@@ -390,8 +396,8 @@ impl DemoApp {
     fn show_sidebar(&mut self, ui: &mut egui::Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
-        // Separator after these indices (0-based section index)
-        const SEP_AFTER: &[usize] = &[0, 8, 10, 17, 26, 28, 31, 37];
+        // Separator after letter groups (A→4, B→9, C→18, D→23, H–L→27, M–P→32, R–S→42)
+        const SEP_AFTER: &[usize] = &[0, 4, 9, 18, 23, 27, 32, 42];
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.set_width(184.0);
@@ -444,48 +450,58 @@ impl DemoApp {
 impl DemoApp {
     fn render_section(&mut self, ui: &mut egui::Ui) {
         match self.current_section {
-            0 => self.section_overview(ui),
-            1 => self.section_typography(ui),
-            2 => self.section_buttons(ui),
-            3 => self.section_badges(ui),
-            4 => self.section_alerts(ui),
-            5 => self.section_cards(ui),
-            6 => self.section_form(ui),
-            7 => self.section_inputs(ui),
-            8 => self.section_feedback(ui),
-            9 => self.section_navigation(ui),
-            10 => self.section_overlays(ui),
-            11 => self.section_data_display(ui),
-            12 => self.section_calendar(ui),
-            13 => self.section_toggle(ui),
-            14 => self.section_toggle_group(ui),
+            0  => self.section_overview(ui),
+            1  => self.section_accordion(ui),
+            2  => self.section_alert(ui),
+            3  => self.section_alert_dialog(ui),
+            4  => self.section_avatar(ui),
+            5  => self.section_badge(ui),
+            6  => self.section_boxed(ui),
+            7  => self.section_breadcrumb(ui),
+            8  => self.section_button(ui),
+            9  => self.section_button_group(ui),
+            10 => self.section_calendar(ui),
+            11 => self.section_card(ui),
+            12 => self.section_carousel(ui),
+            13 => self.section_chart(ui),
+            14 => self.section_checkbox(ui),
             15 => self.section_collapsible(ui),
-            16 => self.section_breadcrumb(ui),
-            17 => self.section_pagination(ui),
-            18 => self.section_alert_dialog(ui),
-            19 => self.section_button_group(ui),
-            20 => self.section_combobox(ui),
-            21 => self.section_date_picker(ui),
-            22 => self.section_dropdown_menu(ui),
-            23 => self.section_context_menu(ui),
+            16 => self.section_combobox(ui),
+            17 => self.section_command(ui),
+            18 => self.section_context_menu(ui),
+            19 => self.section_data_table(ui),
+            20 => self.section_date_picker(ui),
+            21 => self.section_dialog(ui),
+            22 => self.section_drawer(ui),
+            23 => self.section_dropdown_menu(ui),
             24 => self.section_hover_card(ui),
-            25 => self.section_input_otp(ui),
-            26 => self.section_popover(ui),
-            27 => self.section_table(ui),
-            28 => self.section_data_table(ui),
-            29 => self.section_sheet(ui),
-            30 => self.section_drawer(ui),
-            31 => self.section_toast(ui),
-            32 => self.section_navigation_menu(ui),
-            33 => self.section_menubar(ui),
-            34 => self.section_carousel(ui),
-            35 => self.section_chart(ui),
-            36 => self.section_command(ui),
-            37 => self.section_resizable(ui),
-            38 => self.section_separator(ui),
-            39 => self.section_spacing(ui),
-            40 => self.section_boxed(ui),
-            _ => {}
+            25 => self.section_input(ui),
+            26 => self.section_input_otp(ui),
+            27 => self.section_label(ui),
+            28 => self.section_menubar(ui),
+            29 => self.section_navigation_menu(ui),
+            30 => self.section_pagination(ui),
+            31 => self.section_popover(ui),
+            32 => self.section_progress(ui),
+            33 => self.section_radio(ui),
+            34 => self.section_resizable(ui),
+            35 => self.section_select(ui),
+            36 => self.section_separator(ui),
+            37 => self.section_sheet(ui),
+            38 => self.section_skeleton(ui),
+            39 => self.section_slider(ui),
+            40 => self.section_spacing(ui),
+            41 => self.section_spinner(ui),
+            42 => self.section_switch(ui),
+            43 => self.section_table(ui),
+            44 => self.section_tabs(ui),
+            45 => self.section_textarea(ui),
+            46 => self.section_toast(ui),
+            47 => self.section_toggle(ui),
+            48 => self.section_toggle_group(ui),
+            49 => self.section_tooltip(ui),
+            50 => self.section_typography(ui),
+            _  => {}
         }
     }
 

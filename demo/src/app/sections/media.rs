@@ -27,7 +27,7 @@ impl DemoApp {
                 ui.painter().text(
                     rect.center(),
                     egui::Align2::CENTER_CENTER,
-                    &format!("Slide {}", idx + 1),
+                    format!("Slide {}", idx + 1),
                     egui::FontId::new(24.0, egui::FontFamily::Proportional),
                     theme.muted_foreground,
                 );

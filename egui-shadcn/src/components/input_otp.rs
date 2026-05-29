@@ -74,18 +74,18 @@ impl<'a> InputOtp<'a> {
         let mut x = group_rect.left();
 
         for i in 0..self.digits {
-            if let Some(sep_after) = self.separator_after {
-                if i == sep_after + 1 {
-                    let sep_center_y = group_rect.center().y;
-                    ui.painter().line_segment(
-                        [
-                            egui::Pos2::new(x + 2.0, sep_center_y),
-                            egui::Pos2::new(x + sep_w - 2.0, sep_center_y),
-                        ],
-                        Stroke::new(2.0, theme.muted_foreground),
-                    );
-                    x += sep_w + gap;
-                }
+            if let Some(sep_after) = self.separator_after
+                && i == sep_after + 1
+            {
+                let sep_center_y = group_rect.center().y;
+                ui.painter().line_segment(
+                    [
+                        egui::Pos2::new(x + 2.0, sep_center_y),
+                        egui::Pos2::new(x + sep_w - 2.0, sep_center_y),
+                    ],
+                    Stroke::new(2.0, theme.muted_foreground),
+                );
+                x += sep_w + gap;
             }
 
             let box_rect = egui::Rect::from_min_size(

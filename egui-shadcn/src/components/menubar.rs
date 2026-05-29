@@ -96,9 +96,11 @@ impl<'a> Menubar<'a> {
         });
 
         // Draw the open dropdown (if any)
-        if let Some(open_menu_idx) = open_idx {
-            if open_menu_idx < self.menus.len() && open_menu_idx < trigger_rects.len() {
-                let menu = &self.menus[open_menu_idx];
+        if let Some(open_menu_idx) = open_idx
+            && open_menu_idx < self.menus.len()
+            && open_menu_idx < trigger_rects.len()
+        {
+            let menu = &self.menus[open_menu_idx];
                 let trig_rect = trigger_rects[open_menu_idx];
 
                 let popup_id = egui::Id::new("shadcn_menubar_popup").with(open_menu_idx);
@@ -234,7 +236,6 @@ impl<'a> Menubar<'a> {
                             .data_mut(|d| d.insert_temp::<Option<usize>>(open_key, None));
                     }
                 }
-            }
         }
 
         result

@@ -3,7 +3,10 @@ use egui_shadcn::{
     ShadcnTheme,
     badge::{Badge, BadgeVariant},
     card::{Card, card_header},
-    typography::{heading1, heading2, heading3, heading4, lead_text, body_text, muted_text, small_text, code_text},
+    typography::{
+        body_text, code_text, heading1, heading2, heading3, heading4, lead_text, muted_text,
+        small_text,
+    },
 };
 
 use crate::app::DemoApp;
@@ -29,7 +32,7 @@ impl DemoApp {
         let theme = ShadcnTheme::get(ui.ctx());
 
         ui.horizontal(|ui| {
-            for (n, desc) in [("19", "Components"), ("2", "Themes")] {
+            for (n, desc) in [("56", "Components"), ("2", "Themes")] {
                 Card::new().padding(16.0).show(ui, |ui| {
                     ui.label(
                         egui::RichText::new(n)
