@@ -56,6 +56,7 @@ const SECTIONS: &[&str] = &[
     "Command",
     "Resizable",
     "Separator",
+    "Spacing",
 ];
 
 // ── App state ─────────────────────────────────────────────────────────────────
@@ -121,7 +122,7 @@ impl Default for DemoApp {
             dark: true,
             primary_hue: None,
             show_hue_picker: false,
-            current_section: 14,
+            current_section: 0,
             btn_clicked: false,
             checkbox1: true,
             checkbox2: false,
@@ -533,6 +534,7 @@ impl DemoApp {
             36 => self.section_command(ui),
             37 => self.section_resizable(ui),
             38 => self.section_separator(ui),
+            39 => self.section_spacing(ui),
             _ => {}
         }
     }

@@ -2,18 +2,19 @@
 
 - The Alert Dialog does not re use components already created like typography, buttons, spaces and cards;
 - Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
+
 - Many components does not reuse components, that's a big problem;
 
 - In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
 - The pagination does not show the number inside of current page;
-- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui;
 
 # Process
 
-- Create component separator (vertical and horizontal);
+- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui and another From to execute into to automatically transform in f32 or another types of numbers;
 
 # Done
 
+- Create component separator (vertical and horizontal);
 - Split the app from demo, extreme huge;
 - Add in Example of buttons one with icon;
 - The dialog not close if click out or press esc;

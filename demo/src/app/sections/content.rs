@@ -8,6 +8,7 @@ use egui_shadcn::{
     data_table::{DataTable, DataColumn},
     label::Label,
     separator::Separator,
+    spacing::Spacing,
     table::{Table, TableColumn},
     typography::{body_text, muted_text},
 };
@@ -268,6 +269,52 @@ impl DemoApp {
                 ui.add_space(8.0);
                 muted_text(ui, "Source");
             });
+        });
+    }
+
+    pub(in crate::app) fn section_spacing(&mut self, ui: &mut egui::Ui) {
+        self.section_title(ui, "Spacing", "Standardized spacing scale based on a 4px grid.");
+
+        let theme = egui_shadcn::ShadcnTheme::get(ui.ctx());
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Scale", Some("Xs=4 · Sm=8 · Md=12 · Lg=16 · Xl=24 · Xl2=32 · Xl3=48"));
+
+            let variants: &[(&str, Spacing)] = &[
+                ("Xs",  Spacing::Xs),
+                ("Sm",  Spacing::Sm),
+                ("Md",  Spacing::Md),
+                ("Lg",  Spacing::Lg),
+                ("Xl",  Spacing::Xl),
+                ("Xl2", Spacing::Xl2),
+                ("Xl3", Spacing::Xl3),
+            ];
+
+            for (name, sp) in variants {
+                ui.horizontal(|ui| {
+                    let label = format!("{:<4}  {:>2}px", name, u32::from(*sp));
+                    muted_text(ui, &label);
+                    ui.add_space(12.0);
+                    let bar_w = sp.px();
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::Vec2::new(bar_w, 8.0),
+                        egui::Sense::hover(),
+                    );
+                    ui.painter().rect_filled(rect, egui::CornerRadius::same(2), theme.primary);
+                });
+                ui.add_space(4.0);
+            }
+        });
+
+        ui.add_space(16.0);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Usage", Some("Spacing::Lg.show(ui)  or  f32::from(Spacing::Lg)"));
+            muted_text(ui, "Block A");
+            Spacing::Lg.show(ui);
+            muted_text(ui, "Block B  (Lg = 16px gap above)");
+            Spacing::Xl.show(ui);
+            muted_text(ui, "Block C  (Xl = 24px gap above)");
         });
     }
 }
