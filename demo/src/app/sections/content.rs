@@ -114,6 +114,37 @@ impl DemoApp {
                 }
             }
         });
+
+        Spacing::Lg.show(ui);
+        Card::new().show(ui, |ui| {
+            card_header(ui, "Prices", Some("Custom cell content — price per day."));
+            let label = match self.cal_prices_selected {
+                Some(d) => format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day),
+                None => "No date selected".to_owned(),
+            };
+            muted_text(ui, &label);
+            Spacing::Md.show(ui);
+            Calendar::single("demo_cal_prices", &mut self.cal_prices_selected)
+                .cell_height(52.0)
+                .cell_content(|ui, date| {
+                    let hash = (date.day as u32)
+                        .wrapping_mul(7919)
+                        .wrapping_add((date.month as u32).wrapping_mul(6271));
+                    let price = hash % 150 + 49;
+                    let cents = (hash / 200) % 10;
+                    let price_str = format!("${price}.{cents}0");
+                    let theme = ShadcnTheme::get(ui.ctx());
+                    let color = if price < 99 { theme.primary } else { theme.muted_foreground };
+                    ui.painter().text(
+                        ui.max_rect().center(),
+                        egui::Align2::CENTER_CENTER,
+                        &price_str,
+                        egui::FontId::new(9.0, egui::FontFamily::Proportional),
+                        color,
+                    );
+                })
+                .show(ui);
+        });
     }
 
     pub(in crate::app) fn section_card(&mut self, ui: &mut egui::Ui) {

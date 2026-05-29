@@ -1,6 +1,7 @@
+use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::{ShadcnTheme, ICON_CLOSE};
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Vec2};
+use egui::{Color32, CornerRadius, Frame, Stroke, Vec2};
 
 pub struct Drawer<'a> {
     title: &'a str,
@@ -75,58 +76,59 @@ impl<'a> Drawer<'a> {
                 Frame::new()
                     .fill(theme.card)
                     .corner_radius(cr)
-                    .stroke(Stroke::new(1.0, theme.border))
-                    .inner_margin(Margin::same(16)),
+                    .stroke(Stroke::new(1.0, theme.border)),
             )
             .title_bar(false)
             .show(ctx, |ui| {
-                // Drag handle
-                if show_handle {
-                    ui.vertical_centered(|ui| {
-                        let (handle_rect, _) = ui.allocate_exact_size(
-                            Vec2::new(40.0, 4.0),
-                            egui::Sense::hover(),
-                        );
-                        ui.painter().rect_filled(
-                            handle_rect,
-                            CornerRadius::same(2),
-                            theme.muted_foreground,
-                        );
-                    });
-                    Spacing::Md.show(ui);
-                }
+                Boxed::new().padding(Spacing::Lg).show(ui, |ui| {
+                    // Drag handle
+                    if show_handle {
+                        ui.vertical_centered(|ui| {
+                            let (handle_rect, _) = ui.allocate_exact_size(
+                                Vec2::new(40.0, 4.0),
+                                egui::Sense::hover(),
+                            );
+                            ui.painter().rect_filled(
+                                handle_rect,
+                                CornerRadius::same(2),
+                                theme.muted_foreground,
+                            );
+                        });
+                        Spacing::Md.show(ui);
+                    }
 
-                // Title row with close button
-                ui.horizontal(|ui| {
-                    ui.label(
-                        egui::RichText::new(self.title)
-                            .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
-                            .color(theme.foreground)
-                            .strong(),
-                    );
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        let close_resp = ui.add(
-                            egui::Label::new(
-                                egui::RichText::new(ICON_CLOSE)
-                                    .font(crate::icon_font_id(18.0))
-                                    .color(theme.muted_foreground),
-                            )
-                            .sense(egui::Sense::click()),
+                    // Title row with close button
+                    ui.horizontal(|ui| {
+                        ui.label(
+                            egui::RichText::new(self.title)
+                                .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
+                                .color(theme.foreground)
+                                .strong(),
                         );
-                        if close_resp.clicked() {
-                            *self.open = false;
-                        }
-                        if close_resp.hovered() {
-                            ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
-                        }
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            let close_resp = ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(ICON_CLOSE)
+                                        .font(crate::icon_font_id(18.0))
+                                        .color(theme.muted_foreground),
+                                )
+                                .sense(egui::Sense::click()),
+                            );
+                            if close_resp.clicked() {
+                                *self.open = false;
+                            }
+                            if close_resp.hovered() {
+                                ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                            }
+                        });
                     });
+
+                    Spacing::Sm.show(ui);
+                    ui.separator();
+                    Spacing::Sm.show(ui);
+
+                    content(ui);
                 });
-
-                Spacing::Sm.show(ui);
-                ui.separator();
-                Spacing::Sm.show(ui);
-
-                content(ui);
             });
 
         // Close if pointer pressed outside the drawer rect

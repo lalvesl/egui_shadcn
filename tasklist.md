@@ -1,16 +1,18 @@
 # Todo
 
-- You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
+- Create another example of range-calendar with only one calendar, not tow;
 - For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 
-- The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
+- Command pallet, does not reusing components, the separator, input, cards, typography is not used;
 
 # Process
 
-- Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
+- You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
 
 # Done
 
+- The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
+- Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
 - Fix the clippy warnings;
 - Improve the demo showcase: group related components, rewrite the demo to use only one component per tab, ordered alphabetically, maximize reuse of the current component stack, and add component descriptions. Keep the overview section and update the count of currently implemented components (currently 56).
 - Reuse components to build the demo UI: use Title and description typography, a Popover for the theme selector, standard Slider components, a secondary Button for "reset to zinc", and a Separator for the sidebar.
