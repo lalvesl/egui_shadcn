@@ -21,16 +21,18 @@ impl<'a> Toggle<'a> {
         let height = 36.0;
         let fs = 13.0;
 
+        // PLACEHOLDER lets painter.galley() substitute the real color at paint time.
+        // TRANSPARENT would bake invisible vertices — override has no effect.
         let text_g = ui.painter().layout_no_wrap(
             self.label.to_owned(),
             egui::FontId::new(fs, egui::FontFamily::Proportional),
-            Color32::TRANSPARENT,
+            Color32::PLACEHOLDER,
         );
         let icon_g = self.icon.map(|ic| {
             ui.painter().layout_no_wrap(
                 ic.to_owned(),
                 crate::icon_font_id(fs + 2.0),
-                Color32::TRANSPARENT,
+                Color32::PLACEHOLDER,
             )
         });
 
@@ -48,12 +50,16 @@ impl<'a> Toggle<'a> {
 
         if ui.is_rect_visible(rect) {
             let cr = CornerRadius::same(theme.radius as u8);
-            let (bg, fg) = if *self.pressed {
-                (theme.accent, theme.accent_foreground)
-            } else if resp.hovered() && self.enabled {
-                (ShadcnTheme::with_alpha(theme.accent, 120), theme.foreground)
+            let (bg, fg) = if !self.enabled {
+                let base_bg = if *self.pressed { theme.primary } else { theme.secondary };
+                let base_fg = if *self.pressed { theme.primary_foreground } else { theme.secondary_foreground };
+                (ShadcnTheme::with_alpha(base_bg, 100), ShadcnTheme::with_alpha(base_fg, 128))
+            } else if *self.pressed {
+                (theme.primary, theme.primary_foreground)
+            } else if resp.hovered() {
+                (theme.muted, theme.muted_foreground)
             } else {
-                (Color32::TRANSPARENT, theme.muted_foreground)
+                (theme.secondary, theme.secondary_foreground)
             };
             ui.painter().rect_filled(rect, cr, bg);
 

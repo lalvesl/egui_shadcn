@@ -121,18 +121,19 @@ impl<'a> Button<'a> {
                 fg
             };
 
-            let content_x = rect.left() + h_pad + icon_w;
-            let text_pos = egui::Pos2::new(
-                content_x - icon_w / 2.0,
-                rect.center().y - text_galley.size().y / 2.0,
-            );
+            let total_content_w = icon_w + text_w;
+            let start_x = rect.center().x - total_content_w / 2.0;
 
             if let Some(g) = icon_galley {
                 let icon_pos =
-                    egui::Pos2::new(rect.left() + h_pad, rect.center().y - g.size().y / 2.0);
+                    egui::Pos2::new(start_x, rect.center().y - g.size().y / 2.0);
                 painter.galley(icon_pos, g, text_color);
             }
 
+            let text_pos = egui::Pos2::new(
+                start_x + icon_w,
+                rect.center().y - text_galley.size().y / 2.0,
+            );
             painter.galley(text_pos, text_galley, text_color);
 
             if is_link && (resp.hovered() || resp.has_focus()) {

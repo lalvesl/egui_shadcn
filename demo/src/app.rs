@@ -1,6 +1,8 @@
 use egui::Color32;
 use egui_shadcn::{
-    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE, ShadcnTheme,
+    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_PALETTE,
+    ICON_MAIL, ICON_SEND, ICON_DOWNLOAD, ICON_SEARCH, ICON_ADD,
+    ShadcnTheme,
     accordion::Accordion,
     alert::{Alert, AlertVariant},
     alert_dialog::AlertDialog,
@@ -704,6 +706,34 @@ impl DemoApp {
                 Button::new("Enabled").show(ui);
                 ui.add_space(8.0);
                 Button::new("Disabled").enabled(false).show(ui);
+            });
+        });
+
+        ui.add_space(16.0);
+        Card::new().show(ui, |ui| {
+            card_header(ui, "With Icon", None);
+            ui.horizontal_wrapped(|ui| {
+                Button::new("Send").icon(ICON_SEND).show(ui);
+                ui.add_space(8.0);
+                Button::new("Mail")
+                    .icon(ICON_MAIL)
+                    .variant(ButtonVariant::Outline)
+                    .show(ui);
+                ui.add_space(8.0);
+                Button::new("Download")
+                    .icon(ICON_DOWNLOAD)
+                    .variant(ButtonVariant::Secondary)
+                    .show(ui);
+                ui.add_space(8.0);
+                Button::new("Search")
+                    .icon(ICON_SEARCH)
+                    .variant(ButtonVariant::Ghost)
+                    .show(ui);
+                ui.add_space(8.0);
+                Button::new("Add")
+                    .icon(ICON_ADD)
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui);
             });
         });
     }
