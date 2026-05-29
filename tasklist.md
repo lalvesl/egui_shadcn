@@ -1,14 +1,16 @@
 # Todo
 
-- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Avatar,
-- Split the app from demo, extreme huge;
+- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
+
+- Reimplement Toggle group to be near of new toggle;
 
 # Process
 
-- Add in Example of buttons one with icon;
+- Split the app from demo, extreme huge;
 
 # Done
 
+- Add in Example of buttons one with icon;
 - The dialog not close if click out or press esc;
 - In the dialog, contains an input of element, this input not using the component, only diracly egui input;
 - The "nix run .#web" does not compiling and running for web mode;
