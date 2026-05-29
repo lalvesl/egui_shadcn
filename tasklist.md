@@ -1,46 +1,44 @@
 # Todo
 
-- Many components does not reuse components, that's a big problem;
-
-- The dawer component need to reuse more comppnents, like the box because your padding is wrong;
-
-- Re use components to build demo UI, each "tab" of componet there's a utilization of title such as component of headding, not using separator component, spacings and typography, Boxed or card component;
-
-- Make better such as create agrupped components, rewrite demo to create each tab only one compoennt in alphabetical order of course resusing maxium as possible of corrent stack of components and add some descriptions; Yes keep the overview and update count of components currently is 56;
+- Many components do not reuse existing components; this is a major issue.
+- The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
+- Reuse components to build the demo UI. Each component tab should utilize standard headings, separator components, spacing, typography, and Boxed or Card components.
+- Improve the demo showcase: group related components, rewrite the demo to use only one component per tab, ordered alphabetically, maximize reuse of the current component stack, and add component descriptions. Keep the overview section and update the count of currently implemented components (currently 56).
 
 # Process
 
-- Re use components of buind demo UI, the use Title and description, use typography, theme selector use popover, the slider, and "reset to zinc" use secondary buttom, for the sidebar re use Sparator too;
+- Reuse components to build the demo UI: use Title and description typography, a Popover for the theme selector, standard Slider components, a secondary Button for "reset to zinc", and a Separator for the sidebar.
 
 # Done
 
-- The Alert Dialog does not re use components already created like typography, buttons, spaces and cards;
-- Create default enum for size like buttons size and implement for another components like badge, select, slider, spinner, Radio Group, Checkbox, Avatar, switch, toggle, toggle group, Button Group, Combobox, Drop down menu;
-- In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
-- Create component Boxed (not Box because Rust already have Box structure), this is a simple box with standart padding and margin, yes this component need to recive dynamic childs internally, egui already supports awesome this part;
-- Now i need to track every time executed add_space replace by new space component;
-- Problem of transition of "Many pages" in pagination example;
-- The pagination does not show the number inside of current page;
-- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui and another From to execute into to automatically transform in f32 or another types of numbers;
-- Create component separator (vertical and horizontal);
-- Split the app from demo, extreme huge;
-- Add in Example of buttons one with icon;
-- The dialog not close if click out or press esc;
-- In the dialog, contains an input of element, this input not using the component, only diracly egui input;
-- The "nix run .#web" does not compiling and running for web mode;
-- The icon of close dialog not showing correcly, show a small square;
-- The textarea can write more text than your content, create option to scroll or grow to x or y or bolf, and add in example;
-- The textarea share position of scroll between others textareas
-- The implementation of @build.rs is wrong, the location to download fonts need's to be inside target folder this is wrong, not in codespace;
-- The registry of icons is inside of codespace move to target and use include!(concat!(env!("OUT_DIR"), "/filename.rs"));
-- Add possibility to add another font for all texts, with the same strategy of material icons font;
-- In demo, use NerdFonts;
-- Remove the necessity of assets folder from @index.html, everythink this need to be automated by build.rs;
-- Continue of implementation of next components, read @readme.md and update one by one the progress, remember to add all components in demo;
-- Icons is extreme difficult to use, create elements more easy only passing the context and UI, ofcourse with possibility to passing size and another color, but default is conventional to use;
-- Calendar with cell content, when select some day or a current day no centralized on the number but centralized by the cell, and this is the problem the cell has another think causing a decentralization of the number;
-- Reimplement Toggle group to be near of new toggle;
+- The Alert Dialog does not reuse already created components like typography, buttons, spaces, and cards.
+- Create a default size enum (like button sizes) and implement it for other components: Badge, Select, Slider, Spinner, Radio Group, Checkbox, Avatar, Switch, Toggle, Toggle Group, Button Group, Combobox, and Dropdown Menu.
+- In the Breadcrumb example, clicking does not trigger the correct feedback message (likely a demo-only bug), and the custom separator does not trigger any action when clicked.
+- Create a `Boxed` component (named `Boxed` instead of `Box` because Rust has a built-in `Box` type) which provides standard padding and margins, and supports dynamic children (which egui handles beautifully).
+- Track down and replace all occurrences of `add_space` with the new Space component.
+- Fix page transition issues when navigating "many pages" in the pagination example.
+- The pagination component does not display the current page number.
+- Create a Space component to standardize spacing using a default size enum. The enum should support rendering directly to UI and implement conversion (`From`/`Into`) to `f32` or other numeric types.
+- Create a Separator component (supporting both vertical and horizontal layouts).
+- Split the demo app from the main crate as it is extremely large.
+- Add an icon button variant to the button examples.
+- The Dialog does not close when clicking outside of it or pressing Escape.
+- The Dialog's input field uses egui's text edit directly instead of reusing the custom Input component.
+- The `nix run .#web` command does not compile or run in web mode.
+- The Dialog's close icon does not display correctly, showing a small square instead.
+- The Textarea can contain more text than its visible height. Add options to scroll or auto-grow along the X, Y, or both axes, and include these in the examples.
+- Textareas share scroll positions with each other.
+- The `build.rs` implementation is incorrect. The downloaded fonts should be saved inside the target folder (`OUT_DIR`) instead of directly in the project workspace.
+- The icon registry is generated in the project workspace. Move it to the target folder and include it using `include!(concat!(env!("OUT_DIR"), "/filename.rs"))`.
+- Allow adding custom fonts for all text, using the same strategy as the material icons font.
+- Use Nerd Fonts in the demo.
+- Remove the dependency on the `assets` folder in `index.html`. Everything should be automated via `build.rs`.
+- Continue implementing the remaining components listed in `README.md`, update their progress one by one, and ensure they are all added to the demo.
+- Icons are extremely difficult to use. Create an easier way to render them by only passing the context and UI, while still allowing custom sizes and colors, with conventional defaults.
+- In the Calendar with custom cell content, selecting a day (or highlighting the current day) does not center the number. The styling elements inside the cell cause the text to be decentralized.
+- Reimplement Toggle Group to align closer with the new Toggle design.
 
 # Not so necessary
 
-- Create another crate of demo-macro, with macro to "copy" code of implementation of component, and create a method to expose this code in demo ui, like a showroom of elements and the code;
+- Create a separate `demo-macro` crate with a macro to extract/copy the component implementation code, and expose it in the demo UI to showcase both the component and its source code.
+
