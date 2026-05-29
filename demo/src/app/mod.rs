@@ -129,6 +129,7 @@ pub struct DemoApp {
     pub(super) dropdown_last: Option<String>,
     pub(super) breadcrumb_nav: Option<String>,
     pub(super) breadcrumb_custom_nav: Option<String>,
+    pub(super) scroll_to_section: Option<usize>,
 }
 
 impl Default for DemoApp {
@@ -187,6 +188,7 @@ impl Default for DemoApp {
             dropdown_last: None,
             breadcrumb_nav: None,
             breadcrumb_custom_nav: None,
+            scroll_to_section: None,
         }
     }
 }
@@ -266,14 +268,13 @@ impl eframe::App for DemoApp {
         let theme = ShadcnTheme::get(&ctx);
         egui::Frame::new().fill(theme.background).show(ui, |ui| {
             egui::ScrollArea::vertical()
-                .id_salt(self.current_section)
+                .id_salt("main_scroll")
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
-                    Spacing::Xl.show(ui);
                     egui::Frame::new()
                         .inner_margin(egui::Margin::symmetric(24, 0))
                         .show(ui, |ui| {
-                            self.render_section(ui);
+                            self.render_all_sections(ui);
                         });
                     Spacing::Xl3.show(ui);
                 });
@@ -449,6 +450,7 @@ impl DemoApp {
 
                 if resp.clicked() {
                     self.current_section = i;
+                    self.scroll_to_section = Some(i);
                 }
 
                 if SEP_AFTER.contains(&i) {
@@ -466,8 +468,8 @@ impl DemoApp {
 // ── Section routing ───────────────────────────────────────────────────────────
 
 impl DemoApp {
-    fn render_section(&mut self, ui: &mut egui::Ui) {
-        match self.current_section {
+    fn render_section(&mut self, ui: &mut egui::Ui, index: usize) {
+        match index {
             0  => self.section_overview(ui),
             1  => self.section_accordion(ui),
             2  => self.section_alert(ui),
@@ -520,6 +522,35 @@ impl DemoApp {
             49 => self.section_tooltip(ui),
             50 => self.section_typography(ui),
             _  => {}
+        }
+    }
+
+    fn render_all_sections(&mut self, ui: &mut egui::Ui) {
+        let clip_top = ui.clip_rect().min.y;
+        let was_scrolling = self.scroll_to_section.is_some();
+
+        for i in 0..SECTIONS.len() {
+            Spacing::Xl.show(ui);
+
+            // Auto-highlight sidebar: last section whose top is at or above viewport top
+            let section_top = ui.cursor().top();
+            if !was_scrolling && section_top <= clip_top + 40.0 {
+                self.current_section = i;
+            }
+
+            // Scroll-to anchor
+            let (_, anchor) = ui.allocate_exact_size(egui::Vec2::ZERO, egui::Sense::hover());
+            if self.scroll_to_section == Some(i) {
+                anchor.scroll_to_me(Some(egui::Align::TOP));
+                self.scroll_to_section = None;
+            }
+
+            self.render_section(ui, i);
+
+            if i < SECTIONS.len() - 1 {
+                Spacing::Xl2.show(ui);
+                Separator::horizontal().show(ui);
+            }
         }
     }
 

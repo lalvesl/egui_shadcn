@@ -1,16 +1,16 @@
 # Todo
 
 - Create another example of range-calendar with only one calendar, not tow;
-- For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 
 - Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
 
 # Process
 
-- Command pallet, does not reusing components, the separator, input, cards, typography is not used;
+- For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 
 # Done
 
+- Command pallet, does not reusing components, the separator, input, cards, typography is not used;
 - You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
 - The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
 - Many components inside not reuse existing components; this is a major issue, check each component if it's using already builded component such as recreate from "zero";
