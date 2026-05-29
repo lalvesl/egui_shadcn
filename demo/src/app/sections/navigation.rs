@@ -106,8 +106,11 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, "Many pages", None);
-            let page2 = 7usize;
-            Pagination::new(page2, 20).siblings(2).show(ui);
+            muted_text(ui, &format!("Page {} of 20", self.pagination_page2));
+            ui.add_space(12.0);
+            if let Some(p) = Pagination::new(self.pagination_page2, 20).siblings(2).show(ui) {
+                self.pagination_page2 = p;
+            }
         });
     }
 

@@ -100,6 +100,7 @@ pub struct DemoApp {
     pub(super) toggle_group_val: u8,
     pub(super) collapsible_open: bool,
     pub(super) pagination_page: usize,
+    pub(super) pagination_page2: usize,
     pub(super) alert_dialog_open: bool,
     pub(super) alert_dialog_confirmed: bool,
     pub(super) button_group_sel: Option<usize>,
@@ -156,6 +157,7 @@ impl Default for DemoApp {
             toggle_group_val: 0,
             collapsible_open: false,
             pagination_page: 1,
+            pagination_page2: 7,
             alert_dialog_open: false,
             alert_dialog_confirmed: false,
             button_group_sel: Some(0),
@@ -247,6 +249,7 @@ impl eframe::App for DemoApp {
         let theme = ShadcnTheme::get(&ctx);
         egui::Frame::new().fill(theme.background).show(ui, |ui| {
             egui::ScrollArea::vertical()
+                .id_salt(self.current_section)
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
                     ui.add_space(24.0);

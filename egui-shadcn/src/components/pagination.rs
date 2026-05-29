@@ -74,7 +74,7 @@ impl Pagination {
         let galley = ui.painter().layout_no_wrap(
             label,
             egui::FontId::new(13.0, egui::FontFamily::Proportional),
-            Color32::TRANSPARENT,
+            Color32::PLACEHOLDER,
         );
         let (rect, resp) = ui.allocate_exact_size(Vec2::splat(sz), Sense::click());
         if ui.is_rect_visible(rect) {

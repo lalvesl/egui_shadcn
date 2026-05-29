@@ -6,14 +6,16 @@
 - Many components does not reuse components, that's a big problem;
 
 - In the Breadcrumb example, does not show currecly the message when click, but i belive this error it's only for demo app, the custom separator does not show nothing when click;
-- The pagination does not show the number inside of current page;
+- Now i need to track every time executed add_space replace by new space component;
 
 # Process
 
-- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui and another From to execute into to automatically transform in f32 or another types of numbers;
+- Problem of transition of "Many pages" in pagination example;
 
 # Done
 
+- The pagination does not show the number inside of current page;
+- Create component to standartization of spaces with default sizes that a enum and this enum can have the function to show reciving the ui and another From to execute into to automatically transform in f32 or another types of numbers;
 - Create component separator (vertical and horizontal);
 - Split the app from demo, extreme huge;
 - Add in Example of buttons one with icon;
