@@ -27,6 +27,7 @@ pub struct Button<'a> {
     size: ButtonSize,
     icon: Option<&'a str>,
     enabled: bool,
+    corner_radius: Option<CornerRadius>,
 }
 
 impl<'a> Button<'a> {
@@ -37,6 +38,7 @@ impl<'a> Button<'a> {
             size: ButtonSize::Default,
             icon: None,
             enabled: true,
+            corner_radius: None,
         }
     }
 
@@ -54,6 +56,10 @@ impl<'a> Button<'a> {
     }
     pub fn enabled(mut self, e: bool) -> Self {
         self.enabled = e;
+        self
+    }
+    pub fn corner_radius(mut self, cr: CornerRadius) -> Self {
+        self.corner_radius = Some(cr);
         self
     }
 
@@ -96,14 +102,23 @@ impl<'a> Button<'a> {
         if ui.is_rect_visible(rect) {
             let painter = ui.painter();
             let is_link = self.variant == ButtonVariant::Link;
-            let cr = CornerRadius::same(if is_link { 0 } else { theme.radius as u8 });
+            let default_cr = CornerRadius::same(if is_link { 0 } else { theme.radius as u8 });
+            let cr = self.corner_radius.unwrap_or(default_cr);
 
             let actual_bg = if !self.enabled {
                 ShadcnTheme::with_alpha(bg, 128)
             } else if resp.is_pointer_button_down_on() {
-                Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 220)
+                match self.variant {
+                    ButtonVariant::Outline | ButtonVariant::Ghost => {
+                        ShadcnTheme::with_alpha(theme.accent, 200)
+                    }
+                    _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 220),
+                }
             } else if resp.hovered() {
-                Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 230)
+                match self.variant {
+                    ButtonVariant::Outline | ButtonVariant::Ghost => theme.accent,
+                    _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 230),
+                }
             } else {
                 bg
             };
@@ -141,6 +156,10 @@ impl<'a> Button<'a> {
                     [rect.left_bottom(), rect.right_bottom()],
                     Stroke::new(1.0, text_color),
                 );
+            }
+
+            if resp.hovered() && self.enabled {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
             }
         }
 

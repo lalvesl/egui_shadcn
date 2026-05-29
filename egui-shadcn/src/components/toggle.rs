@@ -1,6 +1,6 @@
 use super::size::Size;
 use crate::ShadcnTheme;
-use egui::{Color32, CornerRadius, Response, Sense, Ui, Vec2};
+use egui::{Color32, CornerRadius, Response, Sense, Stroke, Ui, Vec2};
 
 pub struct Toggle<'a> {
     pressed: &'a mut bool,
@@ -8,15 +8,19 @@ pub struct Toggle<'a> {
     icon: Option<&'a str>,
     enabled: bool,
     size: Size,
+    corner_radius: Option<CornerRadius>,
+    bordered: bool,
 }
 
 impl<'a> Toggle<'a> {
     pub fn new(pressed: &'a mut bool, label: &'a str) -> Self {
-        Self { pressed, label, icon: None, enabled: true, size: Size::Default }
+        Self { pressed, label, icon: None, enabled: true, size: Size::Default, corner_radius: None, bordered: false }
     }
     pub fn icon(mut self, i: &'a str) -> Self { self.icon = Some(i); self }
     pub fn enabled(mut self, e: bool) -> Self { self.enabled = e; self }
     pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn corner_radius(mut self, cr: CornerRadius) -> Self { self.corner_radius = Some(cr); self }
+    pub fn bordered(mut self, b: bool) -> Self { self.bordered = b; self }
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -46,7 +50,7 @@ impl<'a> Toggle<'a> {
         }
 
         if ui.is_rect_visible(rect) {
-            let cr = CornerRadius::same(theme.radius as u8);
+            let cr = self.corner_radius.unwrap_or(CornerRadius::same(theme.radius as u8));
             let (bg, fg) = if !self.enabled {
                 let base_bg = if *self.pressed { theme.primary } else { theme.secondary };
                 let base_fg = if *self.pressed { theme.primary_foreground } else { theme.secondary_foreground };
@@ -59,6 +63,9 @@ impl<'a> Toggle<'a> {
                 (theme.secondary, theme.secondary_foreground)
             };
             ui.painter().rect_filled(rect, cr, bg);
+            if self.bordered {
+                ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Inside);
+            }
 
             let mut cx = rect.left() + h_pad;
             if let Some(g) = icon_g {

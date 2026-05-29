@@ -1,5 +1,6 @@
-use crate::{ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
-use egui::{Color32, CornerRadius, Sense, Stroke, Ui, Vec2};
+use super::button::{Button, ButtonSize, ButtonVariant};
+use crate::{ShadcnTheme, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT};
+use egui::{Sense, Ui, Vec2};
 
 pub struct Pagination {
     current: usize,
@@ -15,41 +16,49 @@ impl Pagination {
 
     /// Returns Some(new_page) if a page was clicked (1-indexed).
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
-        let theme = ShadcnTheme::get(ui.ctx());
         let mut result = None;
-        let btn_size = 36.0;
-        let r = theme.radius as u8;
 
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 2.0;
 
-            // Prev
             let prev_en = self.current > 1;
-            if Self::nav_btn(ui, &theme, ICON_CHEVRON_LEFT, btn_size, prev_en) && prev_en {
+            if Button::new("")
+                .icon(ICON_CHEVRON_LEFT)
+                .variant(ButtonVariant::Ghost)
+                .size(ButtonSize::Icon)
+                .enabled(prev_en)
+                .show(ui)
+                .clicked()
+            {
                 result = Some(self.current - 1);
             }
 
-            // Page buttons
             let pages = self.visible_pages();
             let mut prev_page: Option<usize> = None;
             for page in &pages {
                 if let Some(pp) = prev_page
                     && *page > pp + 1
                 {
-                    // ellipsis
-                    Self::ellipsis(ui, &theme, btn_size);
+                    Self::ellipsis(ui);
                 }
-                if Self::page_btn(ui, &theme, *page, self.current == *page, btn_size, r)
-                    && self.current != *page
-                {
+                let active = self.current == *page;
+                let label = page.to_string();
+                let variant = if active { ButtonVariant::Default } else { ButtonVariant::Ghost };
+                if Button::new(&label).variant(variant).show(ui).clicked() && !active {
                     result = Some(*page);
                 }
                 prev_page = Some(*page);
             }
 
-            // Next
             let next_en = self.current < self.total;
-            if Self::nav_btn(ui, &theme, ICON_CHEVRON_RIGHT, btn_size, next_en) && next_en {
+            if Button::new("")
+                .icon(ICON_CHEVRON_RIGHT)
+                .variant(ButtonVariant::Ghost)
+                .size(ButtonSize::Icon)
+                .enabled(next_en)
+                .show(ui)
+                .clicked()
+            {
                 result = Some(self.current + 1);
             }
         });
@@ -69,57 +78,9 @@ impl Pagination {
         pages.into_iter().collect()
     }
 
-    fn page_btn(ui: &mut Ui, theme: &ShadcnTheme, page: usize, active: bool, sz: f32, r: u8) -> bool {
-        let label = page.to_string();
-        let galley = ui.painter().layout_no_wrap(
-            label,
-            egui::FontId::new(13.0, egui::FontFamily::Proportional),
-            Color32::PLACEHOLDER,
-        );
-        let (rect, resp) = ui.allocate_exact_size(Vec2::splat(sz), Sense::click());
-        if ui.is_rect_visible(rect) {
-            let cr = CornerRadius::same(r);
-            let (bg, fg) = if active {
-                (theme.primary, theme.primary_foreground)
-            } else if resp.hovered() {
-                (theme.accent, theme.accent_foreground)
-            } else {
-                (Color32::TRANSPARENT, theme.foreground)
-            };
-            ui.painter().rect_filled(rect, cr, bg);
-            if !active {
-                ui.painter().rect_stroke(rect, cr, Stroke::new(1.0, Color32::TRANSPARENT), egui::StrokeKind::Inside);
-            }
-            let pos = egui::Pos2::new(
-                rect.center().x - galley.size().x / 2.0,
-                rect.center().y - galley.size().y / 2.0,
-            );
-            ui.painter().galley(pos, galley, fg);
-        }
-        resp.clicked()
-    }
-
-    fn nav_btn(ui: &mut Ui, theme: &ShadcnTheme, icon: &str, sz: f32, enabled: bool) -> bool {
-        let (rect, resp) = ui.allocate_exact_size(Vec2::splat(sz), if enabled { Sense::click() } else { Sense::hover() });
-        if ui.is_rect_visible(rect) {
-            let cr = CornerRadius::same(theme.radius as u8);
-            if resp.hovered() && enabled {
-                ui.painter().rect_filled(rect, cr, theme.accent);
-            }
-            let col = if enabled { theme.foreground } else { ShadcnTheme::with_alpha(theme.foreground, 80) };
-            ui.painter().text(
-                rect.center(),
-                egui::Align2::CENTER_CENTER,
-                icon,
-                crate::icon_font_id(18.0),
-                col,
-            );
-        }
-        resp.clicked() && enabled
-    }
-
-    fn ellipsis(ui: &mut Ui, theme: &ShadcnTheme, sz: f32) {
-        let (rect, _) = ui.allocate_exact_size(Vec2::splat(sz), Sense::hover());
+    fn ellipsis(ui: &mut Ui) {
+        let theme = ShadcnTheme::get(ui.ctx());
+        let (rect, _) = ui.allocate_exact_size(Vec2::splat(36.0), Sense::hover());
         if ui.is_rect_visible(rect) {
             ui.painter().text(
                 rect.center(),
