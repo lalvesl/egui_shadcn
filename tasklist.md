@@ -2,14 +2,15 @@
 
 - Create another example of range-calendar with only one calendar, not tow;
 
-- Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
+- The sidebar component there's a function to automatically trigger focus blocking to navigaste on sidebar, make the focus only when scroll the large panel of demo;
 
 # Process
 
-- For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
+- Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
 
 # Done
 
+- For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 - Command pallet, does not reusing components, the separator, input, cards, typography is not used;
 - You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;
 - The Drawer component needs to reuse other components, like Boxed, because its padding is incorrect.
@@ -48,3 +49,20 @@
 # Not so necessary
 
 - Create a separate `demo-macro` crate with a macro to extract/copy the component implementation code, and expose it in the demo UI to showcase both the component and its source code.
+- better i18n implementation, only rust code, imagine, in another crate describe an enum with each Languages{ En, EnUs, Pt,
+  PtBr} create implementation function recing &str of some language and can return some one Languages::ENUM_ELEMENT,
+  and create the type LanguagesWithValue, enum with LanguesWithValue::ENUM(static'&str), create another enums to can
+  sparete by application, or something like this, for example #[i18n::traductions]EnumForCalendarThisIsSomeApplication{January([En("January"), PtBr("Janeiro")]),
+  .....antoher_things_of_this_application}, this regenerate this enum removing the LanguagesWithValues list (static
+  slice) and generate the implementation of trait Translate, this has a method translation_id, return a const inline
+  value u16 generated at compile time hashing the name of enum for application with constant salt inside of
+  procedure-macro, the translations can be add inside binary depending of the features inside the crate, each language is
+  a feature, to use transaltion there's a another procedude-macro "t!" this macro generate the code to bindings
+  automatically for the ui-context of egui module and take the current language selected from enum Languages, and if the
+  language is selected at compile time by feature, automatically access the value from function to fallback defined by
+  implementation in Language Enum (the function to recive a possible language), if the language not define execute
+  another async function to request this language or your fallback, how the key works in this case, the u16 constant
+  value are the first key and the ApplicationEnum(in this example is EnumForCalendarThisIsSomeApplication) can be
+  transformed in u8 using enum::January as u8, this compose the key "U24"(u16,u8) this need to storaged in unique
+  continuos struct of Vec<u8> and the format is {quantity_of_keys: usize, keys: [Key (is a element with (u16,u8)
+  ordenated by value to use some binary-search strategy, u8 ] and store inside of HashMap<[u16,u8],String>

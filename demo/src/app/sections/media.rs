@@ -100,31 +100,49 @@ impl DemoApp {
     pub(in crate::app) fn section_resizable(&mut self, ui: &mut egui::Ui) {
         self.section_title(ui, "Resizable", "Accessible resizable panel groups and layouts.");
 
-        Card::new().show(ui, |ui| {
-            card_header(ui, "Horizontal panels", None);
+        Card::new().padding(0.0).show(ui, |ui| {
             Resizable::new("demo_resizable_h")
                 .dir(ResizeDir::Horizontal)
-                .initial_split(0.5)
-                .height(120.0)
+                .initial_split(0.33)
+                .height(220.0)
                 .show(ui,
                     |ui| {
                         let theme = ShadcnTheme::get(ui.ctx());
-                        let (rect, _) = ui.allocate_exact_size(
-                            egui::Vec2::new(ui.available_width(), 120.0), egui::Sense::hover()
+                        let rect = ui.available_rect_before_wrap();
+                        ui.painter().text(
+                            rect.center(), egui::Align2::CENTER_CENTER, "One",
+                            egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                            theme.muted_foreground,
                         );
-                        ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.muted);
-                        ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "Panel A",
-                            egui::FontId::new(13.0, egui::FontFamily::Proportional), theme.muted_foreground);
+                        let _ = ui.allocate_exact_size(rect.size(), egui::Sense::hover());
                     },
                     |ui| {
-                        let theme = ShadcnTheme::get(ui.ctx());
-                        let (rect, _) = ui.allocate_exact_size(
-                            egui::Vec2::new(ui.available_width(), 120.0), egui::Sense::hover()
-                        );
-                        ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.muted);
-                        ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "Panel B",
-                            egui::FontId::new(13.0, egui::FontFamily::Proportional), theme.muted_foreground);
-                    }
+                        Resizable::new("demo_resizable_v")
+                            .dir(ResizeDir::Vertical)
+                            .initial_split(0.5)
+                            .show(ui,
+                                |ui| {
+                                    let theme = ShadcnTheme::get(ui.ctx());
+                                    let rect = ui.available_rect_before_wrap();
+                                    ui.painter().text(
+                                        rect.center(), egui::Align2::CENTER_CENTER, "Two",
+                                        egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                                        theme.muted_foreground,
+                                    );
+                                    let _ = ui.allocate_exact_size(rect.size(), egui::Sense::hover());
+                                },
+                                |ui| {
+                                    let theme = ShadcnTheme::get(ui.ctx());
+                                    let rect = ui.available_rect_before_wrap();
+                                    ui.painter().text(
+                                        rect.center(), egui::Align2::CENTER_CENTER, "Three",
+                                        egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                                        theme.muted_foreground,
+                                    );
+                                    let _ = ui.allocate_exact_size(rect.size(), egui::Sense::hover());
+                                },
+                            );
+                    },
                 );
         });
     }
