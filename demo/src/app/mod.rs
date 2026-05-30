@@ -93,8 +93,8 @@ pub struct DemoApp {
     pub(super) breadcrumb_nav: Option<String>,
     pub(super) breadcrumb_custom_nav: Option<String>,
     pub(super) scroll_to_section: Option<usize>,
-    pub(super) sidebar_needs_scroll: bool,
     pub(super) locale_idx: Option<usize>,
+    pub(super) sidebar_last_interaction: f64,
 }
 
 impl Default for DemoApp {
@@ -156,8 +156,8 @@ impl Default for DemoApp {
             breadcrumb_nav: None,
             breadcrumb_custom_nav: None,
             scroll_to_section: None,
-            sidebar_needs_scroll: false,
             locale_idx: Some(0),
+            sidebar_last_interaction: 0.0,
         }
     }
 }
@@ -412,6 +412,27 @@ impl DemoApp {
     fn show_sidebar(&mut self, ui: &mut egui::Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
+        // Idle period before sidebar auto-scrolls to track the active section.
+        // Resets whenever the cursor sits inside the sidebar.
+        const AUTO_SCROLL_TIMEOUT: f64 = 1.5;
+
+        let now = ui.input(|i| i.time);
+        let sidebar_rect = ui.max_rect();
+        let pointer_over_sidebar = ui
+            .ctx()
+            .input(|i| i.pointer.hover_pos().map(|p| sidebar_rect.contains(p)).unwrap_or(false));
+        if pointer_over_sidebar {
+            self.sidebar_last_interaction = now;
+        }
+        let elapsed = now - self.sidebar_last_interaction;
+        let can_auto_scroll = elapsed >= AUTO_SCROLL_TIMEOUT;
+        if !pointer_over_sidebar && !can_auto_scroll {
+            ui.ctx()
+                .request_repaint_after(std::time::Duration::from_secs_f64(
+                    (AUTO_SCROLL_TIMEOUT - elapsed).max(0.05),
+                ));
+        }
+
         // Separator after letter groups (A→4, B→9, C→18, D→23, H–L→27, M–P→32, R–S→42)
         const SEP_AFTER: &[usize] = &[0, 4, 9, 18, 23, 27, 32, 42];
 
@@ -446,14 +467,18 @@ impl DemoApp {
                     fg,
                 );
 
-                if is_active && self.sidebar_needs_scroll {
-                    resp.scroll_to_me(Some(egui::Align::Center));
-                    self.sidebar_needs_scroll = false;
+                if is_active && can_auto_scroll {
+                    let visible = ui.clip_rect();
+                    if !visible.contains(rect.center()) {
+                        resp.scroll_to_me(Some(egui::Align::Center));
+                    }
                 }
 
                 if resp.clicked() {
                     self.current_section = i;
                     self.scroll_to_section = Some(i);
+                    self.sidebar_last_interaction = now;
+                    resp.surrender_focus();
                 }
 
                 if SEP_AFTER.contains(&i) {
@@ -538,12 +563,6 @@ impl DemoApp {
             // Auto-highlight sidebar: last section whose top is at or above viewport top
             let section_top = ui.cursor().top();
             if !was_scrolling && section_top <= clip_top + 40.0 {
-                if self.current_section != i {
-                    self.sidebar_needs_scroll = true;
-                    // show_sidebar already ran this frame; force next frame so
-                    // the sidebar can consume sidebar_needs_scroll immediately.
-                    ui.ctx().request_repaint();
-                }
                 self.current_section = i;
             }
 
