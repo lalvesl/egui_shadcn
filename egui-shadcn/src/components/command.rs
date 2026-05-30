@@ -4,8 +4,10 @@ use super::input::Input;
 use super::separator::Separator;
 use super::spacing::Spacing;
 use super::typography::{muted_text, small_text};
+use crate::i18n;
 use crate::{ShadcnTheme, ICON_SEARCH};
 use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Sense, Vec2};
+use ::i18n::t;
 
 
 pub struct CommandItem<'a> {
@@ -24,7 +26,7 @@ pub struct Command<'a> {
     id: &'a str,
     groups: &'a [CommandGroup<'a>],
     open: &'a mut bool,
-    placeholder: &'a str,
+    placeholder: Option<&'a str>,
     width: f32,
 }
 
@@ -34,13 +36,13 @@ impl<'a> Command<'a> {
             id,
             groups,
             open,
-            placeholder: "Type a command or search…",
+            placeholder: None,
             width: 480.0,
         }
     }
 
     pub fn placeholder(mut self, p: &'a str) -> Self {
-        self.placeholder = p;
+        self.placeholder = Some(p);
         self
     }
 
@@ -148,10 +150,15 @@ impl<'a> Command<'a> {
 
                         // Search row
                         Spacing::Xs.show(ui);
+                        let ph_owned;
+                        let ph: &str = match self.placeholder {
+                            Some(p) => p,
+                            None => { ph_owned = t!(i18n::Command::Placeholder); ph_owned.as_ref() }
+                        };
                         ui.horizontal(|ui| {
                             Input::new(&mut query)
                                 .icon_left(ICON_SEARCH)
-                                .placeholder(self.placeholder)
+                                .placeholder(ph)
                                 .bordered(false)
                                 .width(self.width - 44.0)
                                 .show(ui)
@@ -278,9 +285,10 @@ impl<'a> Command<'a> {
                                         }
 
                                         if flat_idx == 0 {
+                                            let no_results = t!(i18n::Command::NoResults);
                                             ui.add_space(20.0);
                                             ui.centered_and_justified(|ui| {
-                                                muted_text(ui, "No results found.");
+                                                muted_text(ui, no_results.as_ref());
                                             });
                                             ui.add_space(20.0);
                                         }

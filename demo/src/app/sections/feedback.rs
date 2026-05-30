@@ -11,42 +11,50 @@ use egui_shadcn::{
     toast::{ToastVariant, Toaster},
     typography::muted_text,
 };
+use crate::i18n as t;
+use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
 impl DemoApp {
     pub(in crate::app) fn section_alert(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Alert", "Displays a callout for user attention.");
+        let title = t::section_name(2);
+        let subtitle = tr!(t::AlertSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
-        Alert::new("Heads up!")
-            .description("This is an informational alert with a description.")
+        let info_title = tr!(t::AlertSec::InfoTitle);
+        let info_desc = tr!(t::AlertSec::InfoDesc);
+        Alert::new(info_title.as_ref())
+            .description(info_desc.as_ref())
             .show(ui);
         Spacing::Md.show(ui);
-        Alert::new("Destructive")
-            .description("Something went wrong. Please check your inputs.")
+        let dest_title = tr!(t::AlertSec::DestructiveTitle);
+        let dest_desc = tr!(t::AlertSec::DestructiveDesc);
+        Alert::new(dest_title.as_ref())
+            .description(dest_desc.as_ref())
             .variant(AlertVariant::Destructive)
             .show(ui);
         Spacing::Md.show(ui);
-        Alert::new("Warning")
-            .description("This action cannot be undone. Proceed with caution.")
+        let warn_title = tr!(t::AlertSec::WarningTitle);
+        let warn_desc = tr!(t::AlertSec::WarningDesc);
+        Alert::new(warn_title.as_ref())
+            .description(warn_desc.as_ref())
             .variant(AlertVariant::Warning)
             .show(ui);
     }
 
     pub(in crate::app) fn section_alert_dialog(&mut self, ui: &mut egui::Ui) {
-        self.section_title(
-            ui,
-            "Alert Dialog",
-            "A modal dialog that interrupts the user with important content and expects a response.",
-        );
+        let title = t::section_name(3);
+        let subtitle = tr!(t::AlertDialogSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Default", None);
+            card_header(ui, tr!(t::AlertDialogSec::HDefault).as_ref(), None);
             if self.alert_dialog_confirmed {
-                muted_text(ui, "Action confirmed!");
+                muted_text(ui, tr!(t::AlertDialogSec::Confirmed).as_ref());
                 Spacing::Sm.show(ui);
             }
-            if Button::new("Open Alert Dialog").show(ui).clicked() {
+            if Button::new(tr!(t::AlertDialogSec::Open).as_ref()).show(ui).clicked() {
                 self.alert_dialog_open = true;
                 self.alert_dialog_confirmed = false;
             }
@@ -56,43 +64,43 @@ impl DemoApp {
 
         let ctx = ui.ctx().clone();
         let mut confirmed = false;
+        let dlg_title = tr!(t::AlertDialogSec::DialogTitle);
+        let dlg_body = tr!(t::AlertDialogSec::DialogBody);
+        let delete = tr!(t::AlertDialogSec::Delete);
         AlertDialog::new(
-            "Are you absolutely sure?",
-            "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+            dlg_title.as_ref(),
+            dlg_body.as_ref(),
             &mut self.alert_dialog_open,
         )
         .destructive(true)
-        .confirm_label("Delete Account")
+        .confirm_label(delete.as_ref())
         .show(&ctx, || { confirmed = true; });
         if confirmed { self.alert_dialog_confirmed = true; }
     }
 
     pub(in crate::app) fn section_dialog(&mut self, ui: &mut egui::Ui) {
-        self.section_title(
-            ui,
-            "Dialog",
-            "A window overlaid on either the primary window or another dialog window, rendering the content underneath inert.",
-        );
+        let title = t::section_name(21);
+        let subtitle = tr!(t::DialogSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Confirm Action", Some("Type CONFIRM to proceed with this destructive action."));
-            muted_text(ui, "This dialog requires explicit confirmation before proceeding.");
+            let confirm_desc = tr!(t::DialogSec::HConfirmDesc);
+            card_header(ui, tr!(t::DialogSec::HConfirm).as_ref(), Some(confirm_desc.as_ref()));
+            muted_text(ui, tr!(t::DialogSec::Body).as_ref());
             Spacing::Md.show(ui);
-            if Button::new("Open Dialog").show(ui).clicked() {
+            if Button::new(tr!(t::DialogSec::Open).as_ref()).show(ui).clicked() {
                 self.dialog_open = true;
             }
         });
     }
 
     pub(in crate::app) fn section_progress(&mut self, ui: &mut egui::Ui) {
-        self.section_title(
-            ui,
-            "Progress",
-            "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-        );
+        let title = t::section_name(32);
+        let subtitle = tr!(t::ProgressSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Progress bar", None);
+            card_header(ui, tr!(t::ProgressSec::HBar).as_ref(), None);
             muted_text(ui, &format!("{:.0}%", self.progress_val * 100.0));
             Spacing::Sm.show(ui);
             Progress::new(self.progress_val).show(ui);
@@ -115,10 +123,12 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_skeleton(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Skeleton", "Use to show a placeholder while content is loading.");
+        let title = t::section_name(38);
+        let subtitle = tr!(t::SkeletonSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Loading state", None);
+            card_header(ui, tr!(t::SkeletonSec::HLoading).as_ref(), None);
             ui.horizontal(|ui| {
                 Skeleton::circle(40.0).show(ui);
                 Spacing::Md.show(ui);
@@ -134,10 +144,12 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_spinner(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Spinner", "Displays an animated spinner to indicate a loading state.");
+        let title = t::section_name(41);
+        let subtitle = tr!(t::SpinnerSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Sizes", None);
+            card_header(ui, tr!(t::SpinnerSec::HSizes).as_ref(), None);
             ui.horizontal(|ui| {
                 Spinner::new().size(Size::Sm).show(ui);
                 Spacing::Xs.show(ui);
@@ -149,23 +161,34 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_toast(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Toast", "A succinct message that is displayed temporarily.");
+        let title = t::section_name(46);
+        let subtitle = tr!(t::ToastSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Variants", Some("Click to show a toast notification."));
+            let desc = tr!(t::ToastSec::HVariantsDesc);
+            card_header(ui, tr!(t::ToastSec::HVariants).as_ref(), Some(desc.as_ref()));
             ui.horizontal(|ui| {
                 let ctx = ui.ctx().clone();
-                if Button::new("Default").show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Scheduled", "Monday, January 3rd at 6:00pm", ToastVariant::Default);
+                if Button::new(tr!(t::ToastSec::DefaultBtn).as_ref()).show(ui).clicked() {
+                    let t_title = tr!(t::ToastSec::DefaultTitle);
+                    let t_desc = tr!(t::ToastSec::DefaultDesc);
+                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Default);
                 }
-                if Button::new("Success").show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Success", "Your changes have been saved.", ToastVariant::Success);
+                if Button::new(tr!(t::ToastSec::SuccessBtn).as_ref()).show(ui).clicked() {
+                    let t_title = tr!(t::ToastSec::SuccessTitle);
+                    let t_desc = tr!(t::ToastSec::SuccessDesc);
+                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Success);
                 }
-                if Button::new("Warning").show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Warning", "This action may have consequences.", ToastVariant::Warning);
+                if Button::new(tr!(t::ToastSec::WarningBtn).as_ref()).show(ui).clicked() {
+                    let t_title = tr!(t::ToastSec::WarningTitle);
+                    let t_desc = tr!(t::ToastSec::WarningDesc);
+                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Warning);
                 }
-                if Button::new("Destructive").variant(ButtonVariant::Destructive).show(ui).clicked() {
-                    Toaster::push_with_desc(&ctx, "Destructive", "Your session has expired.", ToastVariant::Destructive);
+                if Button::new(tr!(t::ToastSec::DestructiveBtn).as_ref()).variant(ButtonVariant::Destructive).show(ui).clicked() {
+                    let t_title = tr!(t::ToastSec::DestructiveTitle);
+                    let t_desc = tr!(t::ToastSec::DestructiveDesc);
+                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Destructive);
                 }
             });
         });

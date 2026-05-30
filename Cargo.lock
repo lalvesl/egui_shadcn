@@ -419,6 +419,7 @@ dependencies = [
  "eframe",
  "egui",
  "egui-shadcn",
+ "i18n",
  "js-sys",
  "skrifa",
  "ureq",
@@ -553,6 +554,7 @@ name = "egui-shadcn"
 version = "0.1.0"
 dependencies = [
  "egui",
+ "i18n",
  "js-sys",
  "skrifa",
  "ureq",
@@ -682,6 +684,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1a05365e3b1c6d1650318537c7460c6923f1abdd272ad6842baa2b509957a06"
 dependencies = [
  "num-traits",
+]
+
+[[package]]
+name = "example-app"
+version = "0.1.0"
+dependencies = [
+ "i18n",
 ]
 
 [[package]]
@@ -961,6 +970,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
+name = "i18n"
+version = "0.1.0"
+dependencies = [
+ "i18n-format",
+ "i18n-macros",
+ "linkme",
+]
+
+[[package]]
+name = "i18n-format"
+version = "0.1.0"
+
+[[package]]
+name = "i18n-macros"
+version = "0.1.0"
+dependencies = [
+ "i18n-format",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "icu_collections"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1230,6 +1262,26 @@ name = "linebender_resource_handle"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4a5ff6bcca6c4867b1c4fd4ef63e4db7436ef363e0ad7531d1558856bae64f4"
+
+[[package]]
+name = "linkme"
+version = "0.3.36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e83272d46373fb8decca684579ac3e7c8f3d71d4cc3aa693df8759e260ae41cf"
+dependencies = [
+ "linkme-impl",
+]
+
+[[package]]
+name = "linkme-impl"
+version = "0.3.36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32d59e20403c7d08fe62b4376edfe5c7fb2ef1e6b1465379686d0f21c8df444b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "linux-raw-sys"

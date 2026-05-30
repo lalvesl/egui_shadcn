@@ -1,0 +1,15 @@
+[package]
+name        = "i18n-macros"
+version     = "0.1.0"
+edition     = "2021"
+description = "Proc-macros that bake i18n catalogs at compile time and expand t!()."
+
+[lib]
+proc-macro = true
+path       = "src/lib.rs"
+
+[dependencies]
+syn          = { version = "2", features = ["full"] }
+quote        = "1"
+proc-macro2  = "1"
+i18n-format  = { path = "../i18n-format" }

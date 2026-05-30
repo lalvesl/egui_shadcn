@@ -1,10 +1,12 @@
+use crate::i18n;
 use crate::{CalDate, ShadcnTheme, ICON_CALENDAR_TODAY};
 use egui::{CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use ::i18n::t;
 
 pub struct DatePicker<'a> {
     id: &'a str,
     value: &'a mut Option<CalDate>,
-    placeholder: &'a str,
+    placeholder: Option<&'a str>,
     width: f32,
 }
 
@@ -13,13 +15,13 @@ impl<'a> DatePicker<'a> {
         Self {
             id,
             value,
-            placeholder: "Pick a date",
+            placeholder: None,
             width: 240.0,
         }
     }
 
     pub fn placeholder(mut self, p: &'a str) -> Self {
-        self.placeholder = p;
+        self.placeholder = Some(p);
         self
     }
 
@@ -66,14 +68,13 @@ impl<'a> DatePicker<'a> {
 
         let display = match self.value {
             Some(d) => {
-                let months = [
-                    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-                ];
-                let month_name = months[(d.month as usize).saturating_sub(1).min(11)];
+                let month_name = i18n::month_short(d.month);
                 format!("{} {:02}, {}", month_name, d.day, d.year)
             }
-            None => self.placeholder.to_string(),
+            None => match self.placeholder {
+                Some(p) => p.to_string(),
+                None => t!(i18n::DatePicker::Placeholder).into_owned(),
+            },
         };
 
         let text_color = if self.value.is_some() {

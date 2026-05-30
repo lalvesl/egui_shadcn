@@ -1,5 +1,6 @@
 pub mod components;
 pub mod fonts;
+pub mod i18n;
 pub mod icons;
 pub mod theme;
 

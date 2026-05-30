@@ -1,6 +1,8 @@
 use super::spacing::Spacing;
+use crate::i18n;
 use crate::{ShadcnTheme, ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH};
 use egui::{Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2};
+use ::i18n::t;
 
 pub struct DataColumn<'a> {
     pub header: &'a str,
@@ -78,8 +80,9 @@ impl<'a> DataTable<'a> {
                 theme.muted_foreground,
             );
             ui.add_space(icon_w);
+            let filter_hint = t!(i18n::DataTable::FilterPlaceholder);
             let te = egui::TextEdit::singleline(self.filter)
-                .hint_text("Filter…")
+                .hint_text(filter_hint.as_ref())
                 .font(ShadcnTheme::body_font())
                 .text_color(theme.foreground)
                 .desired_width(200.0);
@@ -277,10 +280,11 @@ impl<'a> DataTable<'a> {
                     ui.horizontal(|ui| {
                         // Prev button
                         let can_prev = current_page > 0;
+                        let prev_label = t!(i18n::DataTable::Prev);
                         let prev_resp = ui.add_enabled(
                             can_prev,
                             egui::Button::new(
-                                egui::RichText::new("← Prev")
+                                egui::RichText::new(prev_label.as_ref())
                                     .font(ShadcnTheme::small_font()),
                             )
                             .fill(if can_prev {
@@ -296,23 +300,26 @@ impl<'a> DataTable<'a> {
                         }
 
                         Spacing::Sm.show(ui);
+                        let current_num = current_page + 1;
+                        let page_label = t!(
+                            i18n::DataTable::Page,
+                            current = current_num,
+                            total   = total_pages
+                        );
                         ui.label(
-                            egui::RichText::new(format!(
-                                "Page {} of {}",
-                                current_page + 1,
-                                total_pages
-                            ))
-                            .font(ShadcnTheme::small_font())
-                            .color(theme.muted_foreground),
+                            egui::RichText::new(page_label.as_ref())
+                                .font(ShadcnTheme::small_font())
+                                .color(theme.muted_foreground),
                         );
                         Spacing::Sm.show(ui);
 
                         // Next button
                         let can_next = current_page + 1 < total_pages;
+                        let next_label = t!(i18n::DataTable::Next);
                         let next_resp = ui.add_enabled(
                             can_next,
                             egui::Button::new(
-                                egui::RichText::new("Next →")
+                                egui::RichText::new(next_label.as_ref())
                                     .font(ShadcnTheme::small_font()),
                             )
                             .fill(if can_next {

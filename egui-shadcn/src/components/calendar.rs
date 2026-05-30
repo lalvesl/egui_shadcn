@@ -1,6 +1,7 @@
 use super::spacing::Spacing;
-use crate::ShadcnTheme;
-use egui::{CornerRadius, Direction, Layout, Sense, Stroke, Ui, Vec2};
+use crate::i18n;
+use crate::{ShadcnTheme, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT};
+use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 
 // ── CalDate ───────────────────────────────────────────────────────────────────
 
@@ -100,11 +101,6 @@ fn weekday_of(year: i32, month: u8, day: u8) -> usize {
     ((y + y / 4 - y / 100 + y / 400 + T[month as usize - 1] + day as i32).rem_euclid(7)) as usize
 }
 
-const MONTHS: [&str; 12] = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-];
-const DAYS: [&str; 7] = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 // ── internal egui state ───────────────────────────────────────────────────────
 
@@ -140,6 +136,7 @@ pub struct Calendar<'a> {
     end: Option<&'a mut Option<CalDate>>,
     cell_fn: Option<Box<CellFn<'a>>>,
     cell_h: f32,
+    compact: bool,
 }
 
 impl<'a> Calendar<'a> {
@@ -150,6 +147,7 @@ impl<'a> Calendar<'a> {
             end: None,
             cell_fn: None,
             cell_h: 32.0,
+            compact: false,
         }
     }
 
@@ -164,6 +162,7 @@ impl<'a> Calendar<'a> {
             end: Some(end),
             cell_fn: None,
             cell_h: 32.0,
+            compact: false,
         }
     }
 
@@ -176,6 +175,13 @@ impl<'a> Calendar<'a> {
     /// Height of each date cell. Default 32. Increase when using `cell_content`.
     pub fn cell_height(mut self, h: f32) -> Self {
         self.cell_h = h;
+        self
+    }
+
+    /// Render a range picker as a single month (with both nav arrows) instead of
+    /// the default side-by-side two-month layout. No-op for `single`.
+    pub fn compact(mut self) -> Self {
+        self.compact = true;
         self
     }
 
@@ -194,45 +200,68 @@ impl<'a> Calendar<'a> {
         let cell_fn: Option<&CellFn<'_>> = self.cell_fn.as_deref();
 
         if let Some(end_ref) = self.end {
-            let right_view = state.view.next_month();
             let mut s_start: Option<CalDate> = *self.selected;
             let mut s_end: Option<CalDate> = *end_ref;
 
-            let (nav, c0, c1) = ui
-                .horizontal(|ui| {
-                    let (n, c0) = draw_month(ui, &theme, DrawConfig {
-                        view: state.view,
-                        sel_start: s_start,
-                        sel_end: s_end,
-                        show_prev: true,
-                        show_next: false,
-                        today,
-                        cell_h,
-                        cell_fn,
-                    });
-                    Spacing::Xl.show(ui);
-                    let (_, c1) = draw_month(ui, &theme, DrawConfig {
-                        view: right_view,
-                        sel_start: s_start,
-                        sel_end: s_end,
-                        show_prev: false,
-                        show_next: true,
-                        today,
-                        cell_h,
-                        cell_fn,
-                    });
-                    (n, c0, c1)
-                })
-                .inner;
+            if self.compact {
+                let (nav, clicked) = draw_month(ui, &theme, DrawConfig {
+                    view: state.view,
+                    sel_start: s_start,
+                    sel_end: s_end,
+                    show_prev: true,
+                    show_next: true,
+                    today,
+                    cell_h,
+                    cell_fn,
+                });
 
-            match nav {
-                -1 => state.view = state.view.prev_month(),
-                1 => state.view = state.view.next_month(),
-                _ => {}
-            }
+                match nav {
+                    -1 => state.view = state.view.prev_month(),
+                    1 => state.view = state.view.next_month(),
+                    _ => {}
+                }
 
-            for d in c0.into_iter().chain(c1) {
-                range_click(d, &mut s_start, &mut s_end);
+                if let Some(d) = clicked {
+                    range_click(d, &mut s_start, &mut s_end);
+                }
+            } else {
+                let right_view = state.view.next_month();
+                let (nav, c0, c1) = ui
+                    .horizontal(|ui| {
+                        let (n, c0) = draw_month(ui, &theme, DrawConfig {
+                            view: state.view,
+                            sel_start: s_start,
+                            sel_end: s_end,
+                            show_prev: true,
+                            show_next: false,
+                            today,
+                            cell_h,
+                            cell_fn,
+                        });
+                        Spacing::Xl.show(ui);
+                        let (_, c1) = draw_month(ui, &theme, DrawConfig {
+                            view: right_view,
+                            sel_start: s_start,
+                            sel_end: s_end,
+                            show_prev: false,
+                            show_next: true,
+                            today,
+                            cell_h,
+                            cell_fn,
+                        });
+                        (n, c0, c1)
+                    })
+                    .inner;
+
+                match nav {
+                    -1 => state.view = state.view.prev_month(),
+                    1 => state.view = state.view.next_month(),
+                    _ => {}
+                }
+
+                for d in c0.into_iter().chain(c1) {
+                    range_click(d, &mut s_start, &mut s_end);
+                }
             }
             *self.selected = s_start;
             *end_ref = s_end;
@@ -308,41 +337,60 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
     let mut clicked: Option<CalDate> = None;
 
     ui.vertical(|ui| {
+        // Zero horizontal spacing so day cells sit flush — keeps the day grid
+        // width equal to `cell_w * 7`, which is what the header was allocated
+        // for. Without this, the default 8 px item_spacing pushes the grid 48 px
+        // past the header and the next-month arrow lands left of the real edge.
+        ui.spacing_mut().item_spacing.x = 0.0;
         ui.set_width(cell_w * 7.0);
 
-        // header
-        ui.horizontal(|ui| {
-            let sz = Vec2::new(24.0, 24.0);
-            if cfg.show_prev {
-                if ui.add_sized(sz, egui::Button::new("‹").frame(false)).clicked() { nav = -1; }
-            } else {
-                ui.add_space(sz.x);
+        // header — absolute positioning within a single allocated row
+        let (hdr, _) = ui.allocate_exact_size(Vec2::new(cell_w * 7.0, 36.0), Sense::hover());
+
+        if cfg.show_prev {
+            let btn = egui::Rect::from_min_size(hdr.min, Vec2::splat(36.0));
+            let r = ui.interact(btn, ui.id().with("cprev"), Sense::click());
+            if r.hovered() || r.is_pointer_button_down_on() {
+                ui.painter().rect_filled(btn, egui::CornerRadius::same(theme.radius as u8), theme.accent);
             }
-            ui.with_layout(Layout::centered_and_justified(Direction::LeftToRight), |ui| {
-                ui.label(
-                    egui::RichText::new(format!(
-                        "{} {}", MONTHS[(cfg.view.month - 1) as usize], cfg.view.year
-                    ))
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-                    .color(theme.foreground)
-                    .strong(),
-                );
-            });
-            if cfg.show_next {
-                if ui.add_sized(sz, egui::Button::new("›").frame(false)).clicked() { nav = 1; }
-            } else {
-                ui.add_space(sz.x);
+            ui.painter().text(btn.center(), egui::Align2::CENTER_CENTER,
+                ICON_CHEVRON_LEFT, ShadcnTheme::icon_font(16.0), theme.foreground);
+            if r.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+            if r.clicked() { nav = -1; }
+        }
+
+        ui.painter().text(
+            hdr.center(),
+            egui::Align2::CENTER_CENTER,
+            format!("{} {}", i18n::month_long(cfg.view.month), cfg.view.year),
+            egui::FontId::new(14.0, egui::FontFamily::Proportional),
+            theme.foreground,
+        );
+
+        if cfg.show_next {
+            let btn = egui::Rect::from_min_max(
+                egui::Pos2::new(hdr.max.x - 36.0, hdr.min.y),
+                hdr.max,
+            );
+            let r = ui.interact(btn, ui.id().with("cnext"), Sense::click());
+            if r.hovered() || r.is_pointer_button_down_on() {
+                ui.painter().rect_filled(btn, egui::CornerRadius::same(theme.radius as u8), theme.accent);
             }
-        });
+            ui.painter().text(btn.center(), egui::Align2::CENTER_CENTER,
+                ICON_CHEVRON_RIGHT, ShadcnTheme::icon_font(16.0), theme.foreground);
+            if r.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+            if r.clicked() { nav = 1; }
+        }
 
         ui.add_space(6.0);
 
         // weekday labels
         ui.horizontal(|ui| {
-            for &d in &DAYS {
+            for day_idx in 0..7usize {
+                let d = i18n::weekday_short(day_idx);
                 let (rect, _) = ui.allocate_exact_size(Vec2::new(cell_w, 20.0), Sense::hover());
                 ui.painter().text(
-                    rect.center(), egui::Align2::CENTER_CENTER, d,
+                    rect.center(), egui::Align2::CENTER_CENTER, d.as_ref(),
                     egui::FontId::new(11.0, egui::FontFamily::Proportional),
                     theme.muted_foreground,
                 );

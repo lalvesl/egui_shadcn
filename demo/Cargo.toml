@@ -10,9 +10,17 @@ crate-type = ["cdylib", "rlib"]
 name = "demo-native"
 path = "src/main.rs"
 
+[features]
+default    = ["lang-en-us", "lang-pt-br"]
+lang-en    = ["i18n/lang-en"]
+lang-en-us = ["i18n/lang-en-us"]
+lang-pt    = ["i18n/lang-pt"]
+lang-pt-br = ["i18n/lang-pt-br"]
+
 [dependencies]
 egui-shadcn = { path = "../egui-shadcn" }
 egui        = { workspace = true }
+i18n        = { path = "../i18n/i18n" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 eframe = { workspace = true, features = ["default_fonts", "glow", "x11", "wayland"] }

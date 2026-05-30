@@ -5,72 +5,33 @@ use egui_shadcn::{
     ShadcnTheme,
     calendar::CalDate,
     dialog::Dialog,
+    i18n::{self, Languages},
     input::Input,
     button::{Button, ButtonVariant},
     popover::Popover,
+    select::Select,
     separator::Separator,
     toast::Toaster,
     typography::{body_text, heading2, heading4, muted_text, small_text},
     slider::Slider,
 };
+use crate::i18n as t;
+use ::i18n::t as tr;
+
+const LOCALES: &[(Languages, &str)] = &[
+    (Languages::EnUs, "EN"),
+    (Languages::PtBr, "PT"),
+];
+
+fn locale_idx_to_lang(idx: usize) -> Languages {
+    LOCALES.get(idx).map(|(l, _)| *l).unwrap_or(Languages::EnUs)
+}
 
 mod sections;
 
 // ── Nav sections ──────────────────────────────────────────────────────────────
 
-const SECTIONS: &[&str] = &[
-    "Overview",        // 0
-    "Accordion",       // 1
-    "Alert",           // 2
-    "Alert Dialog",    // 3
-    "Avatar",          // 4
-    "Badge",           // 5
-    "Boxed",           // 6
-    "Breadcrumb",      // 7
-    "Button",          // 8
-    "Button Group",    // 9
-    "Calendar",        // 10
-    "Card",            // 11
-    "Carousel",        // 12
-    "Chart",           // 13
-    "Checkbox",        // 14
-    "Collapsible",     // 15
-    "Combobox",        // 16
-    "Command",         // 17
-    "Context Menu",    // 18
-    "Data Table",      // 19
-    "Date Picker",     // 20
-    "Dialog",          // 21
-    "Drawer",          // 22
-    "Dropdown Menu",   // 23
-    "Hover Card",      // 24
-    "Input",           // 25
-    "Input OTP",       // 26
-    "Label",           // 27
-    "Menubar",         // 28
-    "Navigation Menu", // 29
-    "Pagination",      // 30
-    "Popover",         // 31
-    "Progress",        // 32
-    "Radio",           // 33
-    "Resizable",       // 34
-    "Select",          // 35
-    "Separator",       // 36
-    "Sheet",           // 37
-    "Skeleton",        // 38
-    "Slider",          // 39
-    "Spacing",         // 40
-    "Spinner",         // 41
-    "Switch",          // 42
-    "Table",           // 43
-    "Tabs",            // 44
-    "Textarea",        // 45
-    "Toast",           // 46
-    "Toggle",          // 47
-    "Toggle Group",    // 48
-    "Tooltip",         // 49
-    "Typography",      // 50
-];
+const SECTION_COUNT: usize = t::SECTION_COUNT;
 
 // ── App state ─────────────────────────────────────────────────────────────────
 
@@ -103,6 +64,8 @@ pub struct DemoApp {
     pub(super) cal_range_start: Option<CalDate>,
     pub(super) cal_range_end: Option<CalDate>,
     pub(super) cal_prices_selected: Option<CalDate>,
+    pub(super) cal_range_compact_start: Option<CalDate>,
+    pub(super) cal_range_compact_end: Option<CalDate>,
     pub(super) toggle1: bool,
     pub(super) toggle2: bool,
     pub(super) toggle_bold: bool,
@@ -131,6 +94,7 @@ pub struct DemoApp {
     pub(super) breadcrumb_custom_nav: Option<String>,
     pub(super) scroll_to_section: Option<usize>,
     pub(super) sidebar_needs_scroll: bool,
+    pub(super) locale_idx: Option<usize>,
 }
 
 impl Default for DemoApp {
@@ -163,6 +127,8 @@ impl Default for DemoApp {
             cal_range_start: None,
             cal_range_end: None,
             cal_prices_selected: None,
+            cal_range_compact_start: None,
+            cal_range_compact_end: None,
             toggle1: false,
             toggle2: true,
             toggle_bold: false,
@@ -191,6 +157,7 @@ impl Default for DemoApp {
             breadcrumb_custom_nav: None,
             scroll_to_section: None,
             sidebar_needs_scroll: false,
+            locale_idx: Some(0),
         }
     }
 }
@@ -207,8 +174,19 @@ impl DemoApp {
             d.get_persisted::<Option<f32>>(egui::Id::new("demo_hue"))
                 .unwrap_or(None)
         });
+        let locale_idx = cc.egui_ctx.data_mut(|d| {
+            d.get_persisted::<usize>(egui::Id::new("demo_locale_idx"))
+                .unwrap_or(0)
+        });
 
-        let app = Self { dark, primary_hue: hue, ..Default::default() };
+        i18n::set_language(locale_idx_to_lang(locale_idx));
+
+        let app = Self {
+            dark,
+            primary_hue: hue,
+            locale_idx: Some(locale_idx),
+            ..Default::default()
+        };
 
         let theme = ShadcnTheme::build(dark, hue);
         ShadcnTheme::set(&cc.egui_ctx, theme.clone());
@@ -307,9 +285,9 @@ impl DemoApp {
             if hamburger_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
 
             Spacing::Sm.show(ui);
-            heading4(ui, "egui-shadcn");
+            heading4(ui, tr!(t::Toolbar::AppName).as_ref());
             Spacing::Sm.show(ui);
-            muted_text(ui, "component demo");
+            muted_text(ui, tr!(t::Toolbar::AppSubtitle).as_ref());
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Dark/light toggle
@@ -324,6 +302,21 @@ impl DemoApp {
                 );
                 if icon_resp.clicked() { self.dark = !self.dark; }
                 if icon_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+
+                Spacing::Sm.show(ui);
+
+                // Language switcher
+                let locale_labels: Vec<&str> = LOCALES.iter().map(|(_, n)| *n).collect();
+                let mut idx = self.locale_idx;
+                if Select::new(&mut idx, &locale_labels).width(64.0).show(ui)
+                    && let Some(i) = idx
+                {
+                    self.locale_idx = Some(i);
+                    i18n::set_language(locale_idx_to_lang(i));
+                    ui.ctx().data_mut(|d| {
+                        d.insert_persisted(egui::Id::new("demo_locale_idx"), i);
+                    });
+                }
 
                 Spacing::Sm.show(ui);
 
@@ -347,22 +340,22 @@ impl DemoApp {
                     },
                     |ui| {
                         let theme = ShadcnTheme::get(ui.ctx());
-                        heading4(ui, "Primary Color");
+                        heading4(ui, tr!(t::Toolbar::PrimaryColor).as_ref());
                         Spacing::Md.show(ui);
 
-                        let presets: &[(Option<f32>, &str)] = &[
-                            (None, "Zinc"),
-                            (Some(0.0), "Red"),
-                            (Some(25.0), "Orange"),
-                            (Some(48.0), "Yellow"),
-                            (Some(142.0), "Green"),
-                            (Some(217.0), "Blue"),
-                            (Some(263.0), "Violet"),
-                            (Some(300.0), "Pink"),
+                        let presets: &[(Option<f32>, t::Toolbar)] = &[
+                            (None,         t::Toolbar::ColorZinc),
+                            (Some(0.0),    t::Toolbar::ColorRed),
+                            (Some(25.0),   t::Toolbar::ColorOrange),
+                            (Some(48.0),   t::Toolbar::ColorYellow),
+                            (Some(142.0),  t::Toolbar::ColorGreen),
+                            (Some(217.0),  t::Toolbar::ColorBlue),
+                            (Some(263.0),  t::Toolbar::ColorViolet),
+                            (Some(300.0),  t::Toolbar::ColorPink),
                         ];
 
                         ui.horizontal_wrapped(|ui| {
-                            for (hue, name) in presets {
+                            for (hue, name_variant) in presets {
                                 let color = match hue {
                                     None => egui_shadcn::theme::hsl(240.0, 0.059, if dark { 0.5 } else { 0.3 }),
                                     Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
@@ -382,10 +375,11 @@ impl DemoApp {
                                 }
                                 if swatch_resp.hovered() {
                                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                                    let name = tr!(*name_variant);
                                     ui.painter().text(
                                         swatch_rect.center_bottom() + egui::Vec2::new(0.0, 4.0),
                                         egui::Align2::CENTER_TOP,
-                                        *name,
+                                        name.as_ref(),
                                         egui::FontId::new(10.0, egui::FontFamily::Proportional),
                                         theme.foreground,
                                     );
@@ -397,7 +391,7 @@ impl DemoApp {
                         });
 
                         Spacing::Md.show(ui);
-                        small_text(ui, "Custom hue");
+                        small_text(ui, tr!(t::Toolbar::CustomHue).as_ref());
                         let mut hue = self.primary_hue.unwrap_or(240.0);
                         let hue_resp = Slider::new(&mut hue, 0.0, 360.0).show(ui);
                         if hue_resp.dragged() || hue_resp.changed() {
@@ -405,7 +399,8 @@ impl DemoApp {
                         }
 
                         Spacing::Sm.show(ui);
-                        if Button::new("Reset to Zinc").variant(ButtonVariant::Secondary).show(ui).clicked() {
+                        let reset_label = tr!(t::Toolbar::ResetToZinc);
+                        if Button::new(reset_label.as_ref()).variant(ButtonVariant::Secondary).show(ui).clicked() {
                             self.primary_hue = None;
                         }
                     },
@@ -423,7 +418,8 @@ impl DemoApp {
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.set_width(184.0);
 
-            for (i, section) in SECTIONS.iter().enumerate() {
+            for i in 0..SECTION_COUNT {
+                let section = t::section_name(i);
                 let is_active = self.current_section == i;
                 let bg = if is_active { theme.accent } else { Color32::TRANSPARENT };
                 let fg = if is_active { theme.accent_foreground } else { theme.foreground };
@@ -445,7 +441,7 @@ impl DemoApp {
                 ui.painter().text(
                     egui::Pos2::new(rect.left() + 12.0, rect.center().y),
                     egui::Align2::LEFT_CENTER,
-                    *section,
+                    section.as_ref(),
                     egui::FontId::new(14.0, egui::FontFamily::Proportional),
                     fg,
                 );
@@ -536,7 +532,7 @@ impl DemoApp {
         let clip_top = ui.clip_rect().min.y;
         let was_scrolling = self.scroll_to_section.is_some();
 
-        for i in 0..SECTIONS.len() {
+        for i in 0..SECTION_COUNT {
             Spacing::Xl.show(ui);
 
             // Auto-highlight sidebar: last section whose top is at or above viewport top
@@ -544,6 +540,9 @@ impl DemoApp {
             if !was_scrolling && section_top <= clip_top + 40.0 {
                 if self.current_section != i {
                     self.sidebar_needs_scroll = true;
+                    // show_sidebar already ran this frame; force next frame so
+                    // the sidebar can consume sidebar_needs_scroll immediately.
+                    ui.ctx().request_repaint();
                 }
                 self.current_section = i;
             }
@@ -557,7 +556,7 @@ impl DemoApp {
 
             self.render_section(ui, i);
 
-            if i < SECTIONS.len() - 1 {
+            if i < SECTION_COUNT - 1 {
                 Spacing::Xl2.show(ui);
                 Separator::horizontal().show(ui);
             }
@@ -577,17 +576,24 @@ impl DemoApp {
         let mut close = false;
         let input = &mut self.dialog_input;
 
-        Dialog::new("Confirm Action", &mut self.dialog_open).show(ctx, |ui| {
-            muted_text(ui, "Are you sure you want to perform this action? This cannot be undone.");
+        let title = tr!(t::DemoDialog::Title);
+        let body = tr!(t::DemoDialog::Body);
+        let type_prompt = tr!(t::DemoDialog::TypePrompt);
+        let placeholder = tr!(t::DemoDialog::Placeholder);
+        let cancel = tr!(t::DemoDialog::Cancel);
+        let continue_lbl = tr!(t::DemoDialog::Continue);
+
+        Dialog::new(title.as_ref(), &mut self.dialog_open).show(ctx, |ui| {
+            muted_text(ui, body.as_ref());
             Spacing::Lg.show(ui);
-            body_text(ui, "Type CONFIRM to proceed");
+            body_text(ui, type_prompt.as_ref());
             Spacing::Xs.show(ui);
-            Input::new(input).placeholder("CONFIRM").show(ui);
+            Input::new(input).placeholder(placeholder.as_ref()).show(ui);
             Spacing::Lg.show(ui);
 
             let ok = input.as_str() == "CONFIRM";
             ui.horizontal(|ui| {
-                if Button::new("Cancel")
+                if Button::new(cancel.as_ref())
                     .variant(ButtonVariant::Outline)
                     .show(ui)
                     .clicked()
@@ -595,7 +601,7 @@ impl DemoApp {
                     close = true;
                 }
                 Spacing::Sm.show(ui);
-                if Button::new("Continue")
+                if Button::new(continue_lbl.as_ref())
                     .variant(ButtonVariant::Destructive)
                     .enabled(ok)
                     .show(ui)

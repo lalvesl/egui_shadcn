@@ -12,15 +12,19 @@ use egui_shadcn::{
     table::{Table, TableColumn},
     typography::{body_text, muted_text},
 };
+use crate::i18n as t;
+use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
 impl DemoApp {
     pub(in crate::app) fn section_avatar(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Avatar", "An image element with a fallback for representing the user.");
+        let title = t::section_name(4);
+        let subtitle = tr!(t::AvatarSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Sizes", None);
+            card_header(ui, tr!(t::AvatarSec::HSizes).as_ref(), None);
             ui.horizontal(|ui| {
                 Avatar::new("JD").size(Size::Sm).show(ui);
                 Spacing::Sm.show(ui);
@@ -34,21 +38,25 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_boxed(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Boxed", "Transparent layout container with standard padding and optional margin.");
+        let title = t::section_name(6);
+        let subtitle = tr!(t::BoxedSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         let theme = ShadcnTheme::get(ui.ctx());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Padding variants", None);
-            for (label, pad) in [
-                ("Xs (4px)",  Spacing::Xs),
-                ("Sm (8px)",  Spacing::Sm),
-                ("Md (12px)", Spacing::Md),
-                ("Lg (16px)", Spacing::Lg),
-                ("Xl (24px)", Spacing::Xl),
-            ] {
-                muted_text(ui, label);
-                Boxed::new().padding(pad).show(ui, |ui| {
+            card_header(ui, tr!(t::BoxedSec::HPadding).as_ref(), None);
+            let entries: &[(t::BoxedSec, Spacing)] = &[
+                (t::BoxedSec::LblXs, Spacing::Xs),
+                (t::BoxedSec::LblSm, Spacing::Sm),
+                (t::BoxedSec::LblMd, Spacing::Md),
+                (t::BoxedSec::LblLg, Spacing::Lg),
+                (t::BoxedSec::LblXl, Spacing::Xl),
+            ];
+            for (label_v, pad) in entries {
+                let label = tr!(*label_v);
+                muted_text(ui, label.as_ref());
+                Boxed::new().padding(*pad).show(ui, |ui| {
                     let (rect, _) = ui.allocate_exact_size(
                         egui::Vec2::new(ui.available_width(), 24.0),
                         egui::Sense::hover(),
@@ -60,7 +68,9 @@ impl DemoApp {
 
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
-            card_header(ui, "Padding + margin", Some("Padding inside, margin outside."));
+            let pad_margin_desc = tr!(t::BoxedSec::HPadMarginDesc);
+            card_header(ui, tr!(t::BoxedSec::HPadMargin).as_ref(), Some(pad_margin_desc.as_ref()));
+            let inner_label = tr!(t::BoxedSec::InnerLabel);
             Boxed::new().padding(Spacing::Lg).margin(Spacing::Sm).show(ui, |ui| {
                 let (rect, _) = ui.allocate_exact_size(
                     egui::Vec2::new(ui.available_width(), 40.0),
@@ -70,7 +80,7 @@ impl DemoApp {
                 ui.painter().text(
                     rect.center(),
                     egui::Align2::CENTER_CENTER,
-                    "Lg padding · Sm margin",
+                    inner_label.as_ref(),
                     egui::FontId::new(12.0, egui::FontFamily::Proportional),
                     theme.primary_foreground,
                 );
@@ -79,13 +89,18 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_calendar(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Calendar", "A date field component that allows users to enter and edit date.");
+        let title = t::section_name(10);
+        let subtitle = tr!(t::CalendarSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Single date", None);
-            let label = match self.cal_single {
-                Some(d) => format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day),
-                None => "No date selected".to_owned(),
+            card_header(ui, tr!(t::CalendarSec::HSingle).as_ref(), None);
+            let label: String = match self.cal_single {
+                Some(d) => {
+                    let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
+                    tr!(t::CalendarSec::SelectedDate, date = dstr).into_owned()
+                }
+                None => tr!(t::CalendarSec::NoDate).into_owned(),
             };
             muted_text(ui, &label);
             Spacing::Md.show(ui);
@@ -94,21 +109,25 @@ impl DemoApp {
 
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
-            card_header(ui, "Date range", Some("Click a start date then an end date."));
-            let label = match (self.cal_range_start, self.cal_range_end) {
+            let range_desc = tr!(t::CalendarSec::HRangeDesc);
+            card_header(ui, tr!(t::CalendarSec::HRange).as_ref(), Some(range_desc.as_ref()));
+            let label: String = match (self.cal_range_start, self.cal_range_end) {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
                     s.year, s.month, s.day, e.year, e.month, e.day
                 ),
-                (Some(s), None) => format!("{:04}-{:02}-{:02}  →  (pick end)", s.year, s.month, s.day),
-                _ => "No range selected".to_owned(),
+                (Some(s), None) => {
+                    let sstr = format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
+                    tr!(t::CalendarSec::RangePending, start = sstr).into_owned()
+                }
+                _ => tr!(t::CalendarSec::RangeNone).into_owned(),
             };
             muted_text(ui, &label);
             Spacing::Md.show(ui);
             Calendar::range("demo_cal_range", &mut self.cal_range_start, &mut self.cal_range_end).show(ui);
             if self.cal_range_start.is_some() {
                 Spacing::Sm.show(ui);
-                if ui.button("Clear").clicked() {
+                if ui.button(tr!(t::CalendarSec::Clear).as_ref()).clicked() {
                     self.cal_range_start = None;
                     self.cal_range_end = None;
                 }
@@ -117,10 +136,47 @@ impl DemoApp {
 
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
-            card_header(ui, "Prices", Some("Custom cell content — price per day."));
-            let label = match self.cal_prices_selected {
-                Some(d) => format!("Selected: {:04}-{:02}-{:02}", d.year, d.month, d.day),
-                None => "No date selected".to_owned(),
+            let compact_desc = tr!(t::CalendarSec::HRangeCompactDesc);
+            card_header(ui, tr!(t::CalendarSec::HRangeCompact).as_ref(), Some(compact_desc.as_ref()));
+            let label: String = match (self.cal_range_compact_start, self.cal_range_compact_end) {
+                (Some(s), Some(e)) => format!(
+                    "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
+                    s.year, s.month, s.day, e.year, e.month, e.day
+                ),
+                (Some(s), None) => {
+                    let sstr = format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
+                    tr!(t::CalendarSec::RangePending, start = sstr).into_owned()
+                }
+                _ => tr!(t::CalendarSec::RangeNone).into_owned(),
+            };
+            muted_text(ui, &label);
+            Spacing::Md.show(ui);
+            Calendar::range(
+                "demo_cal_range_compact",
+                &mut self.cal_range_compact_start,
+                &mut self.cal_range_compact_end,
+            )
+            .compact()
+            .show(ui);
+            if self.cal_range_compact_start.is_some() {
+                Spacing::Sm.show(ui);
+                if ui.button(tr!(t::CalendarSec::Clear).as_ref()).clicked() {
+                    self.cal_range_compact_start = None;
+                    self.cal_range_compact_end = None;
+                }
+            }
+        });
+
+        Spacing::Lg.show(ui);
+        Card::new().show(ui, |ui| {
+            let prices_desc = tr!(t::CalendarSec::HPricesDesc);
+            card_header(ui, tr!(t::CalendarSec::HPrices).as_ref(), Some(prices_desc.as_ref()));
+            let label: String = match self.cal_prices_selected {
+                Some(d) => {
+                    let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
+                    tr!(t::CalendarSec::SelectedDate, date = dstr).into_owned()
+                }
+                None => tr!(t::CalendarSec::NoDate).into_owned(),
             };
             muted_text(ui, &label);
             Spacing::Md.show(ui);
@@ -148,32 +204,38 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_card(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Card", "Displays a card with header, content, and footer.");
+        let title = t::section_name(11);
+        let subtitle = tr!(t::CardSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Card Title", Some("A brief description of the card content."));
-            body_text(ui, "Card body content goes here.");
+            let card_desc = tr!(t::CardSec::HTitleDesc);
+            card_header(ui, tr!(t::CardSec::HTitle).as_ref(), Some(card_desc.as_ref()));
+            body_text(ui, tr!(t::CardSec::Body).as_ref());
         });
         Spacing::Lg.show(ui);
         Card::new().padding(16.0).show(ui, |ui| {
-            card_header(ui, "User Card", None);
+            card_header(ui, tr!(t::CardSec::HUser).as_ref(), None);
             ui.horizontal(|ui| {
                 Avatar::new("JD").show(ui);
                 Spacing::Md.show(ui);
                 ui.vertical(|ui| {
-                    body_text(ui, "John Doe");
-                    muted_text(ui, "john@example.com");
+                    body_text(ui, tr!(t::CardSec::UserName).as_ref());
+                    muted_text(ui, tr!(t::CardSec::UserEmail).as_ref());
                 });
             });
         });
     }
 
     pub(in crate::app) fn section_collapsible(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Collapsible", "An interactive component which expands/collapses a panel.");
+        let title = t::section_name(15);
+        let subtitle = tr!(t::CollapsibleSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Starred repositories", None);
-            Collapsible::new("demo_collapsible", "Starred repositories", &mut self.collapsible_open)
+            let heading = tr!(t::CollapsibleSec::Heading);
+            card_header(ui, heading.as_ref(), None);
+            Collapsible::new("demo_collapsible", heading.as_ref(), &mut self.collapsible_open)
                 .show(ui, |ui| {
                     Spacing::Xs.show(ui);
                     muted_text(ui, "@radix-ui/primitives");
@@ -186,24 +248,33 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_data_table(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Data Table", "Powerful table and datagrids with sorting, filtering, and pagination.");
+        let title = t::section_name(19);
+        let subtitle = tr!(t::DataTableSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
+        let col_status = tr!(t::DataTableSec::ColStatus);
+        let col_email = tr!(t::DataTableSec::ColEmail);
+        let col_amount = tr!(t::DataTableSec::ColAmount);
         let columns = &[
-            DataColumn { header: "Status", width: Some(100.0), sortable: true },
-            DataColumn { header: "Email",  width: None,         sortable: true },
-            DataColumn { header: "Amount", width: Some(120.0),  sortable: true },
+            DataColumn { header: col_status.as_ref(), width: Some(100.0), sortable: true },
+            DataColumn { header: col_email.as_ref(),  width: None,        sortable: true },
+            DataColumn { header: col_amount.as_ref(), width: Some(120.0), sortable: true },
         ];
 
-        let data = &[
-            ("Success",    "ken99@yahoo.com",        "$316.00"),
-            ("Success",    "abe45@gmail.com",         "$242.00"),
-            ("Processing", "monserrat44@gmail.com",  "$837.00"),
-            ("Success",    "silas22@gmail.com",       "$874.00"),
-            ("Failed",     "carmella@hotmail.com",    "$721.00"),
+        let s_success = tr!(t::DataTableSec::StatusSuccess);
+        let s_processing = tr!(t::DataTableSec::StatusProcessing);
+        let s_failed = tr!(t::DataTableSec::StatusFailed);
+
+        let data: &[(&str, &str, &str)] = &[
+            (s_success.as_ref(),    "ken99@yahoo.com",       "$316.00"),
+            (s_success.as_ref(),    "abe45@gmail.com",        "$242.00"),
+            (s_processing.as_ref(), "monserrat44@gmail.com", "$837.00"),
+            (s_success.as_ref(),    "silas22@gmail.com",      "$874.00"),
+            (s_failed.as_ref(),     "carmella@hotmail.com",   "$721.00"),
         ];
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Payments", None);
+            card_header(ui, tr!(t::DataTableSec::HPayments).as_ref(), None);
             DataTable::new("demo_data_table", columns, &mut self.data_table_filter)
                 .page_size(3)
                 .show(ui, data.len(), |row_idx, row| {
@@ -216,45 +287,50 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_separator(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Separator", "Visually or semantically separates content.");
+        let title = t::section_name(36);
+        let subtitle = tr!(t::SeparatorSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Horizontal", None);
-            muted_text(ui, "My Account");
+            card_header(ui, tr!(t::SeparatorSec::HHoriz).as_ref(), None);
+            muted_text(ui, tr!(t::SeparatorSec::MyAccount).as_ref());
             Spacing::Md.show(ui);
             Separator::horizontal().show(ui);
             Spacing::Md.show(ui);
-            muted_text(ui, "Profile");
+            muted_text(ui, tr!(t::SeparatorSec::Profile).as_ref());
             Spacing::Xs.show(ui);
-            muted_text(ui, "Billing");
+            muted_text(ui, tr!(t::SeparatorSec::Billing).as_ref());
             Spacing::Xs.show(ui);
-            muted_text(ui, "Settings");
+            muted_text(ui, tr!(t::SeparatorSec::Settings).as_ref());
         });
 
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
-            card_header(ui, "Vertical", None);
+            card_header(ui, tr!(t::SeparatorSec::HVert).as_ref(), None);
             ui.horizontal(|ui| {
-                muted_text(ui, "Blog");
+                muted_text(ui, tr!(t::SeparatorSec::Blog).as_ref());
                 Spacing::Sm.show(ui);
                 Separator::vertical().length(16.0).show(ui);
                 Spacing::Sm.show(ui);
-                muted_text(ui, "Docs");
+                muted_text(ui, tr!(t::SeparatorSec::Docs).as_ref());
                 Spacing::Sm.show(ui);
                 Separator::vertical().length(16.0).show(ui);
                 Spacing::Sm.show(ui);
-                muted_text(ui, "Source");
+                muted_text(ui, tr!(t::SeparatorSec::Source).as_ref());
             });
         });
     }
 
     pub(in crate::app) fn section_spacing(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Spacing", "Standardized spacing scale based on a 4 px base unit.");
+        let title = t::section_name(40);
+        let subtitle = tr!(t::SpacingSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
         let theme = ShadcnTheme::get(ui.ctx());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Scale", Some("Xs=4 · Sm=8 · Md=12 · Lg=16 · Xl=24 · Xl2=32 · Xl3=48"));
+            let scale_desc = tr!(t::SpacingSec::HScaleDesc);
+            card_header(ui, tr!(t::SpacingSec::HScale).as_ref(), Some(scale_desc.as_ref()));
             for (name, sp) in [
                 ("Xs",  Spacing::Xs),
                 ("Sm",  Spacing::Sm),
@@ -276,35 +352,49 @@ impl DemoApp {
 
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
-            card_header(ui, "Usage", Some("Spacing::Lg.show(ui)  or  f32::from(Spacing::Lg)"));
-            muted_text(ui, "Block A");
+            let usage_desc = tr!(t::SpacingSec::HUsageDesc);
+            card_header(ui, tr!(t::SpacingSec::HUsage).as_ref(), Some(usage_desc.as_ref()));
+            muted_text(ui, tr!(t::SpacingSec::BlockA).as_ref());
             Spacing::Lg.show(ui);
-            muted_text(ui, "Block B  (Lg = 16px gap above)");
+            muted_text(ui, tr!(t::SpacingSec::BlockB).as_ref());
             Spacing::Xl.show(ui);
-            muted_text(ui, "Block C  (Xl = 24px gap above)");
+            muted_text(ui, tr!(t::SpacingSec::BlockC).as_ref());
         });
     }
 
     pub(in crate::app) fn section_table(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Table", "A responsive table component.");
+        let title = t::section_name(43);
+        let subtitle = tr!(t::TableSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
+        let col_inv = tr!(t::TableSec::ColInvoice);
+        let col_status = tr!(t::TableSec::ColStatus);
+        let col_method = tr!(t::TableSec::ColMethod);
+        let col_amount = tr!(t::TableSec::ColAmount);
         let columns = &[
-            TableColumn { header: "Invoice", width: Some(120.0) },
-            TableColumn { header: "Status",  width: Some(100.0) },
-            TableColumn { header: "Method",  width: Some(120.0) },
-            TableColumn { header: "Amount",  width: None },
+            TableColumn { header: col_inv.as_ref(),    width: Some(120.0) },
+            TableColumn { header: col_status.as_ref(), width: Some(100.0) },
+            TableColumn { header: col_method.as_ref(), width: Some(120.0) },
+            TableColumn { header: col_amount.as_ref(), width: None },
         ];
 
-        let data = &[
-            ("INV001", "Paid",    "Credit Card",    "$250.00"),
-            ("INV002", "Pending", "PayPal",          "$150.00"),
-            ("INV003", "Unpaid",  "Bank Transfer",   "$350.00"),
-            ("INV004", "Paid",    "Credit Card",     "$450.00"),
-            ("INV005", "Paid",    "PayPal",          "$550.00"),
+        let s_paid = tr!(t::TableSec::StatusPaid);
+        let s_pending = tr!(t::TableSec::StatusPending);
+        let s_unpaid = tr!(t::TableSec::StatusUnpaid);
+        let m_cc = tr!(t::TableSec::MethodCreditCard);
+        let m_paypal = tr!(t::TableSec::MethodPayPal);
+        let m_bank = tr!(t::TableSec::MethodBank);
+
+        let data: &[(&str, &str, &str, &str)] = &[
+            ("INV001", s_paid.as_ref(),    m_cc.as_ref(),     "$250.00"),
+            ("INV002", s_pending.as_ref(), m_paypal.as_ref(), "$150.00"),
+            ("INV003", s_unpaid.as_ref(),  m_bank.as_ref(),   "$350.00"),
+            ("INV004", s_paid.as_ref(),    m_cc.as_ref(),     "$450.00"),
+            ("INV005", s_paid.as_ref(),    m_paypal.as_ref(), "$550.00"),
         ];
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Recent Invoices", None);
+            card_header(ui, tr!(t::TableSec::HInvoices).as_ref(), None);
             Table::new(columns).show(ui, data.len(), |row_idx, row| {
                 let (inv, status, method, amount) = data[row_idx];
                 row.cell(|ui| { muted_text(ui, inv); });

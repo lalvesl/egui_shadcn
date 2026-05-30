@@ -1,15 +1,17 @@
 use super::button::{Button, ButtonVariant};
 use super::spacing::Spacing;
 use super::typography::{heading4, muted_text};
+use crate::i18n;
 use crate::ShadcnTheme;
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke};
+use ::i18n::t;
 
 pub struct AlertDialog<'a> {
     title: &'a str,
     description: &'a str,
     open: &'a mut bool,
-    cancel_label: &'a str,
-    confirm_label: &'a str,
+    cancel_label: Option<&'a str>,
+    confirm_label: Option<&'a str>,
     destructive: bool,
     width: f32,
 }
@@ -20,20 +22,20 @@ impl<'a> AlertDialog<'a> {
             title,
             description,
             open,
-            cancel_label: "Cancel",
-            confirm_label: "Continue",
+            cancel_label: None,
+            confirm_label: None,
             destructive: false,
             width: 448.0,
         }
     }
 
     pub fn cancel_label(mut self, l: &'a str) -> Self {
-        self.cancel_label = l;
+        self.cancel_label = Some(l);
         self
     }
 
     pub fn confirm_label(mut self, l: &'a str) -> Self {
-        self.confirm_label = l;
+        self.confirm_label = Some(l);
         self
     }
 
@@ -89,8 +91,19 @@ impl<'a> AlertDialog<'a> {
                 muted_text(ui, self.description);
                 Spacing::Xl.show(ui);
 
+                let cancel_owned;
+                let cancel_text: &str = match self.cancel_label {
+                    Some(l) => l,
+                    None => { cancel_owned = t!(i18n::AlertDialog::Cancel); cancel_owned.as_ref() }
+                };
+                let confirm_owned;
+                let confirm_text: &str = match self.confirm_label {
+                    Some(l) => l,
+                    None => { confirm_owned = t!(i18n::AlertDialog::Confirm); confirm_owned.as_ref() }
+                };
+
                 ui.horizontal(|ui| {
-                    if Button::new(self.cancel_label)
+                    if Button::new(cancel_text)
                         .variant(ButtonVariant::Outline)
                         .show(ui)
                         .clicked()
@@ -106,7 +119,7 @@ impl<'a> AlertDialog<'a> {
                         ButtonVariant::Default
                     };
 
-                    if Button::new(self.confirm_label)
+                    if Button::new(confirm_text)
                         .variant(confirm_variant)
                         .show(ui)
                         .clicked()

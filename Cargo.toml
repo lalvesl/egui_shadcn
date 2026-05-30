@@ -1,5 +1,12 @@
 [workspace]
-members  = ["egui-shadcn", "demo"]
+members  = [
+  "egui-shadcn",
+  "demo",
+  "i18n/i18n-format",
+  "i18n/i18n-macros",
+  "i18n/i18n",
+  "i18n/example-app",
+]
 resolver = "2"
 
 [workspace.dependencies]

@@ -1,8 +1,6 @@
 # Todo
 
-- Create another example of range-calendar with only one calendar, not tow;
-
-- The sidebar component there's a function to automatically trigger focus blocking to navigaste on sidebar, make the focus only when scroll the large panel of demo;
+- Create another example of range-calendar with only one calendar, not tow colendars;
 
 # Process
 
@@ -10,6 +8,7 @@
 
 # Done
 
+- Sidebar auto-scroll to active section only works after first navigation — fixed by calling `request_repaint()` when `sidebar_needs_scroll` is set, guaranteeing the sidebar sees the flag in the next frame even when the user stops scrolling.
 - For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 - Command pallet, does not reusing components, the separator, input, cards, typography is not used;
 - You removed the calendar with custom elements inside each day, add again example but add randon sumbers to be like prices;

@@ -1,22 +1,24 @@
 use super::size::Size;
+use crate::i18n;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use ::i18n::t;
 
 pub struct Combobox<'a> {
     id: &'a str,
     current: &'a mut Option<usize>,
     options: &'a [&'a str],
-    placeholder: &'a str,
+    placeholder: Option<&'a str>,
     width: Option<f32>,
     size: Size,
 }
 
 impl<'a> Combobox<'a> {
     pub fn new(id: &'a str, current: &'a mut Option<usize>, options: &'a [&'a str]) -> Self {
-        Self { id, current, options, placeholder: "Select…", width: None, size: Size::Default }
+        Self { id, current, options, placeholder: None, width: None, size: Size::Default }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
+    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = Some(p); self }
     pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
     pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
@@ -49,10 +51,15 @@ impl<'a> Combobox<'a> {
             egui::StrokeKind::Inside,
         );
 
+        let ph_owned;
+        let placeholder: &str = match self.placeholder {
+            Some(p) => p,
+            None => { ph_owned = t!(i18n::Combobox::Placeholder); ph_owned.as_ref() }
+        };
         let display = self
             .current
             .map(|i| self.options[i])
-            .unwrap_or(self.placeholder);
+            .unwrap_or(placeholder);
         let text_color = if self.current.is_some() {
             theme.foreground
         } else {
@@ -121,9 +128,10 @@ impl<'a> Combobox<'a> {
                                 egui::Pos2::new(search_rect.left() + 8.0, search_rect.top()),
                                 egui::Pos2::new(search_rect.right() - 8.0, search_rect.bottom()),
                             );
+                            let search_hint = t!(i18n::Combobox::SearchPlaceholder);
                             let te = egui::TextEdit::singleline(&mut query)
                                 .desired_width(inner.width())
-                                .hint_text("Search…")
+                                .hint_text(search_hint.as_ref())
                                 .font(egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional))
                                 .text_color(theme.foreground)
                                 .frame(egui::Frame::new());

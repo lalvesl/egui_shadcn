@@ -1,5 +1,6 @@
 pub mod app;
 pub mod fonts;
+pub mod i18n;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;

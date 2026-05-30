@@ -1,11 +1,13 @@
 use super::size::Size;
+use crate::i18n;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use ::i18n::t;
 
 pub struct Select<'a> {
     current: &'a mut Option<usize>,
     options: &'a [&'a str],
-    placeholder: &'a str,
+    placeholder: Option<&'a str>,
     width: Option<f32>,
     size: Size,
 }
@@ -15,13 +17,13 @@ impl<'a> Select<'a> {
         Self {
             current,
             options,
-            placeholder: "Select…",
+            placeholder: None,
             width: None,
             size: Size::Default,
         }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = p; self }
+    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = Some(p); self }
     pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
     pub fn size(mut self, s: Size) -> Self { self.size = s; self }
 
@@ -30,7 +32,8 @@ impl<'a> Select<'a> {
         let width = self.width.unwrap_or_else(|| ui.available_width());
         let height = self.size.height();
 
-        let popup_id = egui::Id::new("shadcn_select").with(self.placeholder);
+        let popup_id = egui::Id::new("shadcn_select")
+            .with(self.placeholder.unwrap_or("__shadcn_default_select__"));
 
         let (trigger_rect, resp) = ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
 
@@ -49,10 +52,15 @@ impl<'a> Select<'a> {
             egui::StrokeKind::Inside,
         );
 
+        let ph_owned;
+        let placeholder: &str = match self.placeholder {
+            Some(p) => p,
+            None => { ph_owned = t!(i18n::Select::Placeholder); ph_owned.as_ref() }
+        };
         let display = self
             .current
             .map(|i| self.options[i])
-            .unwrap_or(self.placeholder);
+            .unwrap_or(placeholder);
         let text_color = if self.current.is_some() {
             theme.foreground
         } else {

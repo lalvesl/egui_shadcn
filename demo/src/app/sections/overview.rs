@@ -8,16 +8,20 @@ use egui_shadcn::{
         small_text,
     },
 };
+use crate::i18n as t;
+use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
 impl DemoApp {
     pub(in crate::app) fn section_overview(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "egui-shadcn", "Shadcn/ui components for Rust egui.");
+        let subtitle = tr!(t::OverviewSec::Subtitle);
+        self.section_title(ui, "egui-shadcn", subtitle.as_ref());
 
         Card::new().show(ui, |ui| {
-            card_header(ui, "Welcome", Some("A beautiful, accessible component library."));
-            muted_text(ui, "Use the sidebar to explore all components. Toggle dark mode or pick a primary color with the toolbar icons above.");
+            let desc = tr!(t::OverviewSec::HWelcomeDesc);
+            card_header(ui, tr!(t::OverviewSec::HWelcome).as_ref(), Some(desc.as_ref()));
+            muted_text(ui, tr!(t::OverviewSec::Body).as_ref());
             Spacing::Lg.show(ui);
             ui.horizontal(|ui| {
                 Badge::new("v0.1.0").show(ui);
@@ -31,11 +35,18 @@ impl DemoApp {
         Spacing::Xl.show(ui);
         let theme = ShadcnTheme::get(ui.ctx());
 
+        let comps_label = tr!(t::OverviewSec::Components);
+        let themes_label = tr!(t::OverviewSec::Themes);
+        let row1: &[(&str, &str)] = &[
+            ("56", comps_label.as_ref()),
+            ("2",  themes_label.as_ref()),
+        ];
+
         ui.horizontal(|ui| {
-            for (n, desc) in [("56", "Components"), ("2", "Themes")] {
+            for (n, desc) in row1 {
                 Card::new().padding(16.0).show(ui, |ui| {
                     ui.label(
-                        egui::RichText::new(n)
+                        egui::RichText::new(*n)
                             .font(egui::FontId::new(28.0, egui::FontFamily::Proportional))
                             .color(theme.primary)
                             .strong(),
@@ -46,11 +57,19 @@ impl DemoApp {
             }
         });
         Spacing::Md.show(ui);
+
+        let presets_label = tr!(t::OverviewSec::ColorPresets);
+        let custom_label = tr!(t::OverviewSec::Customizable);
+        let row2: &[(&str, &str)] = &[
+            ("8", presets_label.as_ref()),
+            ("∞", custom_label.as_ref()),
+        ];
+
         ui.horizontal(|ui| {
-            for (n, desc) in [("8", "Color presets"), ("∞", "Customizable")] {
+            for (n, desc) in row2 {
                 Card::new().padding(16.0).show(ui, |ui| {
                     ui.label(
-                        egui::RichText::new(n)
+                        egui::RichText::new(*n)
                             .font(egui::FontId::new(28.0, egui::FontFamily::Proportional))
                             .color(theme.primary)
                             .strong(),
@@ -63,28 +82,30 @@ impl DemoApp {
     }
 
     pub(in crate::app) fn section_typography(&mut self, ui: &mut egui::Ui) {
-        self.section_title(ui, "Typography", "Text styles and type scale.");
+        let title = t::section_name(50);
+        let subtitle = tr!(t::TypographySec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
         Card::new().show(ui, |ui| {
-            heading1(ui, "Heading 1");
+            heading1(ui, tr!(t::TypographySec::H1).as_ref());
             Spacing::Sm.show(ui);
-            heading2(ui, "Heading 2");
+            heading2(ui, tr!(t::TypographySec::H2).as_ref());
             Spacing::Sm.show(ui);
-            heading3(ui, "Heading 3");
+            heading3(ui, tr!(t::TypographySec::H3).as_ref());
             Spacing::Sm.show(ui);
-            heading4(ui, "Heading 4");
+            heading4(ui, tr!(t::TypographySec::H4).as_ref());
             Spacing::Sm.show(ui);
-            lead_text(ui, "Lead paragraph — larger, muted text for introductions.");
+            lead_text(ui, tr!(t::TypographySec::Lead).as_ref());
             Spacing::Sm.show(ui);
-            body_text(ui, "Body text — the default paragraph size.");
+            body_text(ui, tr!(t::TypographySec::Body).as_ref());
             Spacing::Sm.show(ui);
-            muted_text(ui, "Muted text — de-emphasised, helper copy.");
+            muted_text(ui, tr!(t::TypographySec::Muted).as_ref());
             Spacing::Sm.show(ui);
-            small_text(ui, "Small text — footnotes and captions.");
+            small_text(ui, tr!(t::TypographySec::Small).as_ref());
             Spacing::Sm.show(ui);
             ui.horizontal(|ui| {
-                body_text(ui, "Inline ");
+                body_text(ui, tr!(t::TypographySec::InlinePre).as_ref());
                 code_text(ui, "code_snippet");
-                body_text(ui, " inside a sentence.");
+                body_text(ui, tr!(t::TypographySec::InlinePost).as_ref());
             });
         });
     }
