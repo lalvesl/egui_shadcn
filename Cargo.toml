@@ -6,9 +6,12 @@ members  = [
   "i18n/i18n-macros",
   "i18n/i18n",
   "i18n/example-app",
+  "egui_charts/crates/egui_charts",
+  "egui_charts/crates/egui_charts_gallery",
 ]
 resolver = "2"
 
 [workspace.dependencies]
 egui   = "0.34"
+epaint = "0.34"
 eframe = { version = "0.34", default-features = false }

@@ -1,9 +1,8 @@
 # Todo
 
-- Create another example of range-calendar with only one calendar, not tow colendars;
-
 # Process
 
+- Create another example of range-calendar with only one calendar, not tow colendars;
 - Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
 
 # Done

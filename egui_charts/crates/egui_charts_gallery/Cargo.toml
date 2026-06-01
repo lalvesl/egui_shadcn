@@ -1,0 +1,15 @@
+[package]
+name    = "egui_charts_gallery"
+version = "0.1.0"
+edition = "2024"
+description = "Live gallery + theme playground for egui_charts."
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "egui_charts_gallery"
+path = "src/main.rs"
+
+[dependencies]
+egui        = { workspace = true }
+eframe      = { workspace = true, features = ["default_fonts", "glow", "wayland", "x11"] }
+egui_charts = { path = "../egui_charts" }

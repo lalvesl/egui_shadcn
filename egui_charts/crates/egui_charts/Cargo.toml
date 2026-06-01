@@ -1,0 +1,15 @@
+[package]
+name    = "egui_charts"
+version = "0.1.0"
+edition = "2024"
+description = "ECharts-inspired charting library for egui — built on epaint, dark-mode + primary-color theming, color-wheel palettes."
+license = "MIT OR Apache-2.0"
+
+[features]
+default = []
+serde   = ["dep:serde"]
+
+[dependencies]
+egui   = { workspace = true }
+epaint = { workspace = true }
+serde  = { version = "1", features = ["derive"], optional = true }

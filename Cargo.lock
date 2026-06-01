@@ -602,6 +602,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "egui_charts"
+version = "0.1.0"
+dependencies = [
+ "egui",
+ "epaint",
+ "serde",
+]
+
+[[package]]
+name = "egui_charts_gallery"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "egui_charts",
+]
+
+[[package]]
 name = "egui_glow"
 version = "0.34.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
