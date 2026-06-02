@@ -1950,6 +1950,7 @@ impl Surface3DSeries {
 pub struct Lines3DSeries {
     pub name: String,
     /// `(from, to, value)`.
+    #[allow(clippy::type_complexity)]
     pub segments: Vec<((f64, f64, f64), (f64, f64, f64), f64)>,
     pub line_width: f32,
 }

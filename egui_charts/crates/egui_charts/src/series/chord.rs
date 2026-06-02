@@ -36,7 +36,7 @@ pub fn render(
 
     // Per-node totals (sum of out + in).
     let mut totals = vec![0.0_f64; n];
-    for i in 0..n {
+    for (i, total) in totals.iter_mut().enumerate().take(n) {
         for j in 0..n {
             let out = s
                 .matrix
@@ -50,9 +50,9 @@ pub fn render(
                 .and_then(|r| r.get(i))
                 .copied()
                 .unwrap_or(0.0);
-            totals[i] += out;
+            *total += out;
             if i != j {
-                totals[i] += inn;
+                *total += inn;
             }
         }
     }
@@ -78,6 +78,7 @@ pub fn render(
 
     // Pair sub-slot lookup table.
     // Each chord (i,j) consumes sub-arc on i = matrix[i][j], on j = matrix[j][i].
+    #[allow(clippy::type_complexity)]
     let mut sub_arcs: Vec<((usize, usize), (f32, f32), (f32, f32))> = Vec::new();
     for i in 0..n {
         let (start_i, end_i) = node_arcs[i];

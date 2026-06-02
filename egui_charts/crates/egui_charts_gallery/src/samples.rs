@@ -848,6 +848,7 @@ fn surface_3d_sample() -> Chart {
 }
 
 fn lines_3d_sample() -> Chart {
+    #[allow(clippy::type_complexity)]
     let segments: Vec<((f64, f64, f64), (f64, f64, f64), f64)> = (0..50)
         .map(|i| {
             let t = i as f64 * 0.13;

@@ -47,17 +47,17 @@ impl Grid {
             .floor()
             .max(1.0) as usize;
         let cols = cols.min(count);
-        let rows = (count + cols - 1) / cols;
+        let rows = count.div_ceil(cols);
 
         for row in 0..rows {
             if row > 0 {
                 ui.add_space(self.gap);
             }
             ui.columns(cols, |col_uis| {
-                for col in 0..cols {
+                for (col, col_ui) in col_uis.iter_mut().enumerate().take(cols) {
                     let idx = row * cols + col;
                     if idx < count {
-                        item_fn(&mut col_uis[col], idx);
+                        item_fn(col_ui, idx);
                     }
                 }
             });

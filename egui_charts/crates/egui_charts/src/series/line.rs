@@ -9,6 +9,7 @@ use crate::theme::ChartTheme;
 use egui::{Color32, Pos2, Stroke};
 use std::collections::HashMap;
 
+#[allow(clippy::too_many_arguments)]
 pub fn render(
     p: &ChartPainter,
     s: &LineSeries,

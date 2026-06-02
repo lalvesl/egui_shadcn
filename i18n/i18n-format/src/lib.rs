@@ -598,8 +598,8 @@ pub fn format_template(tmpl: &str, count: Option<i64>, args: &[Arg<'_>]) -> Stri
                 let name = &tmpl[i + 1..j];
                 if let Some(a) = args.iter().find(|a| a.name == name) {
                     let _ = write!(out, "{}", a.value);
-                } else if (name == "n" || name == "count") && count.is_some() {
-                    let _ = write!(out, "{}", count.unwrap());
+                } else if let Some(c) = count.filter(|_| name == "n" || name == "count") {
+                    let _ = write!(out, "{}", c);
                 } else {
                     // Unknown placeholder: keep it visible to aid debugging.
                     out.push('{');

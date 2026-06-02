@@ -22,6 +22,7 @@ pub fn render(
     let layout = ThreeDLayout::fit(rect);
 
     // Use the built-in atlas if user supplied no regions.
+    #[allow(clippy::type_complexity)]
     let regions: Vec<(String, Vec<(f64, f64)>, f64)> = if s.regions.is_empty() {
         world_continents()
             .into_iter()
@@ -140,10 +141,10 @@ pub fn render(
     let mut hovered_region: Option<usize> = None;
     for (_, poly, fill, stroke, idx) in &faces {
         p.poly(poly.clone(), *fill, *stroke);
-        if let Some(h) = hover_pos {
-            if *idx != usize::MAX && polygon_contains(h, poly) {
-                hovered_region = Some(*idx);
-            }
+        if let Some(h) = hover_pos
+            && *idx != usize::MAX && polygon_contains(h, poly)
+        {
+            hovered_region = Some(*idx);
         }
     }
 

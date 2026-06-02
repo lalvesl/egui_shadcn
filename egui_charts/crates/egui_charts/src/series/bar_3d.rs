@@ -124,10 +124,10 @@ pub fn render(
     let mut hovered_data_idx: Option<usize> = None;
     for (_, poly, fill, stroke, idx) in &faces {
         p.poly(poly.clone(), *fill, *stroke);
-        if let Some(h) = hover_pos {
-            if *idx != usize::MAX && polygon_contains(h, poly) {
-                hovered_data_idx = Some(*idx);
-            }
+        if let Some(h) = hover_pos
+            && *idx != usize::MAX && polygon_contains(h, poly)
+        {
+            hovered_data_idx = Some(*idx);
         }
     }
 

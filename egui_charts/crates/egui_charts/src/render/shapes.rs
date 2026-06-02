@@ -183,6 +183,7 @@ fn is_monotone_y_above_baseline(line: &[Pos2], baseline_y: f32) -> bool {
 }
 
 /// Annular sector (donut slice). Used by pie/doughnut/sunburst.
+#[allow(clippy::too_many_arguments)]
 pub fn annular_sector(
     p: &ChartPainter,
     center: Pos2,

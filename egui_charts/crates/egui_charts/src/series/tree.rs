@@ -256,6 +256,7 @@ fn draw_radial(
 
     let mut nodes: Vec<LaidOutNode> = Vec::new();
     let mut leaf_counter = 0_usize;
+    #[allow(clippy::too_many_arguments)]
     fn layout_polar(
         node: &TreeNode,
         depth: usize,

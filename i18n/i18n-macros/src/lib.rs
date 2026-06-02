@@ -37,8 +37,8 @@ fn fnv1a_16(name: &str) -> u16 {
     ((hash >> 16) ^ (hash & 0xFFFF)) as u16
 }
 
-/// Map a DSL language identifier to (feature, discriminant). Kept inline at the
-/// call sites below; this list is the single source of truth for the four langs.
+// Map a DSL language identifier to (feature, discriminant). Kept inline at the
+// call sites below; this list is the single source of truth for the four langs.
 
 // ---------------------------------------------------------------------------
 // DSL parsing for #[traductions]

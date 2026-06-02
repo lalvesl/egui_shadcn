@@ -16,14 +16,6 @@ impl Vec3 {
         Self { x, y, z }
     }
 
-    pub fn sub(self, o: Self) -> Self {
-        Self::new(self.x - o.x, self.y - o.y, self.z - o.z)
-    }
-
-    pub fn add(self, o: Self) -> Self {
-        Self::new(self.x + o.x, self.y + o.y, self.z + o.z)
-    }
-
     pub fn scale(self, k: f32) -> Self {
         Self::new(self.x * k, self.y * k, self.z * k)
     }
@@ -47,6 +39,20 @@ impl Vec3 {
 
     pub fn dot(self, o: Self) -> f32 {
         self.x * o.x + self.y * o.y + self.z * o.z
+    }
+}
+
+impl std::ops::Add for Vec3 {
+    type Output = Self;
+    fn add(self, o: Self) -> Self {
+        Self::new(self.x + o.x, self.y + o.y, self.z + o.z)
+    }
+}
+
+impl std::ops::Sub for Vec3 {
+    type Output = Self;
+    fn sub(self, o: Self) -> Self {
+        Self::new(self.x - o.x, self.y - o.y, self.z - o.z)
     }
 }
 
@@ -98,8 +104,8 @@ impl ThreeDLayout {
         let forward = Vec3::new(-sy * cp, -sp, -cy * cp);
         let right = Vec3::new(cy, 0.0, -sy);
         let up = forward.cross(right).normalized();
-        let eye = cam.target.add(forward.scale(-cam.distance));
-        let rel = p.sub(eye);
+        let eye = cam.target + forward.scale(-cam.distance);
+        let rel = p - eye;
         let cx = rel.dot(right);
         let cy_ = rel.dot(up);
         let cz = rel.dot(forward);

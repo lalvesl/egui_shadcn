@@ -559,16 +559,7 @@ fn build_ticks(scale: &Scale, axis: &Axis, axis_pixels: f32, _is_x: bool) -> Vec
             let (lo, hi, step) = nice_range(*min, *max, target);
             // If the axis was explicitly bounded, keep [min,max] as the visible range
             // but step from the nice grid.
-            let lo = if min.is_finite() && *min == lo {
-                lo
-            } else {
-                lo
-            };
-            let hi = if max.is_finite() && *max == hi {
-                hi
-            } else {
-                hi
-            };
+            // lo/hi are already the nice-rounded bounds from nice_range.
             ticks_linear(lo, hi, step)
                 .into_iter()
                 .map(|v| RawTick {

@@ -19,6 +19,7 @@ pub fn render(
     _palette_offset: usize,
     hover_pos: Option<Pos2>,
 ) -> Option<TooltipDatum> {
+    #[allow(clippy::type_complexity)]
     let regions: Vec<(String, Vec<(f64, f64)>, Option<f64>)> = if s.regions.is_empty() {
         // No regions supplied → draw the world atlas as a neutral background.
         world_continents()
