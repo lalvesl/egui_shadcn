@@ -5,7 +5,9 @@ use crate::interaction::{legend, tooltip};
 use crate::option::{Axis, AxisKind, Chart};
 use crate::render::ChartPainter;
 use crate::render::text::{label_font, title_font};
-use crate::series::{SeriesState, hovered_data, render_all};
+use crate::series::{
+    SeriesState, hovered_data, is_all_cartesian, render_all, render_non_cartesian,
+};
 use crate::theme::ChartTheme;
 use egui::{Align2, Id, Response, Sense, Stroke, StrokeKind, Ui, Vec2, vec2};
 
@@ -99,60 +101,81 @@ impl<'a> ChartWidget<'a> {
         // Legend reserves space first.
         let (plot_area, legend_rect) = legend::reserve(content, self.chart);
 
-        // Build coord layout from the remaining area.
-        let coord = CartesianCoord::new(self.chart);
-        let layout = coord.layout(plot_area, &resolved_theme);
-
-        // Draw split areas (alternating bands across y-axis).
-        let y_axis = self
-            .chart
-            .y_axis
-            .clone()
-            .unwrap_or_else(Axis::value);
-        if y_axis.show_grid
-            && let Some(y_layout) = layout.axes.iter().find(|a| !a.is_x) {
-                let mut last_px = layout.plot_rect.min.y;
-                for (i, t) in y_layout.ticks.iter().enumerate() {
-                    let band = egui::Rect::from_min_max(
-                        egui::Pos2::new(layout.plot_rect.min.x, last_px.min(t.pixel)),
-                        egui::Pos2::new(layout.plot_rect.max.x, last_px.max(t.pixel)),
-                    );
-                    if band.height() > 0.0 {
-                        chart_p.rect_filled(band, resolved_theme.split_area[i % 2]);
-                    }
-                    last_px = t.pixel;
-                }
-                if last_px < layout.plot_rect.max.y {
-                    let band = egui::Rect::from_min_max(
-                        egui::Pos2::new(layout.plot_rect.min.x, last_px),
-                        egui::Pos2::new(layout.plot_rect.max.x, layout.plot_rect.max.y),
-                    );
-                    chart_p.rect_filled(band, resolved_theme.split_area[y_layout.ticks.len() % 2]);
-                }
-            }
-
-        // Grid lines + axes.
-        draw_axes(&chart_p, &layout, &resolved_theme, self.chart);
-
-        // Hover hit testing.
         let hover_pos = ui.input(|i| i.pointer.hover_pos());
-        let hover_data = hover_pos.and_then(|p| hovered_data(&layout, p));
 
-        // Series render.
-        let tips = render_all(
-            &chart_p,
-            self.chart,
-            &layout,
-            &resolved_theme,
-            &state.series,
-            hover_data,
-        );
+        let (tips, tooltip_rect, x_label) = if is_all_cartesian(self.chart) {
+            // Build coord layout from the remaining area.
+            let coord = CartesianCoord::new(self.chart);
+            let layout = coord.layout(plot_area, &resolved_theme);
+
+            // Draw split areas (alternating bands across y-axis).
+            let y_axis = self
+                .chart
+                .y_axis
+                .clone()
+                .unwrap_or_else(Axis::value);
+            if y_axis.show_grid
+                && let Some(y_layout) = layout.axes.iter().find(|a| !a.is_x) {
+                    let mut last_px = layout.plot_rect.min.y;
+                    for (i, t) in y_layout.ticks.iter().enumerate() {
+                        let band = egui::Rect::from_min_max(
+                            egui::Pos2::new(layout.plot_rect.min.x, last_px.min(t.pixel)),
+                            egui::Pos2::new(layout.plot_rect.max.x, last_px.max(t.pixel)),
+                        );
+                        if band.height() > 0.0 {
+                            chart_p.rect_filled(band, resolved_theme.split_area[i % 2]);
+                        }
+                        last_px = t.pixel;
+                    }
+                    if last_px < layout.plot_rect.max.y {
+                        let band = egui::Rect::from_min_max(
+                            egui::Pos2::new(layout.plot_rect.min.x, last_px),
+                            egui::Pos2::new(layout.plot_rect.max.x, layout.plot_rect.max.y),
+                        );
+                        chart_p
+                            .rect_filled(band, resolved_theme.split_area[y_layout.ticks.len() % 2]);
+                    }
+                }
+
+            // Grid lines + axes.
+            draw_axes(&chart_p, &layout, &resolved_theme, self.chart);
+
+            let hover_data = hover_pos.and_then(|p| hovered_data(&layout, p));
+            let tips = render_all(
+                &chart_p,
+                self.chart,
+                &layout,
+                &resolved_theme,
+                &state.series,
+                hover_data,
+            );
+            let x_label = build_x_label(self.chart, &tips);
+            (tips, layout.plot_rect, x_label)
+        } else {
+            // Polar / radar / boxed series: no axes, split rect horizontally.
+            let tips = render_non_cartesian(
+                &chart_p,
+                self.chart,
+                plot_area,
+                &resolved_theme,
+                &state.series,
+                hover_pos,
+            );
+            (tips, plot_area, None)
+        };
 
         // Tooltip.
         if self.chart.show_tooltip
             && let (Some(cursor), false) = (hover_pos, tips.is_empty()) {
-                let x_label = build_x_label(self.chart, &tips);
-                tooltip::draw(&chart_p, ui.ctx(), cursor, &layout, &resolved_theme, &tips, x_label);
+                tooltip::draw(
+                    &chart_p,
+                    ui.ctx(),
+                    cursor,
+                    tooltip_rect,
+                    &resolved_theme,
+                    &tips,
+                    x_label,
+                );
             }
 
         // Legend (after plot so it overlays cleanly).

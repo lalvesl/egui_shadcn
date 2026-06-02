@@ -1,6 +1,6 @@
 //! Legend rendering + click-to-toggle visibility.
 
-use crate::option::{Chart, LegendPosition, Series};
+use crate::option::{Chart, LegendPosition};
 use crate::render::ChartPainter;
 use crate::render::text::label_font;
 use crate::series::SeriesState;
@@ -21,11 +21,7 @@ pub fn items(chart: &Chart, states: &[SeriesState]) -> Vec<LegendItem> {
         .enumerate()
         .map(|(i, s)| LegendItem {
             series_index: i,
-            name: match s {
-                Series::Line(l) => l.name.clone(),
-                Series::Bar(b) => b.name.clone(),
-                Series::Scatter(sc) => sc.name.clone(),
-            },
+            name: s.name().to_string(),
             visible: states.get(i).map(|s| s.visible).unwrap_or(true),
         })
         .collect()

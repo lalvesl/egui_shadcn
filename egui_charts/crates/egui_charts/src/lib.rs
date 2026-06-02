@@ -32,8 +32,9 @@ pub mod widget;
 
 pub use coord::{CoordKind, CoordLayout, DataPoint};
 pub use option::{
-    Axis, AxisKind, BarSeries, Chart, ChartKind, Legend, LegendPosition, LineSeries, LineStyle,
-    ScatterSeries, Series, SymbolKind, Title,
+    Axis, AxisKind, BarSeries, Chart, ChartKind, FunnelSeries, GaugeSeries, Legend, LegendPosition,
+    LineSeries, LineStyle, PieDatum, PieSeries, RadarDataset, RadarIndicator, RadarSeries,
+    ScatterSeries, Series, SeriesCoord, SymbolKind, Title,
 };
 pub use theme::{ChartTheme, Distribution, Harmony, ThemeMode};
 pub use widget::ChartWidget;

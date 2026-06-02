@@ -1,6 +1,7 @@
 //! Coordinate systems. Phase 0 ships Cartesian2D; others stubbed.
 
 pub mod cartesian;
+pub mod polar;
 
 use crate::theme::ChartTheme;
 use egui::{Pos2, Rect};

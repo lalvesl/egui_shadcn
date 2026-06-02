@@ -241,6 +241,8 @@ fn series_value_extent(chart: &Chart) -> (f64, f64) {
                     max = max.max(y);
                 }
             }
+            // Non-cartesian series don't contribute to cartesian extent.
+            _ => {}
         }
     }
 
@@ -286,6 +288,7 @@ fn max_series_len(chart: &Chart) -> usize {
             Series::Line(l) => l.data.len(),
             Series::Bar(b) => b.data.len(),
             Series::Scatter(sc) => sc.data.len(),
+            _ => 0,
         })
         .max()
         .unwrap_or(0)

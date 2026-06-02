@@ -2,15 +2,19 @@
 //! one ECharts series type.
 
 pub mod bar;
+pub mod funnel;
+pub mod gauge;
 pub mod line;
+pub mod pie;
+pub mod radar;
 pub mod scatter;
 
 use crate::coord::{CoordLayout, DataPoint};
 use crate::interaction::tooltip::TooltipDatum;
-use crate::option::{Chart, Series};
+use crate::option::{Chart, Series, SeriesCoord};
 use crate::render::ChartPainter;
 use crate::theme::ChartTheme;
-use egui::Pos2;
+use egui::{Pos2, Rect};
 
 /// Index of a series inside `Chart::series`.
 pub type SeriesIndex = usize;
@@ -110,6 +114,8 @@ pub fn render_all(
                     tips.push(t);
                 }
             }
+            // Non-cartesian series are dispatched separately by the widget.
+            _ => {}
         }
     }
     tips
@@ -122,4 +128,81 @@ pub fn hovered_data(layout: &CoordLayout, screen: Pos2) -> Option<DataPoint> {
     } else {
         None
     }
+}
+
+/// True when any series in `chart` uses a non-cartesian coordinate system.
+pub fn has_non_cartesian(chart: &Chart) -> bool {
+    chart
+        .series
+        .iter()
+        .any(|s| !matches!(s.coord(), SeriesCoord::Cartesian))
+}
+
+/// True when every visible series is cartesian.
+pub fn is_all_cartesian(chart: &Chart) -> bool {
+    chart
+        .series
+        .iter()
+        .all(|s| matches!(s.coord(), SeriesCoord::Cartesian))
+}
+
+/// Render every visible non-cartesian series, splitting `area` evenly across
+/// them in a single row. Returns the tooltip data for the hovered datum (if
+/// any).
+pub fn render_non_cartesian(
+    p: &ChartPainter,
+    chart: &Chart,
+    area: Rect,
+    theme: &ChartTheme,
+    states: &[SeriesState],
+    hover_pos: Option<Pos2>,
+) -> Vec<TooltipDatum> {
+    let visible: Vec<(usize, &Series)> = chart
+        .series
+        .iter()
+        .enumerate()
+        .filter(|(i, s)| {
+            !matches!(s.coord(), SeriesCoord::Cartesian)
+                && states.get(*i).map(|st| st.visible).unwrap_or(true)
+        })
+        .collect();
+
+    if visible.is_empty() {
+        return Vec::new();
+    }
+
+    let n = visible.len();
+    let cell_w = area.width() / n as f32;
+    let mut tips = Vec::new();
+
+    for (slot, (idx, series)) in visible.iter().enumerate() {
+        let cell = Rect::from_min_size(
+            egui::pos2(area.min.x + cell_w * slot as f32, area.min.y),
+            egui::vec2(cell_w, area.height()),
+        );
+        match series {
+            Series::Pie(s) => {
+                if let Some(t) = pie::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                    tips.push(t);
+                }
+            }
+            Series::Radar(s) => {
+                if let Some(t) = radar::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                    tips.push(t);
+                }
+            }
+            Series::Gauge(s) => {
+                if let Some(t) = gauge::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                    tips.push(t);
+                }
+            }
+            Series::Funnel(s) => {
+                if let Some(t) = funnel::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                    tips.push(t);
+                }
+            }
+            _ => {}
+        }
+    }
+    tips
 }

@@ -1,6 +1,5 @@
 //! Floating tooltip panel drawn on a top layer.
 
-use crate::coord::CoordLayout;
 use crate::render::ChartPainter;
 use crate::render::text::label_font;
 use crate::theme::ChartTheme;
@@ -21,7 +20,7 @@ pub fn draw(
     p: &ChartPainter,
     ctx: &egui::Context,
     cursor: Pos2,
-    layout: &CoordLayout,
+    plot_rect: Rect,
     theme: &ChartTheme,
     tips: &[TooltipDatum],
     x_axis_label: Option<String>,
@@ -62,14 +61,14 @@ pub fn draw(
 
     // Pin near cursor, clamp to plot bounds.
     let mut origin = cursor + vec2(14.0, 14.0);
-    if origin.x + panel_size.x > layout.plot_rect.max.x {
+    if origin.x + panel_size.x > plot_rect.max.x {
         origin.x = cursor.x - panel_size.x - 14.0;
     }
-    if origin.y + panel_size.y > layout.plot_rect.max.y {
-        origin.y = layout.plot_rect.max.y - panel_size.y - 2.0;
+    if origin.y + panel_size.y > plot_rect.max.y {
+        origin.y = plot_rect.max.y - panel_size.y - 2.0;
     }
-    origin.x = origin.x.max(layout.plot_rect.min.x);
-    origin.y = origin.y.max(layout.plot_rect.min.y);
+    origin.x = origin.x.max(plot_rect.min.x);
+    origin.y = origin.y.max(plot_rect.min.y);
 
     let panel = Rect::from_min_size(origin, panel_size);
     p.rounded_rect_filled(panel, 6.0, theme.surface);

@@ -1,14 +1,23 @@
 //! Sample dataset builders, one per `ChartKind`.
 
-use egui_charts::{Axis, BarSeries, Chart, ChartKind, LineSeries, ScatterSeries, Series, SymbolKind};
+use egui_charts::{
+    Axis, BarSeries, Chart, ChartKind, FunnelSeries, GaugeSeries, LineSeries, PieSeries,
+    RadarDataset, RadarSeries, ScatterSeries, Series, SymbolKind,
+};
 
 /// Build a sample chart for `kind`. Returns `None` for kinds not yet
-/// implemented in Phase 0.
+/// implemented.
 pub fn build(kind: ChartKind) -> Option<Chart> {
     match kind {
         ChartKind::Line => Some(line_sample()),
         ChartKind::Bar => Some(bar_sample()),
         ChartKind::Scatter => Some(scatter_sample()),
+        ChartKind::Pie => Some(pie_sample()),
+        ChartKind::Doughnut => Some(doughnut_sample()),
+        ChartKind::Rose => Some(rose_sample()),
+        ChartKind::Radar => Some(radar_sample()),
+        ChartKind::Gauge => Some(gauge_sample()),
+        ChartKind::Funnel => Some(funnel_sample()),
         _ => None,
     }
 }
@@ -76,5 +85,108 @@ fn scatter_sample() -> Chart {
         )
         .series(
             Series::Scatter(ScatterSeries::new("bubbles").bubbles(bubbles).symbol(SymbolKind::Diamond)),
+        )
+}
+
+fn pie_sample() -> Chart {
+    Chart::new()
+        .title("Browser market share")
+        .series(
+            PieSeries::new("Browsers")
+                .data([
+                    ("Chrome", 64.0),
+                    ("Safari", 19.0),
+                    ("Edge", 5.0),
+                    ("Firefox", 3.0),
+                    ("Other", 9.0),
+                ])
+                .pad_angle(1.0),
+        )
+}
+
+fn doughnut_sample() -> Chart {
+    Chart::new()
+        .title("Quarterly revenue split")
+        .series(
+            PieSeries::new("Revenue")
+                .data([
+                    ("EMEA", 42.0),
+                    ("AMER", 58.0),
+                    ("APAC", 31.0),
+                    ("LATAM", 14.0),
+                ])
+                .doughnut(0.55)
+                .pad_angle(2.0),
+        )
+}
+
+fn rose_sample() -> Chart {
+    Chart::new()
+        .title("Nightingale — issues opened by day")
+        .series(
+            PieSeries::new("Issues")
+                .data([
+                    ("Mon", 18.0),
+                    ("Tue", 25.0),
+                    ("Wed", 31.0),
+                    ("Thu", 22.0),
+                    ("Fri", 17.0),
+                    ("Sat", 8.0),
+                    ("Sun", 5.0),
+                ])
+                .rose()
+                .doughnut(0.18)
+                .pad_angle(1.0),
+        )
+}
+
+fn radar_sample() -> Chart {
+    Chart::new()
+        .title("Product fit by segment")
+        .series(
+            RadarSeries::new("Segments")
+                .indicators([
+                    ("Performance", 100.0),
+                    ("Ergonomics", 100.0),
+                    ("Cost", 100.0),
+                    ("Reliability", 100.0),
+                    ("Power efficiency", 100.0),
+                    ("Aesthetics", 100.0),
+                ])
+                .dataset(
+                    RadarDataset::new("Current")
+                        .values([78.0, 88.0, 64.0, 92.0, 70.0, 55.0]),
+                )
+                .dataset(
+                    RadarDataset::new("Competitor")
+                        .values([65.0, 70.0, 80.0, 60.0, 85.0, 78.0]),
+                ),
+        )
+}
+
+fn gauge_sample() -> Chart {
+    Chart::new()
+        .title("Cluster CPU usage")
+        .series(
+            GaugeSeries::new("CPU")
+                .range(0.0, 100.0)
+                .value(67.4)
+                .unit("%"),
+        )
+}
+
+fn funnel_sample() -> Chart {
+    Chart::new()
+        .title("Acquisition funnel")
+        .series(
+            FunnelSeries::new("Conversion")
+                .data([
+                    ("Visits", 100_000.0),
+                    ("Signups", 32_500.0),
+                    ("Activated", 14_200.0),
+                    ("Paying", 4_100.0),
+                    ("Retained", 1_850.0),
+                ])
+                .gap(3.0),
         )
 }

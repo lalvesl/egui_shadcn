@@ -137,10 +137,21 @@ impl ChartKind {
         }
     }
 
-    /// Whether Phase 0 implementation exists. Gallery uses this to grey-out
+    /// Whether implementation exists. Gallery uses this to grey-out
     /// the planned-but-not-yet entries instead of crashing.
     pub fn is_implemented(self) -> bool {
-        matches!(self, ChartKind::Line | ChartKind::Bar | ChartKind::Scatter)
+        matches!(
+            self,
+            ChartKind::Line
+                | ChartKind::Bar
+                | ChartKind::Scatter
+                | ChartKind::Pie
+                | ChartKind::Doughnut
+                | ChartKind::Rose
+                | ChartKind::Radar
+                | ChartKind::Gauge
+                | ChartKind::Funnel
+        )
     }
 
     pub fn all() -> &'static [ChartKind] {
@@ -477,11 +488,299 @@ impl ScatterSeries {
     }
 }
 
+// ── Pie / Doughnut / Rose ────────────────────────────────────────────────────
+
+/// One slice of a pie / doughnut / rose chart.
+#[derive(Clone, Debug)]
+pub struct PieDatum {
+    pub name: String,
+    pub value: f64,
+}
+
+impl PieDatum {
+    pub fn new(name: impl Into<String>, value: f64) -> Self {
+        Self { name: name.into(), value }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct PieSeries {
+    pub name: String,
+    pub data: Vec<PieDatum>,
+    /// 0.0 = pie, > 0 = doughnut (fraction of outer radius, 0..1).
+    pub inner_ratio: f32,
+    /// Outer radius as fraction of available radius (0..1).
+    pub outer_ratio: f32,
+    /// Rose / nightingale variant — radius scales with value.
+    pub rose: bool,
+    /// Show category labels with connector lines outside slices.
+    pub show_labels: bool,
+    /// Padding angle (degrees) between adjacent slices.
+    pub pad_angle: f32,
+    /// Corner radius (px) applied to slice tips.
+    pub corner_radius: f32,
+}
+
+impl PieSeries {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            data: Vec::new(),
+            inner_ratio: 0.0,
+            outer_ratio: 0.75,
+            rose: false,
+            show_labels: true,
+            pad_angle: 0.0,
+            corner_radius: 0.0,
+        }
+    }
+
+    pub fn data<I, S>(mut self, items: I) -> Self
+    where
+        I: IntoIterator<Item = (S, f64)>,
+        S: Into<String>,
+    {
+        self.data = items.into_iter().map(|(n, v)| PieDatum::new(n, v)).collect();
+        self
+    }
+
+    pub fn doughnut(mut self, inner_ratio: f32) -> Self {
+        self.inner_ratio = inner_ratio.clamp(0.0, 0.95);
+        self
+    }
+
+    pub fn rose(mut self) -> Self {
+        self.rose = true;
+        self
+    }
+
+    pub fn outer_ratio(mut self, r: f32) -> Self {
+        self.outer_ratio = r.clamp(0.1, 1.0);
+        self
+    }
+
+    pub fn pad_angle(mut self, deg: f32) -> Self {
+        self.pad_angle = deg.max(0.0);
+        self
+    }
+
+    pub fn hide_labels(mut self) -> Self {
+        self.show_labels = false;
+        self
+    }
+}
+
+// ── Radar ────────────────────────────────────────────────────────────────────
+
+/// One axis of a radar chart.
+#[derive(Clone, Debug)]
+pub struct RadarIndicator {
+    pub name: String,
+    pub max: f64,
+}
+
+impl RadarIndicator {
+    pub fn new(name: impl Into<String>, max: f64) -> Self {
+        Self { name: name.into(), max }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RadarDataset {
+    pub name: String,
+    pub values: Vec<f64>,
+    pub fill_alpha: u8,
+    pub line_width: f32,
+}
+
+impl RadarDataset {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            values: Vec::new(),
+            fill_alpha: 50,
+            line_width: 2.0,
+        }
+    }
+
+    pub fn values<I: IntoIterator<Item = f64>>(mut self, vs: I) -> Self {
+        self.values = vs.into_iter().collect();
+        self
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RadarSeries {
+    pub name: String,
+    pub indicators: Vec<RadarIndicator>,
+    pub datasets: Vec<RadarDataset>,
+    /// Concentric rings to draw as gridlines.
+    pub rings: usize,
+    /// Polygon (true) or circle (false) gridline shape.
+    pub polygon_grid: bool,
+}
+
+impl RadarSeries {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            indicators: Vec::new(),
+            datasets: Vec::new(),
+            rings: 4,
+            polygon_grid: true,
+        }
+    }
+
+    pub fn indicators<I, S>(mut self, items: I) -> Self
+    where
+        I: IntoIterator<Item = (S, f64)>,
+        S: Into<String>,
+    {
+        self.indicators = items
+            .into_iter()
+            .map(|(n, m)| RadarIndicator::new(n, m))
+            .collect();
+        self
+    }
+
+    pub fn dataset(mut self, ds: RadarDataset) -> Self {
+        self.datasets.push(ds);
+        self
+    }
+
+    pub fn rings(mut self, n: usize) -> Self {
+        self.rings = n.max(1);
+        self
+    }
+
+    pub fn circular_grid(mut self) -> Self {
+        self.polygon_grid = false;
+        self
+    }
+}
+
+// ── Gauge ────────────────────────────────────────────────────────────────────
+
+#[derive(Clone, Debug)]
+pub struct GaugeSeries {
+    pub name: String,
+    pub value: f64,
+    pub min: f64,
+    pub max: f64,
+    /// Start angle of the arc (degrees, 0 = right, sweeping CCW per math convention).
+    /// Default places the gauge as a "speedometer" bottom half.
+    pub start_angle_deg: f32,
+    pub end_angle_deg: f32,
+    /// Thickness of the progress ring (fraction of radius, 0..1).
+    pub thickness: f32,
+    pub unit: Option<String>,
+}
+
+impl GaugeSeries {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            value: 0.0,
+            min: 0.0,
+            max: 100.0,
+            start_angle_deg: 225.0,
+            end_angle_deg: -45.0,
+            thickness: 0.18,
+            unit: None,
+        }
+    }
+
+    pub fn value(mut self, v: f64) -> Self {
+        self.value = v;
+        self
+    }
+
+    pub fn range(mut self, min: f64, max: f64) -> Self {
+        self.min = min;
+        self.max = max;
+        self
+    }
+
+    pub fn arc(mut self, start_deg: f32, end_deg: f32) -> Self {
+        self.start_angle_deg = start_deg;
+        self.end_angle_deg = end_deg;
+        self
+    }
+
+    pub fn thickness(mut self, t: f32) -> Self {
+        self.thickness = t.clamp(0.02, 0.5);
+        self
+    }
+
+    pub fn unit(mut self, unit: impl Into<String>) -> Self {
+        self.unit = Some(unit.into());
+        self
+    }
+}
+
+// ── Funnel ───────────────────────────────────────────────────────────────────
+
+#[derive(Clone, Debug)]
+pub struct FunnelSeries {
+    pub name: String,
+    pub data: Vec<PieDatum>,
+    /// Inverted = pyramid (small on top, large on bottom).
+    pub inverted: bool,
+    /// Gap between stacked trapezoids (px).
+    pub gap: f32,
+}
+
+impl FunnelSeries {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            data: Vec::new(),
+            inverted: false,
+            gap: 2.0,
+        }
+    }
+
+    pub fn data<I, S>(mut self, items: I) -> Self
+    where
+        I: IntoIterator<Item = (S, f64)>,
+        S: Into<String>,
+    {
+        self.data = items.into_iter().map(|(n, v)| PieDatum::new(n, v)).collect();
+        self
+    }
+
+    pub fn inverted(mut self) -> Self {
+        self.inverted = true;
+        self
+    }
+
+    pub fn gap(mut self, px: f32) -> Self {
+        self.gap = px.max(0.0);
+        self
+    }
+}
+
+// ── Series enum ──────────────────────────────────────────────────────────────
+
 #[derive(Clone, Debug)]
 pub enum Series {
     Line(LineSeries),
     Bar(BarSeries),
     Scatter(ScatterSeries),
+    Pie(PieSeries),
+    Radar(RadarSeries),
+    Gauge(GaugeSeries),
+    Funnel(FunnelSeries),
+}
+
+/// Which coordinate system a series wants. Drives widget dispatch.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SeriesCoord {
+    Cartesian,
+    Polar,
+    Radar,
+    /// Lays out in the content rect directly (no axes).
+    Boxed,
 }
 
 impl Series {
@@ -497,11 +796,31 @@ impl Series {
         ScatterSeries::new(name)
     }
 
+    pub fn pie(name: impl Into<String>) -> PieSeries {
+        PieSeries::new(name)
+    }
+
+    pub fn radar(name: impl Into<String>) -> RadarSeries {
+        RadarSeries::new(name)
+    }
+
+    pub fn gauge(name: impl Into<String>) -> GaugeSeries {
+        GaugeSeries::new(name)
+    }
+
+    pub fn funnel(name: impl Into<String>) -> FunnelSeries {
+        FunnelSeries::new(name)
+    }
+
     pub fn name(&self) -> &str {
         match self {
             Series::Line(s) => &s.name,
             Series::Bar(s) => &s.name,
             Series::Scatter(s) => &s.name,
+            Series::Pie(s) => &s.name,
+            Series::Radar(s) => &s.name,
+            Series::Gauge(s) => &s.name,
+            Series::Funnel(s) => &s.name,
         }
     }
 
@@ -509,7 +828,16 @@ impl Series {
         match self {
             Series::Line(s) => s.stack.as_deref(),
             Series::Bar(s) => s.stack.as_deref(),
-            Series::Scatter(_) => None,
+            _ => None,
+        }
+    }
+
+    pub fn coord(&self) -> SeriesCoord {
+        match self {
+            Series::Line(_) | Series::Bar(_) | Series::Scatter(_) => SeriesCoord::Cartesian,
+            Series::Pie(_) | Series::Gauge(_) => SeriesCoord::Polar,
+            Series::Radar(_) => SeriesCoord::Radar,
+            Series::Funnel(_) => SeriesCoord::Boxed,
         }
     }
 }
@@ -529,6 +857,30 @@ impl From<BarSeries> for Series {
 impl From<ScatterSeries> for Series {
     fn from(s: ScatterSeries) -> Self {
         Series::Scatter(s)
+    }
+}
+
+impl From<PieSeries> for Series {
+    fn from(s: PieSeries) -> Self {
+        Series::Pie(s)
+    }
+}
+
+impl From<RadarSeries> for Series {
+    fn from(s: RadarSeries) -> Self {
+        Series::Radar(s)
+    }
+}
+
+impl From<GaugeSeries> for Series {
+    fn from(s: GaugeSeries) -> Self {
+        Series::Gauge(s)
+    }
+}
+
+impl From<FunnelSeries> for Series {
+    fn from(s: FunnelSeries) -> Self {
+        Series::Funnel(s)
     }
 }
 
