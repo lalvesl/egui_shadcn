@@ -5,10 +5,9 @@ use super::separator::Separator;
 use super::spacing::Spacing;
 use super::typography::{muted_text, small_text};
 use crate::i18n;
-use crate::{ShadcnTheme, ICON_SEARCH};
-use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Sense, Vec2};
+use crate::{ICON_SEARCH, ShadcnTheme};
 use ::i18n::t;
-
+use egui::{Color32, CornerRadius, Frame, Key, Margin, Pos2, Sense, Vec2};
 
 pub struct CommandItem<'a> {
     pub label: &'a str,
@@ -64,8 +63,7 @@ impl<'a> Command<'a> {
         let mut query: String = ctx
             .data(|d| d.get_temp::<String>(query_id).clone())
             .unwrap_or_default();
-        let mut selected_idx: usize =
-            ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
+        let mut selected_idx: usize = ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
 
         let filtered: Vec<(usize, usize)> = self
             .groups
@@ -92,12 +90,18 @@ impl<'a> Command<'a> {
         let mut close = false;
 
         ctx.input(|i| {
-            if i.key_pressed(Key::Escape) { close = true; }
+            if i.key_pressed(Key::Escape) {
+                close = true;
+            }
             if i.key_pressed(Key::ArrowDown) && total > 0 {
                 selected_idx = (selected_idx + 1) % total;
             }
             if i.key_pressed(Key::ArrowUp) && total > 0 {
-                selected_idx = if selected_idx == 0 { total - 1 } else { selected_idx - 1 };
+                selected_idx = if selected_idx == 0 {
+                    total - 1
+                } else {
+                    selected_idx - 1
+                };
             }
             if i.key_pressed(Key::Enter) && total > 0 {
                 let (gi, ii) = filtered[selected_idx];
@@ -123,7 +127,11 @@ impl<'a> Command<'a> {
             .interactable(false)
             .show(ctx, |ui| {
                 let (r, _) = ui.allocate_exact_size(screen.size(), Sense::hover());
-                ui.painter().rect_filled(r, egui::CornerRadius::ZERO, Color32::from_black_alpha(160));
+                ui.painter().rect_filled(
+                    r,
+                    egui::CornerRadius::ZERO,
+                    Color32::from_black_alpha(160),
+                );
             });
 
         let dialog_max_h = 400.0;
@@ -153,7 +161,10 @@ impl<'a> Command<'a> {
                         let ph_owned;
                         let ph: &str = match self.placeholder {
                             Some(p) => p,
-                            None => { ph_owned = t!(i18n::Command::Placeholder); ph_owned.as_ref() }
+                            None => {
+                                ph_owned = t!(i18n::Command::Placeholder);
+                                ph_owned.as_ref()
+                            }
                         };
                         ui.horizontal(|ui| {
                             Input::new(&mut query)
@@ -216,16 +227,21 @@ impl<'a> Command<'a> {
 
                                             for (ii, item) in group_items {
                                                 let is_selected = flat_idx == selected_idx;
-                                                let (item_rect, item_resp) = ui.allocate_exact_size(
-                                                    Vec2::new(ui.available_width(), 36.0),
-                                                    Sense::click(),
-                                                );
+                                                let (item_rect, item_resp) = ui
+                                                    .allocate_exact_size(
+                                                        Vec2::new(ui.available_width(), 36.0),
+                                                        Sense::click(),
+                                                    );
                                                 let bg = if is_selected || item_resp.hovered() {
                                                     theme.accent
                                                 } else {
                                                     Color32::TRANSPARENT
                                                 };
-                                                ui.painter().rect_filled(item_rect, CornerRadius::same(4), bg);
+                                                ui.painter().rect_filled(
+                                                    item_rect,
+                                                    CornerRadius::same(4),
+                                                    bg,
+                                                );
 
                                                 let mut tx = item_rect.left() + 10.0;
 
@@ -250,7 +266,10 @@ impl<'a> Command<'a> {
 
                                                 if let Some(desc) = item.description {
                                                     ui.painter().text(
-                                                        Pos2::new(item_rect.right() - 8.0, item_rect.center().y),
+                                                        Pos2::new(
+                                                            item_rect.right() - 8.0,
+                                                            item_rect.center().y,
+                                                        ),
                                                         egui::Align2::RIGHT_CENTER,
                                                         desc,
                                                         ShadcnTheme::small_font(),

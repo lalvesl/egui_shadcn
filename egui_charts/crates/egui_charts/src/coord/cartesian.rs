@@ -128,7 +128,10 @@ pub fn ticks_log(min: f64, max: f64) -> Vec<f64> {
     }
     let lo = min.log10().floor() as i32;
     let hi = max.log10().ceil() as i32;
-    (lo..=hi).map(|e| 10f64.powi(e)).filter(|v| *v >= min && *v <= max).collect()
+    (lo..=hi)
+        .map(|e| 10f64.powi(e))
+        .filter(|v| *v >= min && *v <= max)
+        .collect()
 }
 
 /// Format a tick value compactly. Picks fixed/short/exp form by magnitude.
@@ -371,7 +374,13 @@ fn max_series_len(chart: &Chart) -> usize {
             Series::Candlestick(c) => c.data.len(),
             Series::BoxPlot(b) => b.data.len(),
             Series::PictorialBar(pb) => pb.data.len(),
-            Series::Heatmap(h) => h.data.iter().map(|(x, _, _)| *x).max().map(|m| m + 1).unwrap_or(0),
+            Series::Heatmap(h) => h
+                .data
+                .iter()
+                .map(|(x, _, _)| *x)
+                .max()
+                .map(|m| m + 1)
+                .unwrap_or(0),
             Series::ThemeRiver(tr) => tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0),
             _ => 0,
         })
@@ -420,9 +429,7 @@ impl<'a> CartesianCoord<'a> {
         let x_axis = if let Some(a) = self.chart.x_axis.as_ref() {
             a
         } else {
-            default_x_axis = Axis::category(
-                (0..max_series_len(self.chart)).map(|i| i.to_string()),
-            );
+            default_x_axis = Axis::category((0..max_series_len(self.chart)).map(|i| i.to_string()));
             &default_x_axis
         };
         let y_axis = if let Some(a) = self.chart.y_axis.as_ref() {
@@ -552,11 +559,22 @@ fn build_ticks(scale: &Scale, axis: &Axis, axis_pixels: f32, _is_x: bool) -> Vec
             let (lo, hi, step) = nice_range(*min, *max, target);
             // If the axis was explicitly bounded, keep [min,max] as the visible range
             // but step from the nice grid.
-            let lo = if min.is_finite() && *min == lo { lo } else { lo };
-            let hi = if max.is_finite() && *max == hi { hi } else { hi };
+            let lo = if min.is_finite() && *min == lo {
+                lo
+            } else {
+                lo
+            };
+            let hi = if max.is_finite() && *max == hi {
+                hi
+            } else {
+                hi
+            };
             ticks_linear(lo, hi, step)
                 .into_iter()
-                .map(|v| RawTick { value: v, label: format_tick(v, step) })
+                .map(|v| RawTick {
+                    value: v,
+                    label: format_tick(v, step),
+                })
                 .collect()
         }
         Scale::Log { min, max } => ticks_log(*min, *max)
@@ -608,7 +626,10 @@ mod tests {
 
     #[test]
     fn linear_normalize_inverse() {
-        let s = Scale::Linear { min: -10.0, max: 30.0 };
+        let s = Scale::Linear {
+            min: -10.0,
+            max: 30.0,
+        };
         assert!((s.normalize(10.0) - 0.5).abs() < 1e-9);
         assert!((s.unnormalize(0.5) - 10.0).abs() < 1e-9);
     }

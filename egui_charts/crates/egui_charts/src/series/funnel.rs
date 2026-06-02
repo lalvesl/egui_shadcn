@@ -40,9 +40,7 @@ pub fn render(
 
     // Map each slot (top→bottom row) to a data index. `inverted` flips so
     // the smallest value sits on top.
-    let data_at_slot = |slot: usize| -> usize {
-        if s.inverted { n - 1 - slot } else { slot }
-    };
+    let data_at_slot = |slot: usize| -> usize { if s.inverted { n - 1 - slot } else { slot } };
 
     for slot in 0..n {
         let data_idx = data_at_slot(slot);

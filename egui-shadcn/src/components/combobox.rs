@@ -1,8 +1,8 @@
 use super::size::Size;
 use crate::i18n;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
-use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 use ::i18n::t;
+use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 
 pub struct Combobox<'a> {
     id: &'a str,
@@ -15,12 +15,28 @@ pub struct Combobox<'a> {
 
 impl<'a> Combobox<'a> {
     pub fn new(id: &'a str, current: &'a mut Option<usize>, options: &'a [&'a str]) -> Self {
-        Self { id, current, options, placeholder: None, width: None, size: Size::Default }
+        Self {
+            id,
+            current,
+            options,
+            placeholder: None,
+            width: None,
+            size: Size::Default,
+        }
     }
 
-    pub fn placeholder(mut self, p: &'a str) -> Self { self.placeholder = Some(p); self }
-    pub fn width(mut self, w: f32) -> Self { self.width = Some(w); self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn placeholder(mut self, p: &'a str) -> Self {
+        self.placeholder = Some(p);
+        self
+    }
+    pub fn width(mut self, w: f32) -> Self {
+        self.width = Some(w);
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -54,12 +70,12 @@ impl<'a> Combobox<'a> {
         let ph_owned;
         let placeholder: &str = match self.placeholder {
             Some(p) => p,
-            None => { ph_owned = t!(i18n::Combobox::Placeholder); ph_owned.as_ref() }
+            None => {
+                ph_owned = t!(i18n::Combobox::Placeholder);
+                ph_owned.as_ref()
+            }
         };
-        let display = self
-            .current
-            .map(|i| self.options[i])
-            .unwrap_or(placeholder);
+        let display = self.current.map(|i| self.options[i]).unwrap_or(placeholder);
         let text_color = if self.current.is_some() {
             theme.foreground
         } else {
@@ -115,8 +131,11 @@ impl<'a> Combobox<'a> {
                                 .allocate_exact_size(Vec2::new(width - 8.0, 32.0), Sense::hover());
                             let search_rect = search_rect_alloc.0;
 
-                            ui.painter()
-                                .rect_filled(search_rect, CornerRadius::same(4), theme.background);
+                            ui.painter().rect_filled(
+                                search_rect,
+                                CornerRadius::same(4),
+                                theme.background,
+                            );
                             ui.painter().rect_stroke(
                                 search_rect,
                                 CornerRadius::same(4),
@@ -132,7 +151,10 @@ impl<'a> Combobox<'a> {
                             let te = egui::TextEdit::singleline(&mut query)
                                 .desired_width(inner.width())
                                 .hint_text(search_hint.as_ref())
-                                .font(egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional))
+                                .font(egui::FontId::new(
+                                    self.size.font_size(),
+                                    egui::FontFamily::Proportional,
+                                ))
                                 .text_color(theme.foreground)
                                 .frame(egui::Frame::new());
 
@@ -188,14 +210,16 @@ impl<'a> Combobox<'a> {
                                             ),
                                             egui::Align2::LEFT_CENTER,
                                             *opt,
-                                            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+                                            egui::FontId::new(
+                                                self.size.font_size(),
+                                                egui::FontFamily::Proportional,
+                                            ),
                                             text_col,
                                         );
 
                                         if item_resp.clicked() {
                                             *self.current = Some(i);
-                                            ui.ctx()
-                                                .data_mut(|d| d.insert_temp(popup_id, false));
+                                            ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
                                             changed = true;
                                         }
                                     }

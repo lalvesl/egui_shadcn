@@ -50,7 +50,10 @@ impl Ui {
 struct ServerSource;
 impl Source for ServerSource {
     fn request(&self, lang: Languages, app_id: u16, variant: u8) {
-        println!("  [fetch] GET /i18n/{}/{app_id:04x}/{variant}", lang.bcp47());
+        println!(
+            "  [fetch] GET /i18n/{}/{app_id:04x}/{variant}",
+            lang.bcp47()
+        );
     }
 }
 

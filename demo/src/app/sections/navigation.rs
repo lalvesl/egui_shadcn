@@ -1,16 +1,16 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     accordion::Accordion,
     breadcrumb::Breadcrumb,
     card::{Card, card_header},
     menubar::{Menubar, MenubarItem, MenubarMenuItem},
-    navigation_menu::{NavigationMenu, NavItem},
+    navigation_menu::{NavItem, NavigationMenu},
     pagination::Pagination,
     tabs::Tabs,
     typography::{body_text, muted_text},
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -95,28 +95,81 @@ impl DemoApp {
         let zoom_out = tr!(t::MenubarSec::ZoomOut);
 
         let file_items = [
-            MenubarMenuItem::Item { label: new_tab.as_ref(), shortcut: Some("Ctrl+T"), disabled: false },
-            MenubarMenuItem::Item { label: new_win.as_ref(), shortcut: Some("Ctrl+N"), disabled: false },
+            MenubarMenuItem::Item {
+                label: new_tab.as_ref(),
+                shortcut: Some("Ctrl+T"),
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: new_win.as_ref(),
+                shortcut: Some("Ctrl+N"),
+                disabled: false,
+            },
             MenubarMenuItem::Separator,
-            MenubarMenuItem::Item { label: share.as_ref(),   shortcut: None,           disabled: false },
-            MenubarMenuItem::Item { label: print.as_ref(),   shortcut: Some("Ctrl+P"), disabled: false },
+            MenubarMenuItem::Item {
+                label: share.as_ref(),
+                shortcut: None,
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: print.as_ref(),
+                shortcut: Some("Ctrl+P"),
+                disabled: false,
+            },
         ];
         let edit_items = [
-            MenubarMenuItem::Item { label: undo.as_ref(),  shortcut: Some("Ctrl+Z"), disabled: false },
-            MenubarMenuItem::Item { label: redo.as_ref(),  shortcut: Some("Ctrl+Y"), disabled: false },
+            MenubarMenuItem::Item {
+                label: undo.as_ref(),
+                shortcut: Some("Ctrl+Z"),
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: redo.as_ref(),
+                shortcut: Some("Ctrl+Y"),
+                disabled: false,
+            },
             MenubarMenuItem::Separator,
-            MenubarMenuItem::Item { label: cut.as_ref(),   shortcut: Some("Ctrl+X"), disabled: false },
-            MenubarMenuItem::Item { label: copy.as_ref(),  shortcut: Some("Ctrl+C"), disabled: false },
-            MenubarMenuItem::Item { label: paste.as_ref(), shortcut: Some("Ctrl+V"), disabled: false },
+            MenubarMenuItem::Item {
+                label: cut.as_ref(),
+                shortcut: Some("Ctrl+X"),
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: copy.as_ref(),
+                shortcut: Some("Ctrl+C"),
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: paste.as_ref(),
+                shortcut: Some("Ctrl+V"),
+                disabled: false,
+            },
         ];
         let view_items = [
-            MenubarMenuItem::Item { label: zoom_in.as_ref(),  shortcut: Some("Ctrl++"), disabled: false },
-            MenubarMenuItem::Item { label: zoom_out.as_ref(), shortcut: Some("Ctrl+-"), disabled: false },
+            MenubarMenuItem::Item {
+                label: zoom_in.as_ref(),
+                shortcut: Some("Ctrl++"),
+                disabled: false,
+            },
+            MenubarMenuItem::Item {
+                label: zoom_out.as_ref(),
+                shortcut: Some("Ctrl+-"),
+                disabled: false,
+            },
         ];
         let menus = [
-            MenubarItem { label: file.as_ref(), items: &file_items },
-            MenubarItem { label: edit.as_ref(), items: &edit_items },
-            MenubarItem { label: view.as_ref(), items: &view_items },
+            MenubarItem {
+                label: file.as_ref(),
+                items: &file_items,
+            },
+            MenubarItem {
+                label: edit.as_ref(),
+                items: &edit_items,
+            },
+            MenubarItem {
+                label: view.as_ref(),
+                items: &view_items,
+            },
         ];
 
         Card::new().show(ui, |ui| {
@@ -135,10 +188,26 @@ impl DemoApp {
         let team = tr!(t::NavMenuSec::Team);
         let settings = tr!(t::NavMenuSec::Settings);
         let items = [
-            NavItem { label: dashboard.as_ref(), icon: None, badge: None },
-            NavItem { label: projects.as_ref(),  icon: None, badge: Some("3") },
-            NavItem { label: team.as_ref(),      icon: None, badge: None },
-            NavItem { label: settings.as_ref(),  icon: None, badge: None },
+            NavItem {
+                label: dashboard.as_ref(),
+                icon: None,
+                badge: None,
+            },
+            NavItem {
+                label: projects.as_ref(),
+                icon: None,
+                badge: Some("3"),
+            },
+            NavItem {
+                label: team.as_ref(),
+                icon: None,
+                badge: None,
+            },
+            NavItem {
+                label: settings.as_ref(),
+                icon: None,
+                badge: None,
+            },
         ];
 
         Card::new().show(ui, |ui| {
@@ -151,7 +220,9 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::NavMenuSec::HVert).as_ref(), None);
-            NavigationMenu::new(&items, self.nav_active).vertical().show(ui);
+            NavigationMenu::new(&items, self.nav_active)
+                .vertical()
+                .show(ui);
         });
     }
 
@@ -176,7 +247,10 @@ impl DemoApp {
             let page2 = self.pagination_page2;
             muted_text(ui, tr!(t::PaginationSec::Page20, n = page2).as_ref());
             Spacing::Md.show(ui);
-            if let Some(p) = Pagination::new(self.pagination_page2, 20).siblings(2).show(ui) {
+            if let Some(p) = Pagination::new(self.pagination_page2, 20)
+                .siblings(2)
+                .show(ui)
+            {
                 self.pagination_page2 = p;
             }
         });
@@ -193,16 +267,15 @@ impl DemoApp {
             let password = tr!(t::TabsSec::Password);
             let notifs = tr!(t::TabsSec::Notifications);
             let tabs = [account.as_ref(), password.as_ref(), notifs.as_ref()];
-            Tabs::new("demo_tabs", &tabs, &mut self.tab_index)
-                .show(ui, |ui, tab| {
-                    Spacing::Sm.show(ui);
-                    match tab {
-                        0 => body_text(ui, tr!(t::TabsSec::BodyAccount).as_ref()),
-                        1 => body_text(ui, tr!(t::TabsSec::BodyPassword).as_ref()),
-                        2 => body_text(ui, tr!(t::TabsSec::BodyNotifications).as_ref()),
-                        _ => {}
-                    }
-                });
+            Tabs::new("demo_tabs", &tabs, &mut self.tab_index).show(ui, |ui, tab| {
+                Spacing::Sm.show(ui);
+                match tab {
+                    0 => body_text(ui, tr!(t::TabsSec::BodyAccount).as_ref()),
+                    1 => body_text(ui, tr!(t::TabsSec::BodyPassword).as_ref()),
+                    2 => body_text(ui, tr!(t::TabsSec::BodyNotifications).as_ref()),
+                    _ => {}
+                }
+            });
         });
     }
 }

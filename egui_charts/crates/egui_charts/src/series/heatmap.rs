@@ -54,7 +54,10 @@ pub fn render(
         let pidx = ((t * last as f64).round() as usize).min(last);
         let color = palette[pidx];
 
-        let center = layout.to_screen(DataPoint { x: x as f64, y: y as f64 });
+        let center = layout.to_screen(DataPoint {
+            x: x as f64,
+            y: y as f64,
+        });
         let rect = Rect::from_center_size(center, vec2(cell_w, cell_h));
         let inner = rect.shrink(0.5);
         p.rect_filled(inner, color);
@@ -75,7 +78,11 @@ pub fn render(
 
         if s.show_values && cell_w > 22.0 && cell_h > 14.0 {
             let lum = luminance(color);
-            let txt = if lum > 0.55 { Color32::BLACK } else { Color32::WHITE };
+            let txt = if lum > 0.55 {
+                Color32::BLACK
+            } else {
+                Color32::WHITE
+            };
             p.text(
                 center,
                 Align2::CENTER_CENTER,

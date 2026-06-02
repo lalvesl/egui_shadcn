@@ -72,6 +72,5 @@ impl Popover {
                 }
             }
         }
-
     }
 }

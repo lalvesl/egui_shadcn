@@ -57,7 +57,10 @@ pub struct SeriesState {
 
 impl SeriesState {
     pub fn new() -> Self {
-        Self { visible: true, hovered_index: None }
+        Self {
+            visible: true,
+            hovered_index: None,
+        }
     }
 }
 
@@ -107,16 +110,9 @@ pub fn render_all(
         let color = theme.series_color(idx);
         match series {
             Series::Line(l) => {
-                if let Some(t) = line::render(
-                    p,
-                    l,
-                    idx,
-                    color,
-                    layout,
-                    theme,
-                    &mut line_stack,
-                    hover_data,
-                ) {
+                if let Some(t) =
+                    line::render(p, l, idx, color, layout, theme, &mut line_stack, hover_data)
+                {
                     tips.push(t);
                 }
             }
@@ -149,8 +145,7 @@ pub fn render_all(
                 }
             }
             Series::Candlestick(s) => {
-                if let Some(t) = candlestick::render(p, s, idx, color, layout, theme, hover_data)
-                {
+                if let Some(t) = candlestick::render(p, s, idx, color, layout, theme, hover_data) {
                     tips.push(t);
                 }
             }
@@ -160,8 +155,7 @@ pub fn render_all(
                 }
             }
             Series::EffectScatter(s) => {
-                if let Some(t) =
-                    effect_scatter::render(p, s, idx, color, layout, theme, hover_data)
+                if let Some(t) = effect_scatter::render(p, s, idx, color, layout, theme, hover_data)
                 {
                     tips.push(t);
                 }
@@ -172,16 +166,13 @@ pub fn render_all(
                 }
             }
             Series::PictorialBar(s) => {
-                if let Some(t) =
-                    pictorial_bar::render(p, s, idx, color, layout, theme, hover_data)
+                if let Some(t) = pictorial_bar::render(p, s, idx, color, layout, theme, hover_data)
                 {
                     tips.push(t);
                 }
             }
             Series::ThemeRiver(s) => {
-                if let Some(t) =
-                    theme_river::render(p, s, idx, color, layout, theme, hover_data)
-                {
+                if let Some(t) = theme_river::render(p, s, idx, color, layout, theme, hover_data) {
                     tips.push(t);
                 }
             }
@@ -308,8 +299,7 @@ pub fn render_non_cartesian(
                 }
             }
             Series::CalendarHeatmap(s) => {
-                if let Some(t) =
-                    calendar_heatmap::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                if let Some(t) = calendar_heatmap::render(p, s, *idx, cell, theme, *idx, hover_pos)
                 {
                     tips.push(t);
                 }
@@ -340,9 +330,7 @@ pub fn render_non_cartesian(
                 }
             }
             Series::ScatterGeo(s) => {
-                if let Some(t) =
-                    scatter_geo::render(p, s, *idx, cell, theme, *idx, hover_pos)
-                {
+                if let Some(t) = scatter_geo::render(p, s, *idx, cell, theme, *idx, hover_pos) {
                     tips.push(t);
                 }
             }

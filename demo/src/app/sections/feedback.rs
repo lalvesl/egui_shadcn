@@ -1,3 +1,5 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui_shadcn::size::Size;
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
@@ -11,8 +13,6 @@ use egui_shadcn::{
     toast::{ToastVariant, Toaster},
     typography::muted_text,
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -54,7 +54,10 @@ impl DemoApp {
                 muted_text(ui, tr!(t::AlertDialogSec::Confirmed).as_ref());
                 Spacing::Sm.show(ui);
             }
-            if Button::new(tr!(t::AlertDialogSec::Open).as_ref()).show(ui).clicked() {
+            if Button::new(tr!(t::AlertDialogSec::Open).as_ref())
+                .show(ui)
+                .clicked()
+            {
                 self.alert_dialog_open = true;
                 self.alert_dialog_confirmed = false;
             }
@@ -74,8 +77,12 @@ impl DemoApp {
         )
         .destructive(true)
         .confirm_label(delete.as_ref())
-        .show(&ctx, || { confirmed = true; });
-        if confirmed { self.alert_dialog_confirmed = true; }
+        .show(&ctx, || {
+            confirmed = true;
+        });
+        if confirmed {
+            self.alert_dialog_confirmed = true;
+        }
     }
 
     pub(in crate::app) fn section_dialog(&mut self, ui: &mut egui::Ui) {
@@ -85,10 +92,17 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let confirm_desc = tr!(t::DialogSec::HConfirmDesc);
-            card_header(ui, tr!(t::DialogSec::HConfirm).as_ref(), Some(confirm_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::DialogSec::HConfirm).as_ref(),
+                Some(confirm_desc.as_ref()),
+            );
             muted_text(ui, tr!(t::DialogSec::Body).as_ref());
             Spacing::Md.show(ui);
-            if Button::new(tr!(t::DialogSec::Open).as_ref()).show(ui).clicked() {
+            if Button::new(tr!(t::DialogSec::Open).as_ref())
+                .show(ui)
+                .clicked()
+            {
                 self.dialog_open = true;
             }
         });
@@ -139,7 +153,9 @@ impl DemoApp {
                 });
             });
             Spacing::Md.show(ui);
-            Skeleton::new(ui.available_width(), 120.0).radius(8.0).show(ui);
+            Skeleton::new(ui.available_width(), 120.0)
+                .radius(8.0)
+                .show(ui);
         });
     }
 
@@ -167,28 +183,65 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let desc = tr!(t::ToastSec::HVariantsDesc);
-            card_header(ui, tr!(t::ToastSec::HVariants).as_ref(), Some(desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::ToastSec::HVariants).as_ref(),
+                Some(desc.as_ref()),
+            );
             ui.horizontal(|ui| {
                 let ctx = ui.ctx().clone();
-                if Button::new(tr!(t::ToastSec::DefaultBtn).as_ref()).show(ui).clicked() {
+                if Button::new(tr!(t::ToastSec::DefaultBtn).as_ref())
+                    .show(ui)
+                    .clicked()
+                {
                     let t_title = tr!(t::ToastSec::DefaultTitle);
                     let t_desc = tr!(t::ToastSec::DefaultDesc);
-                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Default);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        t_title.as_ref(),
+                        t_desc.as_ref(),
+                        ToastVariant::Default,
+                    );
                 }
-                if Button::new(tr!(t::ToastSec::SuccessBtn).as_ref()).show(ui).clicked() {
+                if Button::new(tr!(t::ToastSec::SuccessBtn).as_ref())
+                    .show(ui)
+                    .clicked()
+                {
                     let t_title = tr!(t::ToastSec::SuccessTitle);
                     let t_desc = tr!(t::ToastSec::SuccessDesc);
-                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Success);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        t_title.as_ref(),
+                        t_desc.as_ref(),
+                        ToastVariant::Success,
+                    );
                 }
-                if Button::new(tr!(t::ToastSec::WarningBtn).as_ref()).show(ui).clicked() {
+                if Button::new(tr!(t::ToastSec::WarningBtn).as_ref())
+                    .show(ui)
+                    .clicked()
+                {
                     let t_title = tr!(t::ToastSec::WarningTitle);
                     let t_desc = tr!(t::ToastSec::WarningDesc);
-                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Warning);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        t_title.as_ref(),
+                        t_desc.as_ref(),
+                        ToastVariant::Warning,
+                    );
                 }
-                if Button::new(tr!(t::ToastSec::DestructiveBtn).as_ref()).variant(ButtonVariant::Destructive).show(ui).clicked() {
+                if Button::new(tr!(t::ToastSec::DestructiveBtn).as_ref())
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui)
+                    .clicked()
+                {
                     let t_title = tr!(t::ToastSec::DestructiveTitle);
                     let t_desc = tr!(t::ToastSec::DestructiveDesc);
-                    Toaster::push_with_desc(&ctx, t_title.as_ref(), t_desc.as_ref(), ToastVariant::Destructive);
+                    Toaster::push_with_desc(
+                        &ctx,
+                        t_title.as_ref(),
+                        t_desc.as_ref(),
+                        ToastVariant::Destructive,
+                    );
                 }
             });
         });

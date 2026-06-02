@@ -122,7 +122,17 @@ pub fn render(
             Stroke::new(1.0, theme.background)
         };
 
-        annular_sector(p, polar.center, inner_r, slice_outer, a0, a1, 64, fill, stroke);
+        annular_sector(
+            p,
+            polar.center,
+            inner_r,
+            slice_outer,
+            a0,
+            a1,
+            64,
+            fill,
+            stroke,
+        );
 
         // Hovered slice "pops" with an extra ring outline.
         if hovered {
@@ -153,10 +163,18 @@ pub fn render(
             let dir = polar.dir(mid_chart);
             let connector_start = polar.center + dir * (slice_outer + 2.0);
             let connector_end = polar.center + dir * (slice_outer + 16.0);
-            p.line(connector_start, connector_end, Stroke::new(1.0, theme.text_dim));
+            p.line(
+                connector_start,
+                connector_end,
+                Stroke::new(1.0, theme.text_dim),
+            );
             let label_anchor = connector_end + dir * 2.0;
             let anchor = if dir.x.abs() > 0.5 {
-                if dir.x > 0.0 { Align2::LEFT_CENTER } else { Align2::RIGHT_CENTER }
+                if dir.x > 0.0 {
+                    Align2::LEFT_CENTER
+                } else {
+                    Align2::RIGHT_CENTER
+                }
             } else if dir.y < 0.0 {
                 Align2::CENTER_BOTTOM
             } else {

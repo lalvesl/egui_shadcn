@@ -1,3 +1,5 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     card::{Card, card_header},
@@ -14,8 +16,6 @@ use egui_shadcn::{
     textarea::Textarea,
     typography::muted_text,
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -27,11 +27,18 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::CheckboxSec::HOptions).as_ref(), None);
-            Checkbox::new(&mut self.checkbox1).label(tr!(t::CheckboxSec::Terms).as_ref()).show(ui);
+            Checkbox::new(&mut self.checkbox1)
+                .label(tr!(t::CheckboxSec::Terms).as_ref())
+                .show(ui);
             Spacing::Sm.show(ui);
-            Checkbox::new(&mut self.checkbox2).label(tr!(t::CheckboxSec::Newsletter).as_ref()).show(ui);
+            Checkbox::new(&mut self.checkbox2)
+                .label(tr!(t::CheckboxSec::Newsletter).as_ref())
+                .show(ui);
             Spacing::Sm.show(ui);
-            Checkbox::new(&mut self.checkbox3).label(tr!(t::CheckboxSec::Disabled).as_ref()).enabled(false).show(ui);
+            Checkbox::new(&mut self.checkbox3)
+                .label(tr!(t::CheckboxSec::Disabled).as_ref())
+                .enabled(false)
+                .show(ui);
         });
     }
 
@@ -40,17 +47,31 @@ impl DemoApp {
         let subtitle = tr!(t::ComboboxSec::Subtitle);
         self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
-        let frameworks = &["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro", "SolidStart"];
+        let frameworks = &[
+            "Next.js",
+            "SvelteKit",
+            "Nuxt.js",
+            "Remix",
+            "Astro",
+            "SolidStart",
+        ];
         Card::new().show(ui, |ui| {
             let desc = tr!(t::ComboboxSec::HFrameworkDesc);
-            card_header(ui, tr!(t::ComboboxSec::HFramework).as_ref(), Some(desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::ComboboxSec::HFramework).as_ref(),
+                Some(desc.as_ref()),
+            );
             let placeholder = tr!(t::ComboboxSec::Placeholder);
             Combobox::new("demo_combobox", &mut self.combobox_val, frameworks)
                 .placeholder(placeholder.as_ref())
                 .show(ui);
             if let Some(i) = self.combobox_val {
                 Spacing::Xs.show(ui);
-                muted_text(ui, tr!(t::ComboboxSec::Selected, value = frameworks[i]).as_ref());
+                muted_text(
+                    ui,
+                    tr!(t::ComboboxSec::Selected, value = frameworks[i]).as_ref(),
+                );
             }
         });
     }
@@ -102,7 +123,9 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             let desc = tr!(t::InputOtpSec::HOtpDesc);
             card_header(ui, tr!(t::InputOtpSec::HOtp).as_ref(), Some(desc.as_ref()));
-            InputOtp::new(&mut self.otp_val, 6).separator_after(3).show(ui);
+            InputOtp::new(&mut self.otp_val, 6)
+                .separator_after(3)
+                .show(ui);
             if self.otp_val.len() == 6 {
                 Spacing::Xs.show(ui);
                 let code = self.otp_val.clone();
@@ -120,7 +143,9 @@ impl DemoApp {
             card_header(ui, tr!(t::LabelSec::HBasic).as_ref(), None);
             Label::new(tr!(t::LabelSec::Email).as_ref()).show(ui);
             Spacing::Xs.show(ui);
-            Label::new(tr!(t::LabelSec::Required).as_ref()).required(true).show(ui);
+            Label::new(tr!(t::LabelSec::Required).as_ref())
+                .required(true)
+                .show(ui);
             Spacing::Xs.show(ui);
             Label::new(tr!(t::LabelSec::Password).as_ref()).show(ui);
         });
@@ -133,11 +158,17 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::RadioSec::HMethod).as_ref(), None);
-            Radio::new(&mut self.radio_val, 0u32).label(tr!(t::RadioSec::OptA).as_ref()).show(ui);
+            Radio::new(&mut self.radio_val, 0u32)
+                .label(tr!(t::RadioSec::OptA).as_ref())
+                .show(ui);
             Spacing::Sm.show(ui);
-            Radio::new(&mut self.radio_val, 1u32).label(tr!(t::RadioSec::OptB).as_ref()).show(ui);
+            Radio::new(&mut self.radio_val, 1u32)
+                .label(tr!(t::RadioSec::OptB).as_ref())
+                .show(ui);
             Spacing::Sm.show(ui);
-            Radio::new(&mut self.radio_val, 2u32).label(tr!(t::RadioSec::OptC).as_ref()).show(ui);
+            Radio::new(&mut self.radio_val, 2u32)
+                .label(tr!(t::RadioSec::OptC).as_ref())
+                .show(ui);
         });
     }
 
@@ -182,9 +213,14 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::SwitchSec::HSettings).as_ref(), None);
-            Switch::new(&mut self.switch1).label(tr!(t::SwitchSec::Enable).as_ref()).show(ui);
+            Switch::new(&mut self.switch1)
+                .label(tr!(t::SwitchSec::Enable).as_ref())
+                .show(ui);
             Spacing::Sm.show(ui);
-            Switch::new(&mut self.switch2).label(tr!(t::SwitchSec::Disabled).as_ref()).enabled(false).show(ui);
+            Switch::new(&mut self.switch2)
+                .label(tr!(t::SwitchSec::Disabled).as_ref())
+                .enabled(false)
+                .show(ui);
         });
     }
 

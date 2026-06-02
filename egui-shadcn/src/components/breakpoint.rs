@@ -17,13 +17,17 @@ pub enum Breakpoint {
 impl Breakpoint {
     pub fn current(ui: &Ui) -> Self {
         match ui.available_width() {
-            w if w < 480.0  => Self::Sm,
-            w if w < 768.0  => Self::Md,
+            w if w < 480.0 => Self::Sm,
+            w if w < 768.0 => Self::Md,
             w if w < 1024.0 => Self::Lg,
-            _               => Self::Xl,
+            _ => Self::Xl,
         }
     }
 
-    pub fn is_mobile(self) -> bool { self <= Self::Sm }
-    pub fn is_narrow(self) -> bool { self <= Self::Md }
+    pub fn is_mobile(self) -> bool {
+        self <= Self::Sm
+    }
+    pub fn is_narrow(self) -> bool {
+        self <= Self::Md
+    }
 }

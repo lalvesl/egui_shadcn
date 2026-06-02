@@ -159,8 +159,7 @@ impl<'a> ContextMenu<'a> {
 
                                         if item_resp.clicked() {
                                             clicked_item = Some(idx);
-                                            ui.ctx()
-                                                .data_mut(|d| d.insert_temp(popup_id, false));
+                                            ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
                                         }
                                     }
                                 }

@@ -18,12 +18,26 @@ pub struct ButtonGroup<'a> {
 
 impl<'a> ButtonGroup<'a> {
     pub fn new(buttons: &'a [&'a str]) -> Self {
-        Self { buttons, selected: None, variant: ButtonGroupVariant::Default, size: Size::Default }
+        Self {
+            buttons,
+            selected: None,
+            variant: ButtonGroupVariant::Default,
+            size: Size::Default,
+        }
     }
 
-    pub fn selected(mut self, s: Option<usize>) -> Self { self.selected = s; self }
-    pub fn variant(mut self, v: ButtonGroupVariant) -> Self { self.variant = v; self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn selected(mut self, s: Option<usize>) -> Self {
+        self.selected = s;
+        self
+    }
+    pub fn variant(mut self, v: ButtonGroupVariant) -> Self {
+        self.variant = v;
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
         let r = crate::ShadcnTheme::get(ui.ctx()).radius as u8;
@@ -46,9 +60,9 @@ impl<'a> ButtonGroup<'a> {
 
                 let cr = CornerRadius {
                     nw: if is_first { r } else { 0 },
-                    ne: if is_last  { r } else { 0 },
+                    ne: if is_last { r } else { 0 },
                     sw: if is_first { r } else { 0 },
-                    se: if is_last  { r } else { 0 },
+                    se: if is_last { r } else { 0 },
                 };
 
                 let variant = if is_selected {

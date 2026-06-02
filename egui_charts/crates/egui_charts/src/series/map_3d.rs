@@ -65,7 +65,12 @@ pub fn render(
     faces.push((
         (p00.1 + p10.1 + p11.1 + p01.1) * 0.25 + 1000.0,
         vec![p00.0, p10.0, p11.0, p01.0],
-        Color32::from_rgba_unmultiplied(theme.surface.r(), theme.surface.g(), theme.surface.b(), 180),
+        Color32::from_rgba_unmultiplied(
+            theme.surface.r(),
+            theme.surface.g(),
+            theme.surface.b(),
+            180,
+        ),
         Stroke::new(0.6, theme.axis_line),
         usize::MAX,
     ));
@@ -104,7 +109,13 @@ pub fn render(
             let j = (i + 1) % n;
             let poly = vec![base[i].0, base[j].0, top[j].0, top[i].0];
             let depth = (base[i].1 + base[j].1 + top[i].1 + top[j].1) * 0.25;
-            faces.push((depth, poly, side_color, Stroke::new(0.5, theme.background), region_idx));
+            faces.push((
+                depth,
+                poly,
+                side_color,
+                Stroke::new(0.5, theme.background),
+                region_idx,
+            ));
         }
         // Top face — fan-triangulate around centroid.
         let centroid_top = top.iter().fold(Pos2::ZERO, |a, b| a + b.0.to_vec2());

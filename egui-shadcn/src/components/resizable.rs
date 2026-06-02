@@ -59,9 +59,10 @@ impl Resizable {
         let theme = ShadcnTheme::get(ui.ctx());
         let split_id = self.id.with("split");
 
-        let mut split: f32 = ui
-            .ctx()
-            .data_mut(|d| d.get_persisted::<f32>(split_id).unwrap_or(self.initial_split));
+        let mut split: f32 = ui.ctx().data_mut(|d| {
+            d.get_persisted::<f32>(split_id)
+                .unwrap_or(self.initial_split)
+        });
 
         let avail = ui.available_rect_before_wrap();
 
@@ -115,7 +116,11 @@ impl Resizable {
                 ui.painter().rect_filled(
                     grip_rect,
                     egui::CornerRadius::same(2),
-                    if active { theme.ring } else { theme.muted_foreground },
+                    if active {
+                        theme.ring
+                    } else {
+                        theme.muted_foreground
+                    },
                 );
 
                 if active {
@@ -191,7 +196,11 @@ impl Resizable {
                 ui.painter().rect_filled(
                     grip_rect,
                     egui::CornerRadius::same(2),
-                    if active { theme.ring } else { theme.muted_foreground },
+                    if active {
+                        theme.ring
+                    } else {
+                        theme.muted_foreground
+                    },
                 );
 
                 if active {

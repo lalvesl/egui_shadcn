@@ -85,6 +85,7 @@ impl RadarLayout {
     /// Project a value on a spoke to a screen point.
     pub fn point(&self, spoke_idx: usize, normalized: f32) -> Pos2 {
         let spoke = &self.spokes[spoke_idx];
-        self.polar.point(spoke.angle_rad, self.polar.outer_radius * normalized)
+        self.polar
+            .point(spoke.angle_rad, self.polar.outer_radius * normalized)
     }
 }

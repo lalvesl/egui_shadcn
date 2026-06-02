@@ -22,12 +22,8 @@ pub fn render(
         return None;
     }
 
-    let up_color = s
-        .up_color
-        .unwrap_or(Color32::from_rgb(0x16, 0xa3, 0x4a));
-    let down_color = s
-        .down_color
-        .unwrap_or(Color32::from_rgb(0xdc, 0x26, 0x26));
+    let up_color = s.up_color.unwrap_or(Color32::from_rgb(0x16, 0xa3, 0x4a));
+    let down_color = s.down_color.unwrap_or(Color32::from_rgb(0xdc, 0x26, 0x26));
 
     let slot_w = layout.plot_rect.width() / s.data.len().max(1) as f32;
     let body_w = (slot_w * s.body_ratio).max(2.0);
@@ -35,11 +31,36 @@ pub fn render(
     let mut tip: Option<TooltipDatum> = None;
 
     for (i, c) in s.data.iter().enumerate() {
-        let center_x = layout.to_screen(DataPoint { x: i as f64, y: 0.0 }).x;
-        let high_y = layout.to_screen(DataPoint { x: i as f64, y: c.high }).y;
-        let low_y = layout.to_screen(DataPoint { x: i as f64, y: c.low }).y;
-        let open_y = layout.to_screen(DataPoint { x: i as f64, y: c.open }).y;
-        let close_y = layout.to_screen(DataPoint { x: i as f64, y: c.close }).y;
+        let center_x = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: 0.0,
+            })
+            .x;
+        let high_y = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: c.high,
+            })
+            .y;
+        let low_y = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: c.low,
+            })
+            .y;
+        let open_y = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: c.open,
+            })
+            .y;
+        let close_y = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: c.close,
+            })
+            .y;
 
         let up = c.close >= c.open;
         let body_color = if up { up_color } else { down_color };
@@ -67,8 +88,12 @@ pub fn render(
 
         let is_hovered = hovered_idx == Some(i as i64);
         if is_hovered {
-            p.painter
-                .rect_stroke(rect, 0.0, Stroke::new(1.5, theme.text), egui::StrokeKind::Inside);
+            p.painter.rect_stroke(
+                rect,
+                0.0,
+                Stroke::new(1.5, theme.text),
+                egui::StrokeKind::Inside,
+            );
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: format!("{} (O/H/L/C)", s.name),

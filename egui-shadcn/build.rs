@@ -3,8 +3,7 @@ use std::{fs, io::Read, path::PathBuf};
 const FONT_URL: &str =
     "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
 
-const CODEPOINTS_URL: &str =
-    "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints";
+const CODEPOINTS_URL: &str = "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints";
 
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let resp = ureq::get(url).call()?;

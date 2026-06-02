@@ -1,5 +1,5 @@
 use super::spacing::Spacing;
-use crate::{ShadcnTheme, ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING};
+use crate::{ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Stroke, Vec2};
 
 #[derive(Clone, PartialEq)]
@@ -112,19 +112,19 @@ impl Toaster {
                     for toast in toasts.iter().rev() {
                         let (accent_color, icon) = match toast.variant {
                             ToastVariant::Default => (theme.primary, ICON_CHECK_CIRCLE),
-                            ToastVariant::Success => (
-                                Color32::from_rgb(34, 197, 94),
-                                ICON_CHECK_CIRCLE,
-                            ),
-                            ToastVariant::Warning => (
-                                Color32::from_rgb(234, 179, 8),
-                                ICON_WARNING,
-                            ),
+                            ToastVariant::Success => {
+                                (Color32::from_rgb(34, 197, 94), ICON_CHECK_CIRCLE)
+                            }
+                            ToastVariant::Warning => (Color32::from_rgb(234, 179, 8), ICON_WARNING),
                             ToastVariant::Destructive => (theme.destructive, ICON_ERROR),
                         };
 
                         let toast_id = toast.id;
-                        let item_height = if toast.description.is_some() { 72.0 } else { 52.0 };
+                        let item_height = if toast.description.is_some() {
+                            72.0
+                        } else {
+                            52.0
+                        };
 
                         let (toast_rect, _) = ui.allocate_exact_size(
                             Vec2::new(toast_width, item_height),
@@ -143,10 +143,8 @@ impl Toaster {
                         );
 
                         // Colored left border stripe
-                        let stripe_rect = egui::Rect::from_min_size(
-                            toast_rect.min,
-                            Vec2::new(4.0, item_height),
-                        );
+                        let stripe_rect =
+                            egui::Rect::from_min_size(toast_rect.min, Vec2::new(4.0, item_height));
                         ui.painter().rect_filled(
                             stripe_rect,
                             CornerRadius {
@@ -179,10 +177,7 @@ impl Toaster {
                         // Description
                         if let Some(desc) = &toast.description {
                             ui.painter().text(
-                                egui::Pos2::new(
-                                    toast_rect.left() + 36.0,
-                                    toast_rect.top() + 36.0,
-                                ),
+                                egui::Pos2::new(toast_rect.left() + 36.0, toast_rect.top() + 36.0),
                                 egui::Align2::LEFT_CENTER,
                                 desc,
                                 egui::FontId::new(12.0, egui::FontFamily::Proportional),
@@ -193,10 +188,7 @@ impl Toaster {
                         // Close button
                         let close_size = 20.0;
                         let close_rect = egui::Rect::from_center_size(
-                            egui::Pos2::new(
-                                toast_rect.right() - 14.0,
-                                toast_rect.top() + 14.0,
-                            ),
+                            egui::Pos2::new(toast_rect.right() - 14.0, toast_rect.top() + 14.0),
                             Vec2::splat(close_size),
                         );
                         let close_resp = ui.interact(

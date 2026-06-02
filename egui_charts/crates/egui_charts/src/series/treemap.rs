@@ -23,7 +23,12 @@ pub fn render(
 
     let font = label_font();
     let mut tip: Option<TooltipDatum> = None;
-    let total: f64 = s.roots.iter().map(|n| n.subtree_value()).sum::<f64>().max(1e-12);
+    let total: f64 = s
+        .roots
+        .iter()
+        .map(|n| n.subtree_value())
+        .sum::<f64>()
+        .max(1e-12);
 
     // Top-level slice-and-dice.
     let mut x = rect.min.x;
@@ -33,18 +38,12 @@ pub fn render(
         let frac = (root.subtree_value() / total) as f32;
         let tile = if vertical {
             let w = rect.width() * frac;
-            let r = Rect::from_min_max(
-                Pos2::new(x, rect.min.y),
-                Pos2::new(x + w, rect.max.y),
-            );
+            let r = Rect::from_min_max(Pos2::new(x, rect.min.y), Pos2::new(x + w, rect.max.y));
             x += w;
             r
         } else {
             let h = rect.height() * frac;
-            let r = Rect::from_min_max(
-                Pos2::new(rect.min.x, y),
-                Pos2::new(rect.max.x, y + h),
-            );
+            let r = Rect::from_min_max(Pos2::new(rect.min.x, y), Pos2::new(rect.max.x, y + h));
             y += h;
             r
         };
@@ -119,7 +118,12 @@ fn draw_node(
     } else {
         // Layout children into this rect.
         let inner = rect.shrink(1.0);
-        let total: f64 = node.children.iter().map(|c| c.subtree_value()).sum::<f64>().max(1e-12);
+        let total: f64 = node
+            .children
+            .iter()
+            .map(|c| c.subtree_value())
+            .sum::<f64>()
+            .max(1e-12);
         let mut cursor_x = inner.min.x;
         let mut cursor_y = inner.min.y;
         for child in &node.children {
@@ -156,7 +160,11 @@ fn draw_node(
             );
         }
         // Parent group border so nested structure is visible.
-        p.painter
-            .rect_stroke(rect, 0.0, Stroke::new(1.5, theme.background), egui::StrokeKind::Inside);
+        p.painter.rect_stroke(
+            rect,
+            0.0,
+            Stroke::new(1.5, theme.background),
+            egui::StrokeKind::Inside,
+        );
     }
 }

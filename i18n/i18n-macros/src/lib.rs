@@ -107,7 +107,12 @@ impl Parse for DslVariant {
         syn::parenthesized!(content in input);
 
         // Is it the `plural { .. }` form?
-        if content.peek(Ident) && content.fork().parse::<Ident>().map(|i| i == "plural").unwrap_or(false)
+        if content.peek(Ident)
+            && content
+                .fork()
+                .parse::<Ident>()
+                .map(|i| i == "plural")
+                .unwrap_or(false)
         {
             let _plural: Ident = content.parse()?;
             let inner;
@@ -172,7 +177,11 @@ impl Parse for DslEnum {
 #[proc_macro]
 pub fn traductions(item: TokenStream) -> TokenStream {
     let dsl = parse_macro_input!(item as DslEnum);
-    let DslEnum { vis, name, variants } = dsl;
+    let DslEnum {
+        vis,
+        name,
+        variants,
+    } = dsl;
 
     let app_id = fnv1a_16(&name.to_string());
 
@@ -196,9 +205,12 @@ pub fn traductions(item: TokenStream) -> TokenStream {
     //    guarded by that language's feature, plus a linkme registration.
     let mut lang_blobs = TokenStream2::new();
 
-    for (lang_variant, feature, lang_disc) in
-        [("En", "lang-en", 0u8), ("EnUs", "lang-en-us", 1), ("Pt", "lang-pt", 2), ("PtBr", "lang-pt-br", 3)]
-    {
+    for (lang_variant, feature, lang_disc) in [
+        ("En", "lang-en", 0u8),
+        ("EnUs", "lang-en-us", 1),
+        ("Pt", "lang-pt", 2),
+        ("PtBr", "lang-pt-br", 3),
+    ] {
         let lang_id = format_ident!("{lang_variant}");
 
         // Gather this language's entries by walking the DSL.
@@ -228,7 +240,11 @@ pub fn traductions(item: TokenStream) -> TokenStream {
         let bytes = i18n_format::encode_catalog(lang_enum, entries);
         let byte_lit = proc_macro2::Literal::byte_string(&bytes);
 
-        let const_ident = format_ident!("__I18N_{}_{}", name.to_string().to_uppercase(), lang_variant.to_uppercase());
+        let const_ident = format_ident!(
+            "__I18N_{}_{}",
+            name.to_string().to_uppercase(),
+            lang_variant.to_uppercase()
+        );
         let slice_ident = format_ident!("__I18N_CATALOGS_{}", lang_variant.to_uppercase());
 
         lang_blobs.extend(quote! {
@@ -302,8 +318,8 @@ fn collect_forms_for_lang(var: &DslVariant, lang_variant: &str) -> Vec<i18n_form
 // ---------------------------------------------------------------------------
 
 struct TInvocation {
-    item: Expr,           // e.g. `Calendar::January`
-    count: Option<Expr>,  // from `count = ...`
+    item: Expr,          // e.g. `Calendar::January`
+    count: Option<Expr>, // from `count = ...`
     args: Vec<(Ident, Expr)>,
 }
 

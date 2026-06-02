@@ -93,12 +93,14 @@ pub fn render(
     p.circle_stroke(center, r, Stroke::new(2.0, base));
 
     // Center label.
-    let text = format!(
-        "{:.0}{}",
-        value * 100.0,
-        s.unit.as_deref().unwrap_or("")
+    let text = format!("{:.0}{}", value * 100.0, s.unit.as_deref().unwrap_or(""));
+    p.text(
+        center,
+        Align2::CENTER_CENTER,
+        text,
+        title_font(),
+        theme.text,
     );
-    p.text(center, Align2::CENTER_CENTER, text, title_font(), theme.text);
     if !s.name.is_empty() {
         p.text(
             center + egui::vec2(0.0, r * 0.55),
@@ -111,15 +113,16 @@ pub fn render(
 
     // Hover: pointer inside the disc fires a tooltip.
     if let Some(h) = hover_pos
-        && (h - center).length() <= r {
-            return Some(TooltipDatum {
-                series_index: series_idx,
-                series_name: s.name.clone(),
-                data_index: 0,
-                value: s.value,
-                color: base,
-                screen_pos: Some(center),
-            });
-        }
+        && (h - center).length() <= r
+    {
+        return Some(TooltipDatum {
+            series_index: series_idx,
+            series_name: s.name.clone(),
+            data_index: 0,
+            value: s.value,
+            color: base,
+            screen_pos: Some(center),
+        });
+    }
     None
 }

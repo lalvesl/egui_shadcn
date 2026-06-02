@@ -21,10 +21,10 @@ use std::sync::OnceLock;
 
 // Re-exports so the generated code (and users) have a single import root.
 pub use i18n_format as format;
+pub use i18n_format::Languages;
 pub use i18n_format::{
     composite_key, Arg, ArgValue, Catalog, LanguagesWithValue, Plural, Translate,
 };
-pub use i18n_format::Languages;
 pub use i18n_macros::{t, traductions};
 #[doc(hidden)]
 pub use linkme;

@@ -415,7 +415,11 @@ impl LineSeries {
     }
 
     pub fn smooth(mut self, smooth: bool) -> Self {
-        self.style = if smooth { LineStyle::Smooth } else { LineStyle::Solid };
+        self.style = if smooth {
+            LineStyle::Smooth
+        } else {
+            LineStyle::Solid
+        };
         self
     }
 
@@ -528,7 +532,10 @@ pub struct PieDatum {
 
 impl PieDatum {
     pub fn new(name: impl Into<String>, value: f64) -> Self {
-        Self { name: name.into(), value }
+        Self {
+            name: name.into(),
+            value,
+        }
     }
 }
 
@@ -569,7 +576,10 @@ impl PieSeries {
         I: IntoIterator<Item = (S, f64)>,
         S: Into<String>,
     {
-        self.data = items.into_iter().map(|(n, v)| PieDatum::new(n, v)).collect();
+        self.data = items
+            .into_iter()
+            .map(|(n, v)| PieDatum::new(n, v))
+            .collect();
         self
     }
 
@@ -610,7 +620,10 @@ pub struct RadarIndicator {
 
 impl RadarIndicator {
     pub fn new(name: impl Into<String>, max: f64) -> Self {
-        Self { name: name.into(), max }
+        Self {
+            name: name.into(),
+            max,
+        }
     }
 }
 
@@ -774,7 +787,10 @@ impl FunnelSeries {
         I: IntoIterator<Item = (S, f64)>,
         S: Into<String>,
     {
-        self.data = items.into_iter().map(|(n, v)| PieDatum::new(n, v)).collect();
+        self.data = items
+            .into_iter()
+            .map(|(n, v)| PieDatum::new(n, v))
+            .collect();
         self
     }
 
@@ -841,7 +857,12 @@ pub struct Candle {
 
 impl Candle {
     pub fn ohlc(open: f64, high: f64, low: f64, close: f64) -> Self {
-        Self { open, high, low, close }
+        Self {
+            open,
+            high,
+            low,
+            close,
+        }
     }
 }
 
@@ -894,7 +915,13 @@ pub struct BoxDatum {
 
 impl BoxDatum {
     pub fn new(min: f64, q1: f64, median: f64, q3: f64, max: f64) -> Self {
-        Self { min, q1, median, q3, max }
+        Self {
+            min,
+            q1,
+            median,
+            q3,
+            max,
+        }
     }
 }
 
@@ -959,7 +986,11 @@ pub struct LineSegment {
 
 impl LineSegment {
     pub fn new(from: (f64, f64), to: (f64, f64)) -> Self {
-        Self { from, to, value: 1.0 }
+        Self {
+            from,
+            to,
+            value: 1.0,
+        }
     }
 }
 
@@ -1030,7 +1061,10 @@ pub struct ThemeRiverBand {
 
 impl ThemeRiverBand {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), data: Vec::new() }
+        Self {
+            name: name.into(),
+            data: Vec::new(),
+        }
     }
 
     pub fn data<I: IntoIterator<Item = f64>>(mut self, items: I) -> Self {
@@ -1047,7 +1081,10 @@ pub struct ThemeRiverSeries {
 
 impl ThemeRiverSeries {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), bands: Vec::new() }
+        Self {
+            name: name.into(),
+            bands: Vec::new(),
+        }
     }
 
     pub fn band(mut self, b: ThemeRiverBand) -> Self {
@@ -1066,7 +1103,10 @@ pub struct PolarBarDatum {
 
 impl PolarBarDatum {
     pub fn new(name: impl Into<String>, value: f64) -> Self {
-        Self { name: name.into(), value }
+        Self {
+            name: name.into(),
+            value,
+        }
     }
 }
 
@@ -1114,12 +1154,20 @@ pub struct SunburstNode {
 
 impl SunburstNode {
     pub fn leaf(name: impl Into<String>, value: f64) -> Self {
-        Self { name: name.into(), value, children: Vec::new() }
+        Self {
+            name: name.into(),
+            value,
+            children: Vec::new(),
+        }
     }
 
     pub fn parent(name: impl Into<String>, children: Vec<SunburstNode>) -> Self {
         let value = children.iter().map(|c| c.subtree_value()).sum();
-        Self { name: name.into(), value, children }
+        Self {
+            name: name.into(),
+            value,
+            children,
+        }
     }
 
     pub fn subtree_value(&self) -> f64 {
@@ -1166,12 +1214,20 @@ pub struct TreemapNode {
 
 impl TreemapNode {
     pub fn leaf(name: impl Into<String>, value: f64) -> Self {
-        Self { name: name.into(), value, children: Vec::new() }
+        Self {
+            name: name.into(),
+            value,
+            children: Vec::new(),
+        }
     }
 
     pub fn parent(name: impl Into<String>, children: Vec<TreemapNode>) -> Self {
         let value = children.iter().map(|c| c.subtree_value()).sum();
-        Self { name: name.into(), value, children }
+        Self {
+            name: name.into(),
+            value,
+            children,
+        }
     }
 
     pub fn subtree_value(&self) -> f64 {
@@ -1191,7 +1247,10 @@ pub struct TreemapSeries {
 
 impl TreemapSeries {
     pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into(), roots: Vec::new() }
+        Self {
+            name: name.into(),
+            roots: Vec::new(),
+        }
     }
 
     pub fn root(mut self, node: TreemapNode) -> Self {
@@ -1219,11 +1278,17 @@ pub struct TreeNode {
 
 impl TreeNode {
     pub fn leaf(name: impl Into<String>) -> Self {
-        Self { name: name.into(), children: Vec::new() }
+        Self {
+            name: name.into(),
+            children: Vec::new(),
+        }
     }
 
     pub fn parent(name: impl Into<String>, children: Vec<TreeNode>) -> Self {
-        Self { name: name.into(), children }
+        Self {
+            name: name.into(),
+            children,
+        }
     }
 }
 
@@ -1271,7 +1336,11 @@ pub struct SankeyLink {
 
 impl SankeyLink {
     pub fn new(source: usize, target: usize, value: f64) -> Self {
-        Self { source, target, value }
+        Self {
+            source,
+            target,
+            value,
+        }
     }
 }
 
@@ -1386,7 +1455,11 @@ pub struct GraphLink {
 
 impl GraphLink {
     pub fn new(source: usize, target: usize, value: f64) -> Self {
-        Self { source, target, value }
+        Self {
+            source,
+            target,
+            value,
+        }
     }
 }
 
@@ -1439,7 +1512,11 @@ pub struct ParallelAxis {
 
 impl ParallelAxis {
     pub fn new(name: impl Into<String>, min: f64, max: f64) -> Self {
-        Self { name: name.into(), min, max }
+        Self {
+            name: name.into(),
+            min,
+            max,
+        }
     }
 }
 
@@ -1451,7 +1528,10 @@ pub struct ParallelLine {
 
 impl ParallelLine {
     pub fn new(name: impl Into<String>, values: Vec<f64>) -> Self {
-        Self { name: name.into(), values }
+        Self {
+            name: name.into(),
+            values,
+        }
     }
 }
 
@@ -1730,7 +1810,12 @@ pub struct GeoPoint {
 
 impl GeoPoint {
     pub fn new(name: impl Into<String>, lon: f64, lat: f64, value: f64) -> Self {
-        Self { name: name.into(), lon, lat, value }
+        Self {
+            name: name.into(),
+            lon,
+            lat,
+            value,
+        }
     }
 }
 
@@ -1950,8 +2035,12 @@ impl GlobeSeries {
 /// pointer position (when hovering). Implementations should produce shapes
 /// directly via `painter`.
 pub type CustomRenderFn = std::sync::Arc<
-    dyn for<'a> Fn(&crate::render::ChartPainter<'a>, egui::Rect, &crate::theme::ChartTheme, Option<egui::Pos2>)
-        + Send
+    dyn for<'a> Fn(
+            &crate::render::ChartPainter<'a>,
+            egui::Rect,
+            &crate::theme::ChartTheme,
+            Option<egui::Pos2>,
+        ) + Send
         + Sync,
 >;
 
@@ -1963,8 +2052,12 @@ pub struct CustomSeries {
 impl CustomSeries {
     pub fn new<F>(name: impl Into<String>, render: F) -> Self
     where
-        F: for<'a> Fn(&crate::render::ChartPainter<'a>, egui::Rect, &crate::theme::ChartTheme, Option<egui::Pos2>)
-            + Send
+        F: for<'a> Fn(
+                &crate::render::ChartPainter<'a>,
+                egui::Rect,
+                &crate::theme::ChartTheme,
+                Option<egui::Pos2>,
+            ) + Send
             + Sync
             + 'static,
     {
@@ -1986,7 +2079,9 @@ impl Clone for CustomSeries {
 
 impl std::fmt::Debug for CustomSeries {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("CustomSeries").field("name", &self.name).finish()
+        f.debug_struct("CustomSeries")
+            .field("name", &self.name)
+            .finish()
     }
 }
 

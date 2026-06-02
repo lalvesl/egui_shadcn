@@ -1,27 +1,23 @@
-use egui_shadcn::spacing::Spacing;
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui::Color32;
+use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
-    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE,
-    ShadcnTheme,
+    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE, ShadcnTheme,
+    button::{Button, ButtonVariant},
     calendar::CalDate,
     dialog::Dialog,
     i18n::{self, Languages},
     input::Input,
-    button::{Button, ButtonVariant},
     popover::Popover,
     select::Select,
     separator::Separator,
+    slider::Slider,
     toast::Toaster,
     typography::{body_text, heading2, heading4, muted_text, small_text},
-    slider::Slider,
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
-const LOCALES: &[(Languages, &str)] = &[
-    (Languages::EnUs, "EN"),
-    (Languages::PtBr, "PT"),
-];
+const LOCALES: &[(Languages, &str)] = &[(Languages::EnUs, "EN"), (Languages::PtBr, "PT")];
 
 fn locale_idx_to_lang(idx: usize) -> Languages {
     LOCALES.get(idx).map(|(l, _)| *l).unwrap_or(Languages::EnUs)
@@ -276,13 +272,20 @@ impl DemoApp {
             let hamburger_resp = ui.add(
                 egui::Label::new(
                     egui::RichText::new(ICON_MENU)
-                        .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                        .font(egui::FontId::new(
+                            20.0,
+                            egui::FontFamily::Name("MaterialIcons".into()),
+                        ))
                         .color(theme.foreground),
                 )
                 .sense(egui::Sense::click()),
             );
-            if hamburger_resp.clicked() { self.sidebar_open = !self.sidebar_open; }
-            if hamburger_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+            if hamburger_resp.clicked() {
+                self.sidebar_open = !self.sidebar_open;
+            }
+            if hamburger_resp.hovered() {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+            }
 
             Spacing::Sm.show(ui);
             heading4(ui, tr!(t::Toolbar::AppName).as_ref());
@@ -291,17 +294,28 @@ impl DemoApp {
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Dark/light toggle
-                let moon_sun = if self.dark { ICON_BRIGHTNESS_7 } else { ICON_BRIGHTNESS_4 };
+                let moon_sun = if self.dark {
+                    ICON_BRIGHTNESS_7
+                } else {
+                    ICON_BRIGHTNESS_4
+                };
                 let icon_resp = ui.add(
                     egui::Label::new(
                         egui::RichText::new(moon_sun)
-                            .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                            .font(egui::FontId::new(
+                                20.0,
+                                egui::FontFamily::Name("MaterialIcons".into()),
+                            ))
                             .color(theme.foreground),
                     )
                     .sense(egui::Sense::click()),
                 );
-                if icon_resp.clicked() { self.dark = !self.dark; }
-                if icon_resp.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+                if icon_resp.clicked() {
+                    self.dark = !self.dark;
+                }
+                if icon_resp.hovered() {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                }
 
                 Spacing::Sm.show(ui);
 
@@ -321,7 +335,8 @@ impl DemoApp {
                 Spacing::Sm.show(ui);
 
                 // Theme color picker via Popover
-                let palette_color = self.primary_hue
+                let palette_color = self
+                    .primary_hue
                     .map(|h| egui_shadcn::theme::hsl(h, 0.8, 0.55))
                     .unwrap_or(theme.foreground);
                 let dark = self.dark;
@@ -332,7 +347,10 @@ impl DemoApp {
                         ui.add(
                             egui::Label::new(
                                 egui::RichText::new(ICON_PALETTE)
-                                    .font(egui::FontId::new(20.0, egui::FontFamily::Name("MaterialIcons".into())))
+                                    .font(egui::FontId::new(
+                                        20.0,
+                                        egui::FontFamily::Name("MaterialIcons".into()),
+                                    ))
                                     .color(palette_color),
                             )
                             .sense(egui::Sense::click()),
@@ -344,20 +362,24 @@ impl DemoApp {
                         Spacing::Md.show(ui);
 
                         let presets: &[(Option<f32>, t::Toolbar)] = &[
-                            (None,         t::Toolbar::ColorZinc),
-                            (Some(0.0),    t::Toolbar::ColorRed),
-                            (Some(25.0),   t::Toolbar::ColorOrange),
-                            (Some(48.0),   t::Toolbar::ColorYellow),
-                            (Some(142.0),  t::Toolbar::ColorGreen),
-                            (Some(217.0),  t::Toolbar::ColorBlue),
-                            (Some(263.0),  t::Toolbar::ColorViolet),
-                            (Some(300.0),  t::Toolbar::ColorPink),
+                            (None, t::Toolbar::ColorZinc),
+                            (Some(0.0), t::Toolbar::ColorRed),
+                            (Some(25.0), t::Toolbar::ColorOrange),
+                            (Some(48.0), t::Toolbar::ColorYellow),
+                            (Some(142.0), t::Toolbar::ColorGreen),
+                            (Some(217.0), t::Toolbar::ColorBlue),
+                            (Some(263.0), t::Toolbar::ColorViolet),
+                            (Some(300.0), t::Toolbar::ColorPink),
                         ];
 
                         ui.horizontal_wrapped(|ui| {
                             for (hue, name_variant) in presets {
                                 let color = match hue {
-                                    None => egui_shadcn::theme::hsl(240.0, 0.059, if dark { 0.5 } else { 0.3 }),
+                                    None => egui_shadcn::theme::hsl(
+                                        240.0,
+                                        0.059,
+                                        if dark { 0.5 } else { 0.3 },
+                                    ),
                                     Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
                                 };
                                 let is_sel = *hue == self.primary_hue;
@@ -365,7 +387,8 @@ impl DemoApp {
                                     egui::Vec2::splat(28.0),
                                     egui::Sense::click(),
                                 );
-                                ui.painter().circle_filled(swatch_rect.center(), 12.0, color);
+                                ui.painter()
+                                    .circle_filled(swatch_rect.center(), 12.0, color);
                                 if is_sel {
                                     ui.painter().circle_stroke(
                                         swatch_rect.center(),
@@ -400,7 +423,11 @@ impl DemoApp {
 
                         Spacing::Sm.show(ui);
                         let reset_label = tr!(t::Toolbar::ResetToZinc);
-                        if Button::new(reset_label.as_ref()).variant(ButtonVariant::Secondary).show(ui).clicked() {
+                        if Button::new(reset_label.as_ref())
+                            .variant(ButtonVariant::Secondary)
+                            .show(ui)
+                            .clicked()
+                        {
                             self.primary_hue = None;
                         }
                     },
@@ -418,9 +445,12 @@ impl DemoApp {
 
         let now = ui.input(|i| i.time);
         let sidebar_rect = ui.max_rect();
-        let pointer_over_sidebar = ui
-            .ctx()
-            .input(|i| i.pointer.hover_pos().map(|p| sidebar_rect.contains(p)).unwrap_or(false));
+        let pointer_over_sidebar = ui.ctx().input(|i| {
+            i.pointer
+                .hover_pos()
+                .map(|p| sidebar_rect.contains(p))
+                .unwrap_or(false)
+        });
         if pointer_over_sidebar {
             self.sidebar_last_interaction = now;
         }
@@ -442,8 +472,16 @@ impl DemoApp {
             for i in 0..SECTION_COUNT {
                 let section = t::section_name(i);
                 let is_active = self.current_section == i;
-                let bg = if is_active { theme.accent } else { Color32::TRANSPARENT };
-                let fg = if is_active { theme.accent_foreground } else { theme.foreground };
+                let bg = if is_active {
+                    theme.accent
+                } else {
+                    Color32::TRANSPARENT
+                };
+                let fg = if is_active {
+                    theme.accent_foreground
+                } else {
+                    theme.foreground
+                };
 
                 let (rect, resp) =
                     ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
@@ -456,7 +494,11 @@ impl DemoApp {
                     );
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 } else {
-                    ui.painter().rect_filled(rect, egui::CornerRadius::same(theme.radius as u8), bg);
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(theme.radius as u8),
+                        bg,
+                    );
                 }
 
                 ui.painter().text(
@@ -498,16 +540,16 @@ impl DemoApp {
 impl DemoApp {
     fn render_section(&mut self, ui: &mut egui::Ui, index: usize) {
         match index {
-            0  => self.section_overview(ui),
-            1  => self.section_accordion(ui),
-            2  => self.section_alert(ui),
-            3  => self.section_alert_dialog(ui),
-            4  => self.section_avatar(ui),
-            5  => self.section_badge(ui),
-            6  => self.section_boxed(ui),
-            7  => self.section_breadcrumb(ui),
-            8  => self.section_button(ui),
-            9  => self.section_button_group(ui),
+            0 => self.section_overview(ui),
+            1 => self.section_accordion(ui),
+            2 => self.section_alert(ui),
+            3 => self.section_alert_dialog(ui),
+            4 => self.section_avatar(ui),
+            5 => self.section_badge(ui),
+            6 => self.section_boxed(ui),
+            7 => self.section_breadcrumb(ui),
+            8 => self.section_button(ui),
+            9 => self.section_button_group(ui),
             10 => self.section_calendar(ui),
             11 => self.section_card(ui),
             12 => self.section_carousel(ui),
@@ -549,7 +591,7 @@ impl DemoApp {
             48 => self.section_toggle_group(ui),
             49 => self.section_tooltip(ui),
             50 => self.section_typography(ui),
-            _  => {}
+            _ => {}
         }
     }
 

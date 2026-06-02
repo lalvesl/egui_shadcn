@@ -40,8 +40,12 @@ impl Languages {
     pub const COUNT: usize = 4;
 
     /// All variants, in discriminant order.
-    pub const ALL: [Languages; Self::COUNT] =
-        [Languages::En, Languages::EnUs, Languages::Pt, Languages::PtBr];
+    pub const ALL: [Languages; Self::COUNT] = [
+        Languages::En,
+        Languages::EnUs,
+        Languages::Pt,
+        Languages::PtBr,
+    ];
 
     /// Parse a BCP-47-ish tag into a language. Accepts `_` or `-` separators and
     /// is case-insensitive: `"en"`, `"EN"`, `"en-US"`, `"en_us"`, `"pt"`,
@@ -53,7 +57,13 @@ impl Languages {
         let norm: String = tag
             .trim()
             .chars()
-            .map(|c| if c == '_' { '-' } else { c.to_ascii_lowercase() })
+            .map(|c| {
+                if c == '_' {
+                    '-'
+                } else {
+                    c.to_ascii_lowercase()
+                }
+            })
             .collect();
         match norm.as_str() {
             "en-us" => Some(Languages::EnUs),
@@ -439,7 +449,9 @@ impl<'a> Entry<'a> {
         let raw = if self.flags & F_PLURAL == 0 {
             self.bytes
         } else {
-            let want = count.map(|n| plural_category(lang, n)).unwrap_or(Plural::Other);
+            let want = count
+                .map(|n| plural_category(lang, n))
+                .unwrap_or(Plural::Other);
             self.select_form(want)
         };
         // Catalog bytes are validated UTF-8 at encode time; tolerate corruption.
@@ -667,7 +679,10 @@ mod tests {
         let jan = cat.lookup(7, 0).unwrap();
         let r = jan.render(Languages::PtBr, None, &[]);
         assert_eq!(r, "Janeiro");
-        assert!(matches!(r, Cow::Borrowed(_)), "plain string must not allocate");
+        assert!(
+            matches!(r, Cow::Borrowed(_)),
+            "plain string must not allocate"
+        );
 
         assert!(cat.lookup(7, 9).is_none());
         assert!(cat.lookup(8, 0).is_none());
@@ -693,11 +708,7 @@ mod tests {
         let bytes = encode_catalog(Languages::En, vec![plain(1, 0, "The month {month}!")]);
         let cat = Catalog::new(&bytes).unwrap();
         let e = cat.lookup(1, 0).unwrap();
-        let out = e.render(
-            Languages::En,
-            None,
-            &[Arg::new("month", "January".into())],
-        );
+        let out = e.render(Languages::En, None, &[Arg::new("month", "January".into())]);
         assert_eq!(out, "The month January!");
         assert!(matches!(out, Cow::Owned(_)));
     }
@@ -717,8 +728,14 @@ mod tests {
             app_id: 2,
             variant: 0,
             forms: vec![
-                FormSpec { category: Plural::One, template: "{n} apple".into() },
-                FormSpec { category: Plural::Other, template: "{n} apples".into() },
+                FormSpec {
+                    category: Plural::One,
+                    template: "{n} apple".into(),
+                },
+                FormSpec {
+                    category: Plural::Other,
+                    template: "{n} apples".into(),
+                },
             ],
         };
         let bytes = encode_catalog(Languages::En, vec![entry]);

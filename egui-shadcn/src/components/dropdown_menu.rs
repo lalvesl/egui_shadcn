@@ -17,11 +17,23 @@ pub struct DropdownMenu<'a> {
 
 impl<'a> DropdownMenu<'a> {
     pub fn new(id: &'a str, trigger_label: &'a str, items: &'a [DropdownItem<'a>]) -> Self {
-        Self { id, trigger_label, items, width: 200.0, size: Size::Default }
+        Self {
+            id,
+            trigger_label,
+            items,
+            width: 200.0,
+            size: Size::Default,
+        }
     }
 
-    pub fn width(mut self, w: f32) -> Self { self.width = w; self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn width(mut self, w: f32) -> Self {
+        self.width = w;
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -104,8 +116,11 @@ impl<'a> DropdownMenu<'a> {
                                             Sense::hover(),
                                         );
                                         ui.add_space(3.0);
-                                        ui.painter()
-                                            .hline(sep_rect.x_range(), sep_rect.top(), Stroke::new(1.0, theme.border));
+                                        ui.painter().hline(
+                                            sep_rect.x_range(),
+                                            sep_rect.top(),
+                                            Stroke::new(1.0, theme.border),
+                                        );
                                         ui.add_space(3.0);
                                     }
                                     DropdownItem::Item { label, disabled } => {
@@ -148,14 +163,16 @@ impl<'a> DropdownMenu<'a> {
                                             ),
                                             egui::Align2::LEFT_CENTER,
                                             *label,
-                                            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+                                            egui::FontId::new(
+                                                self.size.font_size(),
+                                                egui::FontFamily::Proportional,
+                                            ),
                                             text_col,
                                         );
 
                                         if item_resp.clicked() {
                                             clicked_item = Some(idx);
-                                            ui.ctx()
-                                                .data_mut(|d| d.insert_temp(popup_id, false));
+                                            ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
                                         }
 
                                         item_count += 1;

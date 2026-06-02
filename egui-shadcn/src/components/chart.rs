@@ -85,7 +85,10 @@ impl<'a> Chart<'a> {
 
         // Chart plot area
         let plot_rect = Rect::from_min_max(
-            Pos2::new(outer_rect.left() + y_label_width, outer_rect.top() + pad_top),
+            Pos2::new(
+                outer_rect.left() + y_label_width,
+                outer_rect.top() + pad_top,
+            ),
             Pos2::new(
                 outer_rect.right() - pad_right,
                 outer_rect.top() + pad_top + self.height - x_label_height,
@@ -108,8 +111,7 @@ impl<'a> Chart<'a> {
         let grid_lines = 4usize;
         if self.show_grid {
             for i in 0..=grid_lines {
-                let y = plot_rect.bottom()
-                    - i as f32 * (plot_rect.height() / grid_lines as f32);
+                let y = plot_rect.bottom() - i as f32 * (plot_rect.height() / grid_lines as f32);
                 ui.painter().hline(
                     plot_rect.x_range(),
                     y,
@@ -161,8 +163,7 @@ impl<'a> Chart<'a> {
                             break;
                         }
                         let bar_h = (val / max_val) as f32 * plot_rect.height();
-                        let x =
-                            plot_rect.left() + li as f32 * slot_w + gap + di as f32 * bar_w;
+                        let x = plot_rect.left() + li as f32 * slot_w + gap + di as f32 * bar_w;
                         let bar_rect = Rect::from_min_max(
                             Pos2::new(x, plot_rect.bottom() - bar_h),
                             Pos2::new(x + bar_w - 1.0, plot_rect.bottom()),
@@ -185,7 +186,8 @@ impl<'a> Chart<'a> {
                         .take(n_labels)
                         .map(|(li, &val)| {
                             let x = plot_rect.left() + li as f32 * slot_w + slot_w / 2.0;
-                            let y = plot_rect.bottom() - (val / max_val) as f32 * plot_rect.height();
+                            let y =
+                                plot_rect.bottom() - (val / max_val) as f32 * plot_rect.height();
                             Pos2::new(x, y)
                         })
                         .collect();

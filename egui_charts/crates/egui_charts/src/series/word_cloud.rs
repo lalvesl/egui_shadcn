@@ -26,7 +26,11 @@ pub fn render(
     }
     let range = (wmax - wmin).max(1e-12);
     let mut sorted: Vec<(usize, &(String, f64))> = s.words.iter().enumerate().collect();
-    sorted.sort_by(|a, b| b.1 .1.partial_cmp(&a.1 .1).unwrap_or(std::cmp::Ordering::Equal));
+    sorted.sort_by(|a, b| {
+        b.1.1
+            .partial_cmp(&a.1.1)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     let center = rect.center();
     let mut placed: Vec<Rect> = Vec::with_capacity(sorted.len());

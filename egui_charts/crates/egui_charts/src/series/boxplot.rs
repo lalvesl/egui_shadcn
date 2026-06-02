@@ -28,15 +28,49 @@ pub fn render(
     let hovered_idx = hover.map(|h| h.x.round() as i64);
 
     for (i, b) in s.data.iter().enumerate() {
-        let center_x = layout.to_screen(DataPoint { x: i as f64, y: 0.0 }).x;
-        let y_min = layout.to_screen(DataPoint { x: i as f64, y: b.min }).y;
-        let y_q1 = layout.to_screen(DataPoint { x: i as f64, y: b.q1 }).y;
-        let y_med = layout.to_screen(DataPoint { x: i as f64, y: b.median }).y;
-        let y_q3 = layout.to_screen(DataPoint { x: i as f64, y: b.q3 }).y;
-        let y_max = layout.to_screen(DataPoint { x: i as f64, y: b.max }).y;
+        let center_x = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: 0.0,
+            })
+            .x;
+        let y_min = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: b.min,
+            })
+            .y;
+        let y_q1 = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: b.q1,
+            })
+            .y;
+        let y_med = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: b.median,
+            })
+            .y;
+        let y_q3 = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: b.q3,
+            })
+            .y;
+        let y_max = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: b.max,
+            })
+            .y;
 
         // Whisker line min → max.
-        p.line(Pos2::new(center_x, y_min), Pos2::new(center_x, y_max), stroke);
+        p.line(
+            Pos2::new(center_x, y_min),
+            Pos2::new(center_x, y_max),
+            stroke,
+        );
         // Caps.
         p.line(
             Pos2::new(center_x - cap * 0.5, y_min),

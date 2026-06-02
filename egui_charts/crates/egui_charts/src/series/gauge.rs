@@ -75,8 +75,7 @@ pub fn render(
     // Pointer needle.
     let needle_angle = prog_end;
     let needle_len = inner * 0.92;
-    let needle_tip = center
-        + egui::vec2(needle_angle.cos(), needle_angle.sin()) * needle_len;
+    let needle_tip = center + egui::vec2(needle_angle.cos(), needle_angle.sin()) * needle_len;
     let perp = needle_angle + PI * 0.5;
     let base_half = (outer * 0.04).max(2.0);
     let base_a = center + egui::vec2(perp.cos(), perp.sin()) * base_half;
@@ -172,7 +171,15 @@ fn nice_ticks(min: f64, max: f64, target: usize) -> Vec<f64> {
     let raw = (max - min) / target.max(1) as f64;
     let exp = raw.abs().log10().floor();
     let f = raw / 10f64.powf(exp);
-    let nf = if f < 1.5 { 1.0 } else if f < 3.0 { 2.0 } else if f < 7.0 { 5.0 } else { 10.0 };
+    let nf = if f < 1.5 {
+        1.0
+    } else if f < 3.0 {
+        2.0
+    } else if f < 7.0 {
+        5.0
+    } else {
+        10.0
+    };
     let step = nf * 10f64.powf(exp);
     let mut t = (min / step).ceil() * step;
     let mut out = Vec::new();

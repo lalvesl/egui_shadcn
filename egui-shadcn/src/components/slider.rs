@@ -12,11 +12,23 @@ pub struct Slider<'a> {
 
 impl<'a> Slider<'a> {
     pub fn new(value: &'a mut f32, min: f32, max: f32) -> Self {
-        Self { value, min, max, step: None, size: Size::Default }
+        Self {
+            value,
+            min,
+            max,
+            step: None,
+            size: Size::Default,
+        }
     }
 
-    pub fn step(mut self, s: f32) -> Self { self.step = Some(s); self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn step(mut self, s: f32) -> Self {
+        self.step = Some(s);
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> egui::Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -25,10 +37,8 @@ impl<'a> Slider<'a> {
         let height = self.size.height();
         let width = ui.available_width();
 
-        let (rect, resp) = ui.allocate_exact_size(
-            Vec2::new(width, height.max(thumb_r * 2.0)),
-            Sense::drag(),
-        );
+        let (rect, resp) =
+            ui.allocate_exact_size(Vec2::new(width, height.max(thumb_r * 2.0)), Sense::drag());
 
         let track_rect = egui::Rect::from_center_size(rect.center(), Vec2::new(width, track_h));
 
@@ -52,7 +62,8 @@ impl<'a> Slider<'a> {
             let fill_w = (track_rect.width() * t).max(0.0);
 
             if fill_w > 0.0 {
-                let fill_rect = egui::Rect::from_min_size(track_rect.min, Vec2::new(fill_w, track_h));
+                let fill_rect =
+                    egui::Rect::from_min_size(track_rect.min, Vec2::new(fill_w, track_h));
                 painter.rect_filled(fill_rect, cr, theme.primary);
             }
 

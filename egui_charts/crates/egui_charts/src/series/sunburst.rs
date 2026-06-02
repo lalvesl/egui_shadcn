@@ -43,7 +43,12 @@ pub fn render(
     let depth = s.roots.iter().map(max_depth).max().unwrap_or(1).max(1);
     let ring_w = (max_outer - min_inner) / depth as f32;
 
-    let total: f64 = s.roots.iter().map(|n| n.subtree_value()).sum::<f64>().max(1e-12);
+    let total: f64 = s
+        .roots
+        .iter()
+        .map(|n| n.subtree_value())
+        .sum::<f64>()
+        .max(1e-12);
 
     let font = label_font();
     let mut tip: Option<TooltipDatum> = None;
@@ -157,14 +162,24 @@ fn draw_node(
     if sweep > 0.18 && ring_w > 14.0 {
         let mid_chart = (start_chart + end_chart) * 0.5;
         let mid_screen = chart_to_screen(mid_chart);
-        let pos = center
-            + egui::vec2(mid_screen.cos(), mid_screen.sin()) * label_radius;
-        p.text(pos, Align2::CENTER_CENTER, node.name.clone(), font.clone(), theme.background);
+        let pos = center + egui::vec2(mid_screen.cos(), mid_screen.sin()) * label_radius;
+        p.text(
+            pos,
+            Align2::CENTER_CENTER,
+            node.name.clone(),
+            font.clone(),
+            theme.background,
+        );
     }
 
     // Recurse into children, partitioning the sweep proportionally to value.
     if !node.children.is_empty() {
-        let total: f64 = node.children.iter().map(|c| c.subtree_value()).sum::<f64>().max(1e-12);
+        let total: f64 = node
+            .children
+            .iter()
+            .map(|c| c.subtree_value())
+            .sum::<f64>()
+            .max(1e-12);
         let mut acc = start_chart;
         for (ci, child) in node.children.iter().enumerate() {
             let cs = sweep * (child.subtree_value() / total) as f32;

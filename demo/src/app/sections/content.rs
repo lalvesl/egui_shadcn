@@ -1,19 +1,20 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui::Color32;
 use egui_shadcn::{
     ShadcnTheme,
-    avatar::Avatar, size::Size,
+    avatar::Avatar,
     boxed::Boxed,
     calendar::Calendar,
     card::{Card, card_header},
     collapsible::Collapsible,
-    data_table::{DataTable, DataColumn},
+    data_table::{DataColumn, DataTable},
     separator::Separator,
+    size::Size,
     spacing::Spacing,
     table::{Table, TableColumn},
     typography::{body_text, muted_text},
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -32,7 +33,9 @@ impl DemoApp {
                 Spacing::Sm.show(ui);
                 Avatar::new("Bob").size(Size::Lg).show(ui);
                 Spacing::Sm.show(ui);
-                Avatar::new("XY").color(Color32::from_rgb(139, 92, 246)).show(ui);
+                Avatar::new("XY")
+                    .color(Color32::from_rgb(139, 92, 246))
+                    .show(ui);
             });
         });
     }
@@ -61,7 +64,8 @@ impl DemoApp {
                         egui::Vec2::new(ui.available_width(), 24.0),
                         egui::Sense::hover(),
                     );
-                    ui.painter().rect_filled(rect, egui::CornerRadius::same(4), theme.accent);
+                    ui.painter()
+                        .rect_filled(rect, egui::CornerRadius::same(4), theme.accent);
                 });
             }
         });
@@ -69,22 +73,30 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             let pad_margin_desc = tr!(t::BoxedSec::HPadMarginDesc);
-            card_header(ui, tr!(t::BoxedSec::HPadMargin).as_ref(), Some(pad_margin_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::BoxedSec::HPadMargin).as_ref(),
+                Some(pad_margin_desc.as_ref()),
+            );
             let inner_label = tr!(t::BoxedSec::InnerLabel);
-            Boxed::new().padding(Spacing::Lg).margin(Spacing::Sm).show(ui, |ui| {
-                let (rect, _) = ui.allocate_exact_size(
-                    egui::Vec2::new(ui.available_width(), 40.0),
-                    egui::Sense::hover(),
-                );
-                ui.painter().rect_filled(rect, egui::CornerRadius::same(6), theme.primary);
-                ui.painter().text(
-                    rect.center(),
-                    egui::Align2::CENTER_CENTER,
-                    inner_label.as_ref(),
-                    egui::FontId::new(12.0, egui::FontFamily::Proportional),
-                    theme.primary_foreground,
-                );
-            });
+            Boxed::new()
+                .padding(Spacing::Lg)
+                .margin(Spacing::Sm)
+                .show(ui, |ui| {
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::Vec2::new(ui.available_width(), 40.0),
+                        egui::Sense::hover(),
+                    );
+                    ui.painter()
+                        .rect_filled(rect, egui::CornerRadius::same(6), theme.primary);
+                    ui.painter().text(
+                        rect.center(),
+                        egui::Align2::CENTER_CENTER,
+                        inner_label.as_ref(),
+                        egui::FontId::new(12.0, egui::FontFamily::Proportional),
+                        theme.primary_foreground,
+                    );
+                });
         });
     }
 
@@ -110,7 +122,11 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             let range_desc = tr!(t::CalendarSec::HRangeDesc);
-            card_header(ui, tr!(t::CalendarSec::HRange).as_ref(), Some(range_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::CalendarSec::HRange).as_ref(),
+                Some(range_desc.as_ref()),
+            );
             let label: String = match (self.cal_range_start, self.cal_range_end) {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
@@ -124,7 +140,12 @@ impl DemoApp {
             };
             muted_text(ui, &label);
             Spacing::Md.show(ui);
-            Calendar::range("demo_cal_range", &mut self.cal_range_start, &mut self.cal_range_end).show(ui);
+            Calendar::range(
+                "demo_cal_range",
+                &mut self.cal_range_start,
+                &mut self.cal_range_end,
+            )
+            .show(ui);
             if self.cal_range_start.is_some() {
                 Spacing::Sm.show(ui);
                 if ui.button(tr!(t::CalendarSec::Clear).as_ref()).clicked() {
@@ -137,7 +158,11 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             let compact_desc = tr!(t::CalendarSec::HRangeCompactDesc);
-            card_header(ui, tr!(t::CalendarSec::HRangeCompact).as_ref(), Some(compact_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::CalendarSec::HRangeCompact).as_ref(),
+                Some(compact_desc.as_ref()),
+            );
             let label: String = match (self.cal_range_compact_start, self.cal_range_compact_end) {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
@@ -170,7 +195,11 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             let prices_desc = tr!(t::CalendarSec::HPricesDesc);
-            card_header(ui, tr!(t::CalendarSec::HPrices).as_ref(), Some(prices_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::CalendarSec::HPrices).as_ref(),
+                Some(prices_desc.as_ref()),
+            );
             let label: String = match self.cal_prices_selected {
                 Some(d) => {
                     let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
@@ -190,7 +219,11 @@ impl DemoApp {
                     let cents = (hash / 200) % 10;
                     let price_str = format!("${price}.{cents}0");
                     let theme = ShadcnTheme::get(ui.ctx());
-                    let color = if price < 99 { theme.primary } else { theme.muted_foreground };
+                    let color = if price < 99 {
+                        theme.primary
+                    } else {
+                        theme.muted_foreground
+                    };
                     ui.painter().text(
                         ui.max_rect().center(),
                         egui::Align2::CENTER_CENTER,
@@ -210,7 +243,11 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let card_desc = tr!(t::CardSec::HTitleDesc);
-            card_header(ui, tr!(t::CardSec::HTitle).as_ref(), Some(card_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::CardSec::HTitle).as_ref(),
+                Some(card_desc.as_ref()),
+            );
             body_text(ui, tr!(t::CardSec::Body).as_ref());
         });
         Spacing::Lg.show(ui);
@@ -235,15 +272,19 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             let heading = tr!(t::CollapsibleSec::Heading);
             card_header(ui, heading.as_ref(), None);
-            Collapsible::new("demo_collapsible", heading.as_ref(), &mut self.collapsible_open)
-                .show(ui, |ui| {
-                    Spacing::Xs.show(ui);
-                    muted_text(ui, "@radix-ui/primitives");
-                    Spacing::Xs.show(ui);
-                    muted_text(ui, "@radix-ui/colors");
-                    Spacing::Xs.show(ui);
-                    muted_text(ui, "@stitches/react");
-                });
+            Collapsible::new(
+                "demo_collapsible",
+                heading.as_ref(),
+                &mut self.collapsible_open,
+            )
+            .show(ui, |ui| {
+                Spacing::Xs.show(ui);
+                muted_text(ui, "@radix-ui/primitives");
+                Spacing::Xs.show(ui);
+                muted_text(ui, "@radix-ui/colors");
+                Spacing::Xs.show(ui);
+                muted_text(ui, "@stitches/react");
+            });
         });
     }
 
@@ -256,9 +297,21 @@ impl DemoApp {
         let col_email = tr!(t::DataTableSec::ColEmail);
         let col_amount = tr!(t::DataTableSec::ColAmount);
         let columns = &[
-            DataColumn { header: col_status.as_ref(), width: Some(100.0), sortable: true },
-            DataColumn { header: col_email.as_ref(),  width: None,        sortable: true },
-            DataColumn { header: col_amount.as_ref(), width: Some(120.0), sortable: true },
+            DataColumn {
+                header: col_status.as_ref(),
+                width: Some(100.0),
+                sortable: true,
+            },
+            DataColumn {
+                header: col_email.as_ref(),
+                width: None,
+                sortable: true,
+            },
+            DataColumn {
+                header: col_amount.as_ref(),
+                width: Some(120.0),
+                sortable: true,
+            },
         ];
 
         let s_success = tr!(t::DataTableSec::StatusSuccess);
@@ -266,11 +319,11 @@ impl DemoApp {
         let s_failed = tr!(t::DataTableSec::StatusFailed);
 
         let data: &[(&str, &str, &str)] = &[
-            (s_success.as_ref(),    "ken99@yahoo.com",       "$316.00"),
-            (s_success.as_ref(),    "abe45@gmail.com",        "$242.00"),
+            (s_success.as_ref(), "ken99@yahoo.com", "$316.00"),
+            (s_success.as_ref(), "abe45@gmail.com", "$242.00"),
             (s_processing.as_ref(), "monserrat44@gmail.com", "$837.00"),
-            (s_success.as_ref(),    "silas22@gmail.com",      "$874.00"),
-            (s_failed.as_ref(),     "carmella@hotmail.com",   "$721.00"),
+            (s_success.as_ref(), "silas22@gmail.com", "$874.00"),
+            (s_failed.as_ref(), "carmella@hotmail.com", "$721.00"),
         ];
 
         Card::new().show(ui, |ui| {
@@ -279,9 +332,15 @@ impl DemoApp {
                 .page_size(3)
                 .show(ui, data.len(), |row_idx, row| {
                     let (status, email, amount) = data[row_idx];
-                    row.cell(|ui| { muted_text(ui, status); });
-                    row.cell(|ui| { muted_text(ui, email); });
-                    row.cell(|ui| { muted_text(ui, amount); });
+                    row.cell(|ui| {
+                        muted_text(ui, status);
+                    });
+                    row.cell(|ui| {
+                        muted_text(ui, email);
+                    });
+                    row.cell(|ui| {
+                        muted_text(ui, amount);
+                    });
                 });
         });
     }
@@ -330,21 +389,27 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let scale_desc = tr!(t::SpacingSec::HScaleDesc);
-            card_header(ui, tr!(t::SpacingSec::HScale).as_ref(), Some(scale_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::SpacingSec::HScale).as_ref(),
+                Some(scale_desc.as_ref()),
+            );
             for (name, sp) in [
-                ("Xs",  Spacing::Xs),
-                ("Sm",  Spacing::Sm),
-                ("Md",  Spacing::Md),
-                ("Lg",  Spacing::Lg),
-                ("Xl",  Spacing::Xl),
+                ("Xs", Spacing::Xs),
+                ("Sm", Spacing::Sm),
+                ("Md", Spacing::Md),
+                ("Lg", Spacing::Lg),
+                ("Xl", Spacing::Xl),
                 ("Xl2", Spacing::Xl2),
                 ("Xl3", Spacing::Xl3),
             ] {
                 ui.horizontal(|ui| {
                     muted_text(ui, &format!("{:<4}  {:>2}px", name, u32::from(sp)));
                     Spacing::Md.show(ui);
-                    let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(sp.px(), 8.0), egui::Sense::hover());
-                    ui.painter().rect_filled(rect, egui::CornerRadius::same(2), theme.primary);
+                    let (rect, _) =
+                        ui.allocate_exact_size(egui::Vec2::new(sp.px(), 8.0), egui::Sense::hover());
+                    ui.painter()
+                        .rect_filled(rect, egui::CornerRadius::same(2), theme.primary);
                 });
                 Spacing::Xs.show(ui);
             }
@@ -353,7 +418,11 @@ impl DemoApp {
         Spacing::Lg.show(ui);
         Card::new().show(ui, |ui| {
             let usage_desc = tr!(t::SpacingSec::HUsageDesc);
-            card_header(ui, tr!(t::SpacingSec::HUsage).as_ref(), Some(usage_desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::SpacingSec::HUsage).as_ref(),
+                Some(usage_desc.as_ref()),
+            );
             muted_text(ui, tr!(t::SpacingSec::BlockA).as_ref());
             Spacing::Lg.show(ui);
             muted_text(ui, tr!(t::SpacingSec::BlockB).as_ref());
@@ -372,10 +441,22 @@ impl DemoApp {
         let col_method = tr!(t::TableSec::ColMethod);
         let col_amount = tr!(t::TableSec::ColAmount);
         let columns = &[
-            TableColumn { header: col_inv.as_ref(),    width: Some(120.0) },
-            TableColumn { header: col_status.as_ref(), width: Some(100.0) },
-            TableColumn { header: col_method.as_ref(), width: Some(120.0) },
-            TableColumn { header: col_amount.as_ref(), width: None },
+            TableColumn {
+                header: col_inv.as_ref(),
+                width: Some(120.0),
+            },
+            TableColumn {
+                header: col_status.as_ref(),
+                width: Some(100.0),
+            },
+            TableColumn {
+                header: col_method.as_ref(),
+                width: Some(120.0),
+            },
+            TableColumn {
+                header: col_amount.as_ref(),
+                width: None,
+            },
         ];
 
         let s_paid = tr!(t::TableSec::StatusPaid);
@@ -386,21 +467,29 @@ impl DemoApp {
         let m_bank = tr!(t::TableSec::MethodBank);
 
         let data: &[(&str, &str, &str, &str)] = &[
-            ("INV001", s_paid.as_ref(),    m_cc.as_ref(),     "$250.00"),
+            ("INV001", s_paid.as_ref(), m_cc.as_ref(), "$250.00"),
             ("INV002", s_pending.as_ref(), m_paypal.as_ref(), "$150.00"),
-            ("INV003", s_unpaid.as_ref(),  m_bank.as_ref(),   "$350.00"),
-            ("INV004", s_paid.as_ref(),    m_cc.as_ref(),     "$450.00"),
-            ("INV005", s_paid.as_ref(),    m_paypal.as_ref(), "$550.00"),
+            ("INV003", s_unpaid.as_ref(), m_bank.as_ref(), "$350.00"),
+            ("INV004", s_paid.as_ref(), m_cc.as_ref(), "$450.00"),
+            ("INV005", s_paid.as_ref(), m_paypal.as_ref(), "$550.00"),
         ];
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::TableSec::HInvoices).as_ref(), None);
             Table::new(columns).show(ui, data.len(), |row_idx, row| {
                 let (inv, status, method, amount) = data[row_idx];
-                row.cell(|ui| { muted_text(ui, inv); });
-                row.cell(|ui| { muted_text(ui, status); });
-                row.cell(|ui| { muted_text(ui, method); });
-                row.cell(|ui| { muted_text(ui, amount); });
+                row.cell(|ui| {
+                    muted_text(ui, inv);
+                });
+                row.cell(|ui| {
+                    muted_text(ui, status);
+                });
+                row.cell(|ui| {
+                    muted_text(ui, method);
+                });
+                row.cell(|ui| {
+                    muted_text(ui, amount);
+                });
             });
         });
     }

@@ -22,7 +22,12 @@ pub fn render(
         return None;
     }
     let bbox = if let Some((minl, maxl, mina, maxa)) = s.bbox {
-        GeoBbox { min_lon: minl, max_lon: maxl, min_lat: mina, max_lat: maxa }
+        GeoBbox {
+            min_lon: minl,
+            max_lon: maxl,
+            min_lat: mina,
+            max_lat: maxa,
+        }
     } else {
         GeoBbox::world()
     };
@@ -39,8 +44,13 @@ pub fn render(
         if ring.len() < 3 {
             continue;
         }
-        let pts: Vec<Pos2> = ring.iter().map(|(lo, la)| layout.project(*lo, *la)).collect();
-        let centroid = pts.iter().fold(Pos2::ZERO, |a, b| Pos2::new(a.x + b.x, a.y + b.y));
+        let pts: Vec<Pos2> = ring
+            .iter()
+            .map(|(lo, la)| layout.project(*lo, *la))
+            .collect();
+        let centroid = pts
+            .iter()
+            .fold(Pos2::ZERO, |a, b| Pos2::new(a.x + b.x, a.y + b.y));
         let centroid = Pos2::new(centroid.x / pts.len() as f32, centroid.y / pts.len() as f32);
         for i in 0..pts.len() {
             let a = pts[i];

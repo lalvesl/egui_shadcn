@@ -1,3 +1,5 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_STRIKETHROUGH,
@@ -10,8 +12,6 @@ use egui_shadcn::{
     toggle_group::{ToggleGroup, ToggleGroupItem},
     typography::muted_text,
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -24,22 +24,39 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::BtnSec::HVariants).as_ref(), None);
             ui.horizontal_wrapped(|ui| {
-                if Button::new(tr!(t::BtnSec::Default).as_ref()).show(ui).clicked() { self.btn_clicked = true; }
+                if Button::new(tr!(t::BtnSec::Default).as_ref())
+                    .show(ui)
+                    .clicked()
+                {
+                    self.btn_clicked = true;
+                }
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Destructive).as_ref()).variant(ButtonVariant::Destructive).show(ui);
+                Button::new(tr!(t::BtnSec::Destructive).as_ref())
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Outline).as_ref()).variant(ButtonVariant::Outline).show(ui);
+                Button::new(tr!(t::BtnSec::Outline).as_ref())
+                    .variant(ButtonVariant::Outline)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Secondary).as_ref()).variant(ButtonVariant::Secondary).show(ui);
+                Button::new(tr!(t::BtnSec::Secondary).as_ref())
+                    .variant(ButtonVariant::Secondary)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Ghost).as_ref()).variant(ButtonVariant::Ghost).show(ui);
+                Button::new(tr!(t::BtnSec::Ghost).as_ref())
+                    .variant(ButtonVariant::Ghost)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Link).as_ref()).variant(ButtonVariant::Link).show(ui);
+                Button::new(tr!(t::BtnSec::Link).as_ref())
+                    .variant(ButtonVariant::Link)
+                    .show(ui);
             });
             if self.btn_clicked {
                 Spacing::Sm.show(ui);
                 muted_text(ui, tr!(t::BtnSec::Clicked).as_ref());
-                if ui.small_button(tr!(t::BtnSec::Dismiss).as_ref()).clicked() { self.btn_clicked = false; }
+                if ui.small_button(tr!(t::BtnSec::Dismiss).as_ref()).clicked() {
+                    self.btn_clicked = false;
+                }
             }
         });
 
@@ -47,11 +64,15 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::BtnSec::HSizes).as_ref(), None);
             ui.horizontal(|ui| {
-                Button::new(tr!(t::BtnSec::Small).as_ref()).size(ButtonSize::Sm).show(ui);
+                Button::new(tr!(t::BtnSec::Small).as_ref())
+                    .size(ButtonSize::Sm)
+                    .show(ui);
                 Spacing::Sm.show(ui);
                 Button::new(tr!(t::BtnSec::Default).as_ref()).show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Large).as_ref()).size(ButtonSize::Lg).show(ui);
+                Button::new(tr!(t::BtnSec::Large).as_ref())
+                    .size(ButtonSize::Lg)
+                    .show(ui);
             });
         });
 
@@ -61,7 +82,9 @@ impl DemoApp {
             ui.horizontal(|ui| {
                 Button::new(tr!(t::BtnSec::Enabled).as_ref()).show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Disabled).as_ref()).enabled(false).show(ui);
+                Button::new(tr!(t::BtnSec::Disabled).as_ref())
+                    .enabled(false)
+                    .show(ui);
             });
         });
 
@@ -69,15 +92,29 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::BtnSec::HWithIcon).as_ref(), None);
             ui.horizontal_wrapped(|ui| {
-                Button::new(tr!(t::BtnSec::Send).as_ref()).icon(ICON_SEND).show(ui);
+                Button::new(tr!(t::BtnSec::Send).as_ref())
+                    .icon(ICON_SEND)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Mail).as_ref()).icon(ICON_MAIL).variant(ButtonVariant::Outline).show(ui);
+                Button::new(tr!(t::BtnSec::Mail).as_ref())
+                    .icon(ICON_MAIL)
+                    .variant(ButtonVariant::Outline)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Download).as_ref()).icon(ICON_DOWNLOAD).variant(ButtonVariant::Secondary).show(ui);
+                Button::new(tr!(t::BtnSec::Download).as_ref())
+                    .icon(ICON_DOWNLOAD)
+                    .variant(ButtonVariant::Secondary)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Search).as_ref()).icon(ICON_SEARCH).variant(ButtonVariant::Ghost).show(ui);
+                Button::new(tr!(t::BtnSec::Search).as_ref())
+                    .icon(ICON_SEARCH)
+                    .variant(ButtonVariant::Ghost)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Button::new(tr!(t::BtnSec::Add).as_ref()).icon(ICON_ADD).variant(ButtonVariant::Destructive).show(ui);
+                Button::new(tr!(t::BtnSec::Add).as_ref())
+                    .icon(ICON_ADD)
+                    .variant(ButtonVariant::Destructive)
+                    .show(ui);
             });
         });
     }
@@ -91,11 +128,17 @@ impl DemoApp {
             ui.horizontal(|ui| {
                 Badge::new(tr!(t::BadgeSec::Default).as_ref()).show(ui);
                 Spacing::Sm.show(ui);
-                Badge::new(tr!(t::BadgeSec::Secondary).as_ref()).variant(BadgeVariant::Secondary).show(ui);
+                Badge::new(tr!(t::BadgeSec::Secondary).as_ref())
+                    .variant(BadgeVariant::Secondary)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Badge::new(tr!(t::BadgeSec::Destructive).as_ref()).variant(BadgeVariant::Destructive).show(ui);
+                Badge::new(tr!(t::BadgeSec::Destructive).as_ref())
+                    .variant(BadgeVariant::Destructive)
+                    .show(ui);
                 Spacing::Sm.show(ui);
-                Badge::new(tr!(t::BadgeSec::Outline).as_ref()).variant(BadgeVariant::Outline).show(ui);
+                Badge::new(tr!(t::BadgeSec::Outline).as_ref())
+                    .variant(BadgeVariant::Outline)
+                    .show(ui);
             });
         });
     }
@@ -111,7 +154,10 @@ impl DemoApp {
             let weeks = tr!(t::BtnGrpSec::Weeks);
             let days = tr!(t::BtnGrpSec::Days);
             let labels = &[months.as_ref(), weeks.as_ref(), days.as_ref()];
-            if let Some(i) = ButtonGroup::new(labels).selected(self.button_group_sel).show(ui) {
+            if let Some(i) = ButtonGroup::new(labels)
+                .selected(self.button_group_sel)
+                .show(ui)
+            {
                 self.button_group_sel = Some(i);
             }
         });
@@ -150,13 +196,27 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::ToggleSec::HWithIcon).as_ref(), None);
             ui.horizontal(|ui| {
-                Toggle::new(&mut self.toggle_bold, tr!(t::ToggleSec::Bold).as_ref()).icon(ICON_FORMAT_BOLD).show(ui);
+                Toggle::new(&mut self.toggle_bold, tr!(t::ToggleSec::Bold).as_ref())
+                    .icon(ICON_FORMAT_BOLD)
+                    .show(ui);
                 Spacing::Xs.show(ui);
-                Toggle::new(&mut self.toggle_italic, tr!(t::ToggleSec::Italic).as_ref()).icon(ICON_FORMAT_ITALIC).show(ui);
+                Toggle::new(&mut self.toggle_italic, tr!(t::ToggleSec::Italic).as_ref())
+                    .icon(ICON_FORMAT_ITALIC)
+                    .show(ui);
                 Spacing::Xs.show(ui);
-                Toggle::new(&mut self.toggle_underline, tr!(t::ToggleSec::Underline).as_ref()).icon(ICON_FORMAT_UNDERLINE).show(ui);
+                Toggle::new(
+                    &mut self.toggle_underline,
+                    tr!(t::ToggleSec::Underline).as_ref(),
+                )
+                .icon(ICON_FORMAT_UNDERLINE)
+                .show(ui);
                 Spacing::Xs.show(ui);
-                Toggle::new(&mut self.toggle_strikethrough, tr!(t::ToggleSec::Strikethrough).as_ref()).icon(ICON_FORMAT_STRIKETHROUGH).show(ui);
+                Toggle::new(
+                    &mut self.toggle_strikethrough,
+                    tr!(t::ToggleSec::Strikethrough).as_ref(),
+                )
+                .icon(ICON_FORMAT_STRIKETHROUGH)
+                .show(ui);
             });
         });
 
@@ -165,9 +225,13 @@ impl DemoApp {
             card_header(ui, tr!(t::ToggleSec::HDisabled).as_ref(), None);
             let mut dummy = true;
             ui.horizontal(|ui| {
-                Toggle::new(&mut dummy, tr!(t::ToggleSec::DisabledOn).as_ref()).enabled(false).show(ui);
+                Toggle::new(&mut dummy, tr!(t::ToggleSec::DisabledOn).as_ref())
+                    .enabled(false)
+                    .show(ui);
                 let mut dummy2 = false;
-                Toggle::new(&mut dummy2, tr!(t::ToggleSec::DisabledOff).as_ref()).enabled(false).show(ui);
+                Toggle::new(&mut dummy2, tr!(t::ToggleSec::DisabledOff).as_ref())
+                    .enabled(false)
+                    .show(ui);
             });
         });
     }
@@ -182,9 +246,27 @@ impl DemoApp {
         let month = tr!(t::ToggleGrpSec::Month);
 
         let items: &[(u8, ToggleGroupItem<'_>)] = &[
-            (0, ToggleGroupItem { label: day.as_ref(),   icon: None }),
-            (1, ToggleGroupItem { label: week.as_ref(),  icon: None }),
-            (2, ToggleGroupItem { label: month.as_ref(), icon: None }),
+            (
+                0,
+                ToggleGroupItem {
+                    label: day.as_ref(),
+                    icon: None,
+                },
+            ),
+            (
+                1,
+                ToggleGroupItem {
+                    label: week.as_ref(),
+                    icon: None,
+                },
+            ),
+            (
+                2,
+                ToggleGroupItem {
+                    label: month.as_ref(),
+                    icon: None,
+                },
+            ),
         ];
 
         Card::new().show(ui, |ui| {
@@ -193,7 +275,10 @@ impl DemoApp {
             Spacing::Xs.show(ui);
             let names = [day.as_ref(), week.as_ref(), month.as_ref()];
             let selected_name = names[self.toggle_group_val as usize];
-            muted_text(ui, tr!(t::ToggleGrpSec::Selected, value = selected_name).as_ref());
+            muted_text(
+                ui,
+                tr!(t::ToggleGrpSec::Selected, value = selected_name).as_ref(),
+            );
         });
     }
 }

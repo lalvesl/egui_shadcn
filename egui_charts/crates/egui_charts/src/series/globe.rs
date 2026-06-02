@@ -150,8 +150,10 @@ pub fn render(
         for poly in polys {
             if poly.len() >= 3 {
                 let centroid = poly.iter().fold(Pos2::ZERO, |a, b| a + b.to_vec2());
-                let centroid =
-                    Pos2::new(centroid.x / poly.len() as f32, centroid.y / poly.len() as f32);
+                let centroid = Pos2::new(
+                    centroid.x / poly.len() as f32,
+                    centroid.y / poly.len() as f32,
+                );
                 for i in 0..poly.len() {
                     let a = poly[i];
                     let b = poly[(i + 1) % poly.len()];

@@ -68,13 +68,23 @@ pub fn render(
         let dir = layout.polar.dir(spoke.angle_rad);
         let label_anchor = center + dir * (outer + 14.0);
         let anchor = if dir.x.abs() > 0.5 {
-            if dir.x > 0.0 { Align2::LEFT_CENTER } else { Align2::RIGHT_CENTER }
+            if dir.x > 0.0 {
+                Align2::LEFT_CENTER
+            } else {
+                Align2::RIGHT_CENTER
+            }
         } else if dir.y < 0.0 {
             Align2::CENTER_BOTTOM
         } else {
             Align2::CENTER_TOP
         };
-        p.text(label_anchor, anchor, spoke.label.clone(), font.clone(), theme.text_dim);
+        p.text(
+            label_anchor,
+            anchor,
+            spoke.label.clone(),
+            font.clone(),
+            theme.text_dim,
+        );
     }
 
     // Hover hit: nearest dataset vertex within 12px.
@@ -96,7 +106,8 @@ pub fn render(
 
         // Fill (translucent).
         if polygon.len() >= 3 {
-            let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), ds.fill_alpha);
+            let fill =
+                Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), ds.fill_alpha);
             // convex_polygon expects convex shape; radar polygon may be
             // non-convex, so fan-triangulate from center instead.
             for i in 0..polygon.len() {
@@ -123,11 +134,7 @@ pub fn render(
                     let v = ds.values.get(i).copied().unwrap_or(0.0);
                     tip = Some(TooltipDatum {
                         series_index: series_idx,
-                        series_name: format!(
-                            "{} · {}",
-                            ds.name,
-                            s.indicators[i].name
-                        ),
+                        series_name: format!("{} · {}", ds.name, s.indicators[i].name),
                         data_index: i,
                         value: v,
                         color,

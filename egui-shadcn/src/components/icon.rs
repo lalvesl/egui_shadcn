@@ -16,7 +16,12 @@ pub struct Icon {
 
 impl Icon {
     pub fn new(glyph: &'static str) -> Self {
-        Self { glyph, size: 20.0, color: None, sense: Sense::hover() }
+        Self {
+            glyph,
+            size: 20.0,
+            color: None,
+            sense: Sense::hover(),
+        }
     }
 
     pub fn size(mut self, s: f32) -> Self {

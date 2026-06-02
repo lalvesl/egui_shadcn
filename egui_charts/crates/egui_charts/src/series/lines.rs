@@ -35,8 +35,14 @@ pub fn render(
     let mut best_dist = f32::INFINITY;
 
     for (i, seg) in s.segments.iter().enumerate() {
-        let a = layout.to_screen(DataPoint { x: seg.from.0, y: seg.from.1 });
-        let b = layout.to_screen(DataPoint { x: seg.to.0, y: seg.to.1 });
+        let a = layout.to_screen(DataPoint {
+            x: seg.from.0,
+            y: seg.from.1,
+        });
+        let b = layout.to_screen(DataPoint {
+            x: seg.to.0,
+            y: seg.to.1,
+        });
 
         let t = ((seg.value - vmin) / vrange).clamp(0.0, 1.0);
         let mapped = palette[((t * last as f64).round() as usize).min(last)];

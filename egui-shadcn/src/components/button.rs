@@ -75,11 +75,8 @@ impl<'a> Button<'a> {
         );
 
         let icon_galley = self.icon.map(|i| {
-            ui.painter().layout_no_wrap(
-                i.to_owned(),
-                crate::icon_font_id(font_size + 2.0),
-                fg,
-            )
+            ui.painter()
+                .layout_no_wrap(i.to_owned(), crate::icon_font_id(font_size + 2.0), fg)
         });
 
         let text_w = text_galley.size().x;
@@ -140,8 +137,7 @@ impl<'a> Button<'a> {
             let start_x = rect.center().x - total_content_w / 2.0;
 
             if let Some(g) = icon_galley {
-                let icon_pos =
-                    egui::Pos2::new(start_x, rect.center().y - g.size().y / 2.0);
+                let icon_pos = egui::Pos2::new(start_x, rect.center().y - g.size().y / 2.0);
                 painter.galley(icon_pos, g, text_color);
             }
 

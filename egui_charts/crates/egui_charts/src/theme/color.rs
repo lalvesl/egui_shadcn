@@ -80,7 +80,11 @@ pub fn to_oklch(c: Color32) -> Oklch {
     let chroma = (a * a + b2 * b2).sqrt();
     let hue = b2.atan2(a).to_degrees();
     let hue = if hue < 0.0 { hue + 360.0 } else { hue };
-    Oklch { l, c: chroma, h: hue }
+    Oklch {
+        l,
+        c: chroma,
+        h: hue,
+    }
 }
 
 pub fn from_oklch(c: Oklch) -> Color32 {
@@ -88,9 +92,15 @@ pub fn from_oklch(c: Oklch) -> Color32 {
     let a = c.c * hue_rad.cos();
     let b = c.c * hue_rad.sin();
     let (lr, lg, lb) = oklab_to_linear(c.l, a, b);
-    let r = (linear_to_srgb(lr.clamp(0.0, 1.0)) * 255.0).round().clamp(0.0, 255.0) as u8;
-    let g = (linear_to_srgb(lg.clamp(0.0, 1.0)) * 255.0).round().clamp(0.0, 255.0) as u8;
-    let b = (linear_to_srgb(lb.clamp(0.0, 1.0)) * 255.0).round().clamp(0.0, 255.0) as u8;
+    let r = (linear_to_srgb(lr.clamp(0.0, 1.0)) * 255.0)
+        .round()
+        .clamp(0.0, 255.0) as u8;
+    let g = (linear_to_srgb(lg.clamp(0.0, 1.0)) * 255.0)
+        .round()
+        .clamp(0.0, 255.0) as u8;
+    let b = (linear_to_srgb(lb.clamp(0.0, 1.0)) * 255.0)
+        .round()
+        .clamp(0.0, 255.0) as u8;
     Color32::from_rgb(r, g, b)
 }
 
@@ -132,7 +142,10 @@ mod tests {
             let dr = (back.r() as i32 - c.r() as i32).abs();
             let dg = (back.g() as i32 - c.g() as i32).abs();
             let db = (back.b() as i32 - c.b() as i32).abs();
-            assert!(dr <= 1 && dg <= 1 && db <= 1, "round-trip drift {c:?} → {back:?}");
+            assert!(
+                dr <= 1 && dg <= 1 && db <= 1,
+                "round-trip drift {c:?} → {back:?}"
+            );
         }
     }
 }

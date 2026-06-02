@@ -1,6 +1,6 @@
 use super::boxed::Boxed;
 use super::spacing::Spacing;
-use crate::{ShadcnTheme, ICON_CLOSE};
+use crate::{ICON_CLOSE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Stroke, Vec2};
 
 pub struct Drawer<'a> {
@@ -84,10 +84,8 @@ impl<'a> Drawer<'a> {
                     // Drag handle
                     if show_handle {
                         ui.vertical_centered(|ui| {
-                            let (handle_rect, _) = ui.allocate_exact_size(
-                                Vec2::new(40.0, 4.0),
-                                egui::Sense::hover(),
-                            );
+                            let (handle_rect, _) =
+                                ui.allocate_exact_size(Vec2::new(40.0, 4.0), egui::Sense::hover());
                             ui.painter().rect_filled(
                                 handle_rect,
                                 CornerRadius::same(2),

@@ -109,8 +109,12 @@ pub fn render(
 
         let hovered = hover_pos.map(|h| cell_rect.contains(h)).unwrap_or(false);
         if hovered {
-            p.painter
-                .rect_stroke(cell_rect, 0.0, Stroke::new(1.5, theme.text), StrokeKind::Inside);
+            p.painter.rect_stroke(
+                cell_rect,
+                0.0,
+                Stroke::new(1.5, theme.text),
+                StrokeKind::Inside,
+            );
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: format!("{} · day {}", s.name, doy),

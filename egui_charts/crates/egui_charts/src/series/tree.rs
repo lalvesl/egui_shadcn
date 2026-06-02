@@ -26,10 +26,30 @@ pub fn render(
     let inner = rect.shrink2(egui::vec2(pad_x, pad_y));
 
     let (level_axis_size, leaf_axis_size, level_dir, leaf_dir) = match s.orientation {
-        TreeOrientation::LeftRight => (inner.width(), inner.height(), egui::vec2(1.0, 0.0), egui::vec2(0.0, 1.0)),
-        TreeOrientation::RightLeft => (inner.width(), inner.height(), egui::vec2(-1.0, 0.0), egui::vec2(0.0, 1.0)),
-        TreeOrientation::TopBottom => (inner.height(), inner.width(), egui::vec2(0.0, 1.0), egui::vec2(1.0, 0.0)),
-        TreeOrientation::BottomTop => (inner.height(), inner.width(), egui::vec2(0.0, -1.0), egui::vec2(1.0, 0.0)),
+        TreeOrientation::LeftRight => (
+            inner.width(),
+            inner.height(),
+            egui::vec2(1.0, 0.0),
+            egui::vec2(0.0, 1.0),
+        ),
+        TreeOrientation::RightLeft => (
+            inner.width(),
+            inner.height(),
+            egui::vec2(-1.0, 0.0),
+            egui::vec2(0.0, 1.0),
+        ),
+        TreeOrientation::TopBottom => (
+            inner.height(),
+            inner.width(),
+            egui::vec2(0.0, 1.0),
+            egui::vec2(1.0, 0.0),
+        ),
+        TreeOrientation::BottomTop => (
+            inner.height(),
+            inner.width(),
+            egui::vec2(0.0, -1.0),
+            egui::vec2(1.0, 0.0),
+        ),
         TreeOrientation::Radial => {
             return draw_radial(p, s, series_idx, rect, theme, palette_offset, hover_pos);
         }
@@ -176,19 +196,26 @@ fn draw_nodes(
         } else {
             Align2::CENTER_BOTTOM
         };
-        p.text(n.pos + offset, anchor, n.name.clone(), font.clone(), theme.text);
+        p.text(
+            n.pos + offset,
+            anchor,
+            n.name.clone(),
+            font.clone(),
+            theme.text,
+        );
 
         if let Some(h) = hover_pos
-            && (h - n.pos).length_sq() <= 64.0 {
-                tip = Some(TooltipDatum {
-                    series_index: series_idx,
-                    series_name: n.name.clone(),
-                    data_index: i,
-                    value: 0.0,
-                    color,
-                    screen_pos: Some(n.pos),
-                });
-            }
+            && (h - n.pos).length_sq() <= 64.0
+        {
+            tip = Some(TooltipDatum {
+                series_index: series_idx,
+                series_name: n.name.clone(),
+                data_index: i,
+                value: 0.0,
+                color,
+                screen_pos: Some(n.pos),
+            });
+        }
     }
 
     tip
@@ -273,7 +300,16 @@ fn draw_radial(
         out[self_idx].pos = pos;
         (self_idx, angle)
     }
-    layout_polar(&s.root, 0, center, ring_w, leaves, &mut leaf_counter, None, &mut nodes);
+    layout_polar(
+        &s.root,
+        0,
+        center,
+        ring_w,
+        leaves,
+        &mut leaf_counter,
+        None,
+        &mut nodes,
+    );
 
     let edge_stroke = Stroke::new(1.0, theme.text_dim);
     let font = label_font();
@@ -287,18 +323,25 @@ fn draw_radial(
     for (i, n) in nodes.iter().enumerate() {
         let color = theme.series_color(palette_offset + (if n.leaf { 1 } else { 0 }));
         p.circle_filled(n.pos, 5.0, color);
-        p.text(n.pos + egui::vec2(8.0, -8.0), Align2::LEFT_CENTER, n.name.clone(), font.clone(), theme.text);
+        p.text(
+            n.pos + egui::vec2(8.0, -8.0),
+            Align2::LEFT_CENTER,
+            n.name.clone(),
+            font.clone(),
+            theme.text,
+        );
         if let Some(h) = hover_pos
-            && (h - n.pos).length_sq() <= 64.0 {
-                tip = Some(TooltipDatum {
-                    series_index: series_idx,
-                    series_name: n.name.clone(),
-                    data_index: i,
-                    value: 0.0,
-                    color,
-                    screen_pos: Some(n.pos),
-                });
-            }
+            && (h - n.pos).length_sq() <= 64.0
+        {
+            tip = Some(TooltipDatum {
+                series_index: series_idx,
+                series_name: n.name.clone(),
+                data_index: i,
+                value: 0.0,
+                color,
+                screen_pos: Some(n.pos),
+            });
+        }
     }
 
     tip

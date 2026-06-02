@@ -47,7 +47,9 @@ pub fn render(
         out_sum[l.source] += l.value;
         in_sum[l.target] += l.value;
     }
-    let node_val: Vec<f64> = (0..n).map(|i| in_sum[i].max(out_sum[i]).max(1e-12)).collect();
+    let node_val: Vec<f64> = (0..n)
+        .map(|i| in_sum[i].max(out_sum[i]).max(1e-12))
+        .collect();
 
     // Group nodes by layer.
     let mut layers: Vec<Vec<usize>> = vec![Vec::new(); max_layer + 1];
@@ -68,14 +70,18 @@ pub fn render(
     let layer_count = max_layer + 1;
     let layer_x: Vec<f32> = (0..layer_count)
         .map(|i| {
-            inner.min.x + s.node_width * 0.5
+            inner.min.x
+                + s.node_width * 0.5
                 + (inner.width() - s.node_width) * (i as f32 / (layer_count - 1).max(1) as f32)
         })
         .collect();
 
     let usable_h = inner.height();
     let scale: f32 = ((usable_h
-        - layers.iter().map(|l| (l.len().saturating_sub(1)) as f32).fold(0.0_f32, f32::max)
+        - layers
+            .iter()
+            .map(|l| (l.len().saturating_sub(1)) as f32)
+            .fold(0.0_f32, f32::max)
             * s.node_gap)
         / max_layer_total as f32)
         .max(1.0);
@@ -83,7 +89,10 @@ pub fn render(
     // Compute each node's (y_top, y_bottom).
     let mut node_rect = vec![Rect::NOTHING; n];
     for (li, nodes) in layers.iter().enumerate() {
-        let total: f32 = nodes.iter().map(|i| node_val[*i] as f32 * scale).sum::<f32>()
+        let total: f32 = nodes
+            .iter()
+            .map(|i| node_val[*i] as f32 * scale)
+            .sum::<f32>()
             + nodes.len().saturating_sub(1) as f32 * s.node_gap;
         let mut y = inner.min.y + (usable_h - total) * 0.5;
         for &i in nodes {
@@ -105,7 +114,11 @@ pub fn render(
 
     // Draw flows first so they sit under the node bars.
     let mut links_sorted: Vec<&SankeyLink> = s.links.iter().collect();
-    links_sorted.sort_by(|a, b| b.value.partial_cmp(&a.value).unwrap_or(std::cmp::Ordering::Equal));
+    links_sorted.sort_by(|a, b| {
+        b.value
+            .partial_cmp(&a.value)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     for (li, link) in links_sorted.iter().enumerate() {
         let src = node_rect[link.source];
         let tgt = node_rect[link.target];
@@ -136,16 +149,20 @@ pub fn render(
                 Pos2::new(src.max.x, src_y1),
                 Pos2::new(tgt.min.x, tgt_y0),
                 Pos2::new(tgt.min.x, tgt_y1),
-            ) {
-                tip = Some(TooltipDatum {
-                    series_index: series_idx,
-                    series_name: format!("{} → {}", s.nodes[link.source].name, s.nodes[link.target].name),
-                    data_index: li,
-                    value: link.value,
-                    color,
-                    screen_pos: None,
-                });
-            }
+            )
+        {
+            tip = Some(TooltipDatum {
+                series_index: series_idx,
+                series_name: format!(
+                    "{} → {}",
+                    s.nodes[link.source].name, s.nodes[link.target].name
+                ),
+                data_index: li,
+                value: link.value,
+                color,
+                screen_pos: None,
+            });
+        }
     }
 
     // Draw node bars.
@@ -167,7 +184,13 @@ pub fn render(
         } else {
             (Pos2::new(r.min.x - 6.0, r.center().y), Align2::RIGHT_CENTER)
         };
-        p.text(lp, anchor, s.nodes[i].name.clone(), font.clone(), theme.text);
+        p.text(
+            lp,
+            anchor,
+            s.nodes[i].name.clone(),
+            font.clone(),
+            theme.text,
+        );
 
         if hovered {
             tip = Some(TooltipDatum {
@@ -207,7 +230,12 @@ fn draw_ribbon(p: &ChartPainter, sa: Pos2, sb: Pos2, ta: Pos2, tb: Pos2, fill: C
     // Decompose into quads for safety (ribbon is monotone in x).
     let half = n + 1;
     for i in 0..(half - 1) {
-        let poly = vec![pts[i], pts[i + 1], pts[2 * half - i - 2], pts[2 * half - i - 1]];
+        let poly = vec![
+            pts[i],
+            pts[i + 1],
+            pts[2 * half - i - 2],
+            pts[2 * half - i - 1],
+        ];
         p.poly(poly, fill, Stroke::NONE);
     }
 }

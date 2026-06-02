@@ -42,7 +42,12 @@ pub fn render(
     let mut tip: Option<TooltipDatum> = None;
 
     // Edges first.
-    let max_link_val = s.links.iter().map(|l| l.value).fold(0.0_f64, f64::max).max(1e-12);
+    let max_link_val = s
+        .links
+        .iter()
+        .map(|l| l.value)
+        .fold(0.0_f64, f64::max)
+        .max(1e-12);
     for link in &s.links {
         if link.source >= n || link.target >= n {
             continue;
@@ -54,12 +59,25 @@ pub fn render(
             theme.axis_line.b(),
             200,
         );
-        p.line(pos[link.source], pos[link.target], Stroke::new(w, stroke_color));
+        p.line(
+            pos[link.source],
+            pos[link.target],
+            Stroke::new(w, stroke_color),
+        );
     }
 
     // Sizes.
-    let max_v = s.nodes.iter().map(|n| n.value).fold(0.0_f64, f64::max).max(1e-12);
-    let min_v = s.nodes.iter().map(|n| n.value).fold(f64::INFINITY, f64::min);
+    let max_v = s
+        .nodes
+        .iter()
+        .map(|n| n.value)
+        .fold(0.0_f64, f64::max)
+        .max(1e-12);
+    let min_v = s
+        .nodes
+        .iter()
+        .map(|n| n.value)
+        .fold(f64::INFINITY, f64::min);
     let font = label_font();
 
     for (i, node) in s.nodes.iter().enumerate() {
@@ -69,7 +87,9 @@ pub fn render(
         let hovered = hover_pos
             .map(|h| (h - pos[i]).length() <= size)
             .unwrap_or(false);
-        let fill = if hovered { color } else {
+        let fill = if hovered {
+            color
+        } else {
             Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 230)
         };
         p.circle_filled(pos[i], size, fill);
@@ -98,13 +118,7 @@ pub fn render(
     tip
 }
 
-fn run_force(
-    pos: &mut [Pos2],
-    n: &usize,
-    links: &[(usize, usize)],
-    rect: Rect,
-    iterations: usize,
-) {
+fn run_force(pos: &mut [Pos2], n: &usize, links: &[(usize, usize)], rect: Rect, iterations: usize) {
     let n = *n;
     if n == 0 {
         return;

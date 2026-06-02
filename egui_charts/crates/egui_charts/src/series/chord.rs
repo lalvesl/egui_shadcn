@@ -38,8 +38,18 @@ pub fn render(
     let mut totals = vec![0.0_f64; n];
     for i in 0..n {
         for j in 0..n {
-            let out = s.matrix.get(i).and_then(|r| r.get(j)).copied().unwrap_or(0.0);
-            let inn = s.matrix.get(j).and_then(|r| r.get(i)).copied().unwrap_or(0.0);
+            let out = s
+                .matrix
+                .get(i)
+                .and_then(|r| r.get(j))
+                .copied()
+                .unwrap_or(0.0);
+            let inn = s
+                .matrix
+                .get(j)
+                .and_then(|r| r.get(i))
+                .copied()
+                .unwrap_or(0.0);
             totals[i] += out;
             if i != j {
                 totals[i] += inn;
@@ -74,7 +84,12 @@ pub fn render(
         let span_i = (end_i - start_i).max(1e-6);
         let total_i = totals[i].max(1e-12);
         for j in 0..n {
-            let out = s.matrix.get(i).and_then(|r| r.get(j)).copied().unwrap_or(0.0);
+            let out = s
+                .matrix
+                .get(i)
+                .and_then(|r| r.get(j))
+                .copied()
+                .unwrap_or(0.0);
             if out <= 0.0 {
                 continue;
             }
@@ -115,7 +130,12 @@ pub fn render(
         let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 100);
         // Approximate ribbon by fanning from center.
         for q in 0..(n_seg) {
-            let poly = vec![pts[q], pts[q + 1], pts[2 * (n_seg + 1) - 1 - q - 1], pts[2 * (n_seg + 1) - 1 - q]];
+            let poly = vec![
+                pts[q],
+                pts[q + 1],
+                pts[2 * (n_seg + 1) - 1 - q - 1],
+                pts[2 * (n_seg + 1) - 1 - q],
+            ];
             p.poly(poly, fill, Stroke::NONE);
         }
 
@@ -159,13 +179,23 @@ pub fn render(
         let dir = polar.dir(mid);
         let label_pos = polar.center + dir * (outer + 14.0);
         let anchor = if dir.x.abs() > 0.5 {
-            if dir.x > 0.0 { Align2::LEFT_CENTER } else { Align2::RIGHT_CENTER }
+            if dir.x > 0.0 {
+                Align2::LEFT_CENTER
+            } else {
+                Align2::RIGHT_CENTER
+            }
         } else if dir.y < 0.0 {
             Align2::CENTER_BOTTOM
         } else {
             Align2::CENTER_TOP
         };
-        p.text(label_pos, anchor, s.labels[i].clone(), font.clone(), theme.text);
+        p.text(
+            label_pos,
+            anchor,
+            s.labels[i].clone(),
+            font.clone(),
+            theme.text,
+        );
     }
 
     tip

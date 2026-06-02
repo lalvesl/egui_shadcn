@@ -98,7 +98,8 @@ mod tests {
     fn material_icons_parses_with_skrifa() {
         use skrifa::MetadataProvider;
         let font_path = concat!(env!("OUT_DIR"), "/MaterialIcons-Regular.ttf");
-        let bytes = std::fs::read(font_path).expect("MaterialIcons font file must exist (run cargo build first)");
+        let bytes = std::fs::read(font_path)
+            .expect("MaterialIcons font file must exist (run cargo build first)");
 
         // Step 1: FontRef::from_index — same call as epaint's FontFace::new
         let font = skrifa::FontRef::from_index(&bytes, 0)

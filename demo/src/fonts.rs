@@ -43,5 +43,3 @@ pub fn register_demo_fonts(ctx: &egui::Context) {
 
     ctx.set_fonts(fonts);
 }
-
-

@@ -87,7 +87,11 @@ impl<'a> Textarea<'a> {
         };
 
         let cr = CornerRadius::same(theme.radius as u8);
-        let bg = if self.enabled { theme.background } else { theme.muted };
+        let bg = if self.enabled {
+            theme.background
+        } else {
+            theme.muted
+        };
 
         let te = egui::TextEdit::multiline(self.value)
             .desired_width(width - h_pad * 2.0)
@@ -126,10 +130,8 @@ impl<'a> Textarea<'a> {
             let inner_rect = rect.shrink2(Vec2::new(h_pad, v_pad));
             // Tall max_rect so TextEdit can allocate its full content height;
             // set_clip_rect ensures nothing bleeds outside the border.
-            let tall_rect = Rect::from_min_size(
-                inner_rect.min,
-                egui::vec2(inner_rect.width(), 10_000.0),
-            );
+            let tall_rect =
+                Rect::from_min_size(inner_rect.min, egui::vec2(inner_rect.width(), 10_000.0));
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(tall_rect)
@@ -185,10 +187,8 @@ impl<'a> Textarea<'a> {
 
         let resp = if self.scroll {
             // Tall child so TextEdit allocates full content; ScrollArea clips+scrolls.
-            let tall_rect = Rect::from_min_size(
-                inner_rect.min,
-                egui::vec2(inner_rect.width(), 10_000.0),
-            );
+            let tall_rect =
+                Rect::from_min_size(inner_rect.min, egui::vec2(inner_rect.width(), 10_000.0));
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(tall_rect)

@@ -67,7 +67,10 @@ pub fn render(
             (0.0, v)
         };
 
-        let center = layout.to_screen(DataPoint { x: i as f64, y: 0.0 });
+        let center = layout.to_screen(DataPoint {
+            x: i as f64,
+            y: 0.0,
+        });
         let p0 = layout.to_screen(DataPoint { x: i as f64, y: y0 });
         let p1 = layout.to_screen(DataPoint { x: i as f64, y: y1 });
 
@@ -77,7 +80,10 @@ pub fn render(
             let slot_h = layout.plot_rect.height() / s.data.len().max(1) as f32;
             let bar_h = slot_h * s.bar_width_ratio;
             let cy = layout
-                .to_screen(DataPoint { x: 0.0, y: i as f64 })
+                .to_screen(DataPoint {
+                    x: 0.0,
+                    y: i as f64,
+                })
                 .y;
             Rect::from_min_max(
                 egui::Pos2::new(p0.x.min(p1.x), cy - bar_h * 0.5),
@@ -104,7 +110,8 @@ pub fn render(
         p.rect_filled(rect, fill);
 
         if is_hovered {
-            p.painter.rect_stroke(rect, 0.0, Stroke::new(1.5, color), StrokeKind::Inside);
+            p.painter
+                .rect_stroke(rect, 0.0, Stroke::new(1.5, color), StrokeKind::Inside);
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: s.name.clone(),

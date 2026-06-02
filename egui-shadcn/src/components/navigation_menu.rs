@@ -112,11 +112,8 @@ impl<'a> NavigationMenu<'a> {
                 let badge_x = item_rect.right() - h_padding - 10.0;
                 let badge_center = egui::Pos2::new(badge_x, item_rect.center().y);
                 let badge_rect = egui::Rect::from_center_size(badge_center, Vec2::new(20.0, 16.0));
-                ui.painter().rect_filled(
-                    badge_rect,
-                    CornerRadius::same(8),
-                    theme.primary,
-                );
+                ui.painter()
+                    .rect_filled(badge_rect, CornerRadius::same(8), theme.primary);
                 ui.painter().text(
                     badge_center,
                     egui::Align2::CENTER_CENTER,

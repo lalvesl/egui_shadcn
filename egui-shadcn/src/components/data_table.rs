@@ -1,8 +1,8 @@
 use super::spacing::Spacing;
 use crate::i18n;
-use crate::{ShadcnTheme, ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH};
-use egui::{Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2};
+use crate::{ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH, ShadcnTheme};
 use ::i18n::t;
+use egui::{Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2};
 
 pub struct DataColumn<'a> {
     pub header: &'a str,
@@ -25,11 +25,7 @@ pub struct DataTable<'a> {
 }
 
 impl<'a> DataTable<'a> {
-    pub fn new(
-        id: &'a str,
-        columns: &'a [DataColumn<'a>],
-        filter: &'a mut String,
-    ) -> Self {
+    pub fn new(id: &'a str, columns: &'a [DataColumn<'a>], filter: &'a mut String) -> Self {
         Self {
             id,
             columns,
@@ -61,11 +57,8 @@ impl<'a> DataTable<'a> {
         let page_id = base_id.with("page");
 
         // State
-        let mut sort_state: Option<(usize, SortDir)> =
-            ui.ctx().data(|d| d.get_temp(sort_id));
-        let mut current_page: usize = ui
-            .ctx()
-            .data(|d| d.get_temp::<usize>(page_id).unwrap_or(0));
+        let mut sort_state: Option<(usize, SortDir)> = ui.ctx().data(|d| d.get_temp(sort_id));
+        let mut current_page: usize = ui.ctx().data(|d| d.get_temp::<usize>(page_id).unwrap_or(0));
 
         let mut sort_changed: Option<(usize, SortDir)> = None;
 
@@ -137,8 +130,10 @@ impl<'a> DataTable<'a> {
         let mut col_x = table_rect.left();
         for (ci, col) in self.columns.iter().enumerate() {
             let cw = col_widths[ci];
-            let cell_rect =
-                Rect::from_min_size(Pos2::new(col_x, header_rect.top()), Vec2::new(cw, header_height));
+            let cell_rect = Rect::from_min_size(
+                Pos2::new(col_x, header_rect.top()),
+                Vec2::new(cw, header_height),
+            );
 
             let text_x = cell_rect.left() + 12.0;
             ui.painter().text(
@@ -163,9 +158,12 @@ impl<'a> DataTable<'a> {
                     ShadcnTheme::with_alpha(theme.muted_foreground, 80)
                 };
                 let icon_x = cell_rect.right() - 20.0;
-                let icon_rect =
-                    Rect::from_center_size(Pos2::new(icon_x, cell_rect.center().y), Vec2::splat(20.0));
-                let icon_resp = ui.interact(icon_rect, base_id.with(("sort_btn", ci)), Sense::click());
+                let icon_rect = Rect::from_center_size(
+                    Pos2::new(icon_x, cell_rect.center().y),
+                    Vec2::splat(20.0),
+                );
+                let icon_resp =
+                    ui.interact(icon_rect, base_id.with(("sort_btn", ci)), Sense::click());
                 if icon_resp.hovered() {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 }
@@ -187,7 +185,8 @@ impl<'a> DataTable<'a> {
                 }
 
                 // Also allow clicking on full header cell
-                let header_resp = ui.interact(cell_rect, base_id.with(("hdr_click", ci)), Sense::click());
+                let header_resp =
+                    ui.interact(cell_rect, base_id.with(("hdr_click", ci)), Sense::click());
                 if header_resp.hovered() {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     ui.painter().rect_filled(
@@ -304,7 +303,7 @@ impl<'a> DataTable<'a> {
                         let page_label = t!(
                             i18n::DataTable::Page,
                             current = current_num,
-                            total   = total_pages
+                            total = total_pages
                         );
                         ui.label(
                             egui::RichText::new(page_label.as_ref())

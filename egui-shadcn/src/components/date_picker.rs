@@ -1,7 +1,7 @@
 use crate::i18n;
-use crate::{CalDate, ShadcnTheme, ICON_CALENDAR_TODAY};
-use egui::{CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use crate::{CalDate, ICON_CALENDAR_TODAY, ShadcnTheme};
 use ::i18n::t;
+use egui::{CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
 
 pub struct DatePicker<'a> {
     id: &'a str,

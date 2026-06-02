@@ -8,9 +8,15 @@ pub struct Breadcrumb<'a> {
 
 impl<'a> Breadcrumb<'a> {
     pub fn new(items: &'a [&'a str]) -> Self {
-        Self { items, separator: "/" }
+        Self {
+            items,
+            separator: "/",
+        }
     }
-    pub fn separator(mut self, s: &'a str) -> Self { self.separator = s; self }
+    pub fn separator(mut self, s: &'a str) -> Self {
+        self.separator = s;
+        self
+    }
 
     /// Returns Some(index) if a non-last item was clicked.
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
@@ -23,7 +29,11 @@ impl<'a> Breadcrumb<'a> {
             ui.spacing_mut().item_spacing.x = 4.0;
             for (i, item) in self.items.iter().enumerate() {
                 let is_last = i == last;
-                let color = if is_last { theme.foreground } else { theme.muted_foreground };
+                let color = if is_last {
+                    theme.foreground
+                } else {
+                    theme.muted_foreground
+                };
 
                 let galley = ui.painter().layout_no_wrap(
                     item.to_string(),
@@ -31,7 +41,11 @@ impl<'a> Breadcrumb<'a> {
                     color,
                 );
                 let size = galley.size();
-                let sense = if is_last { Sense::hover() } else { Sense::click() };
+                let sense = if is_last {
+                    Sense::hover()
+                } else {
+                    Sense::click()
+                };
                 let (rect, resp) = ui.allocate_exact_size(size, sense);
 
                 if !is_last && resp.hovered() {

@@ -1,7 +1,6 @@
 use std::{fs, io::Read, path::PathBuf};
 
-const NERD_FONT_URL: &str =
-    "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf";
+const NERD_FONT_URL: &str = "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf";
 
 const FALLBACK_FONT_URL: &str =
     "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf";

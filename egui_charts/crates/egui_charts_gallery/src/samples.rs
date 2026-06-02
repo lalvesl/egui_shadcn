@@ -63,22 +63,15 @@ fn line_sample() -> Chart {
         .title("Website traffic — last 12 weeks")
         .x_axis(Axis::category((1..=12).map(|i| format!("W{i}"))))
         .y_axis(Axis::value().name("Visitors (k)"))
-        .series(
-            LineSeries::new("Direct")
-                .smooth(true)
-                .area()
-                .data([22.0, 25.0, 30.0, 28.0, 35.0, 38.0, 42.0, 45.0, 50.0, 48.0, 55.0, 62.0]),
-        )
-        .series(
-            LineSeries::new("Search")
-                .smooth(true)
-                .data([18.0, 19.0, 22.0, 20.0, 24.0, 27.0, 26.0, 30.0, 35.0, 33.0, 40.0, 45.0]),
-        )
-        .series(
-            LineSeries::new("Referral")
-                .step()
-                .data([8.0, 9.0, 11.0, 12.0, 12.0, 14.0, 16.0, 17.0, 17.0, 19.0, 21.0, 22.0]),
-        )
+        .series(LineSeries::new("Direct").smooth(true).area().data([
+            22.0, 25.0, 30.0, 28.0, 35.0, 38.0, 42.0, 45.0, 50.0, 48.0, 55.0, 62.0,
+        ]))
+        .series(LineSeries::new("Search").smooth(true).data([
+            18.0, 19.0, 22.0, 20.0, 24.0, 27.0, 26.0, 30.0, 35.0, 33.0, 40.0, 45.0,
+        ]))
+        .series(LineSeries::new("Referral").step().data([
+            8.0, 9.0, 11.0, 12.0, 12.0, 14.0, 16.0, 17.0, 17.0, 19.0, 21.0, 22.0,
+        ]))
 }
 
 fn bar_sample() -> Chart {
@@ -86,9 +79,21 @@ fn bar_sample() -> Chart {
         .title("Quarterly revenue by region")
         .x_axis(Axis::category(["Q1", "Q2", "Q3", "Q4"]))
         .y_axis(Axis::value().name("Revenue ($M)"))
-        .series(BarSeries::new("EMEA").stack("rev").data([12.0, 18.0, 9.0, 22.0]))
-        .series(BarSeries::new("AMER").stack("rev").data([15.0, 14.0, 19.0, 17.0]))
-        .series(BarSeries::new("APAC").stack("rev").data([7.0, 9.0, 13.0, 11.0]))
+        .series(
+            BarSeries::new("EMEA")
+                .stack("rev")
+                .data([12.0, 18.0, 9.0, 22.0]),
+        )
+        .series(
+            BarSeries::new("AMER")
+                .stack("rev")
+                .data([15.0, 14.0, 19.0, 17.0]),
+        )
+        .series(
+            BarSeries::new("APAC")
+                .stack("rev")
+                .data([7.0, 9.0, 13.0, 11.0]),
+        )
 }
 
 fn scatter_sample() -> Chart {
@@ -119,9 +124,11 @@ fn scatter_sample() -> Chart {
                 .symbol(SymbolKind::Circle)
                 .size(6.0),
         )
-        .series(
-            Series::Scatter(ScatterSeries::new("bubbles").bubbles(bubbles).symbol(SymbolKind::Diamond)),
-        )
+        .series(Series::Scatter(
+            ScatterSeries::new("bubbles")
+                .bubbles(bubbles)
+                .symbol(SymbolKind::Diamond),
+        ))
 }
 
 fn effect_scatter_sample() -> Chart {
@@ -195,7 +202,9 @@ fn heatmap_sample() -> Chart {
     Chart::new()
         .title("Active users by weekday / hour")
         .x_axis(Axis::category((0..24).map(|h| format!("{h:02}"))))
-        .y_axis(Axis::category(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]))
+        .y_axis(Axis::category([
+            "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+        ]))
         .series(HeatmapSeries::new("users").data(cells))
 }
 
@@ -257,35 +266,31 @@ fn lines_cartesian_sample() -> Chart {
 }
 
 fn pie_sample() -> Chart {
-    Chart::new()
-        .title("Browser market share")
-        .series(
-            PieSeries::new("Browsers")
-                .data([
-                    ("Chrome", 64.0),
-                    ("Safari", 19.0),
-                    ("Edge", 5.0),
-                    ("Firefox", 3.0),
-                    ("Other", 9.0),
-                ])
-                .pad_angle(1.0),
-        )
+    Chart::new().title("Browser market share").series(
+        PieSeries::new("Browsers")
+            .data([
+                ("Chrome", 64.0),
+                ("Safari", 19.0),
+                ("Edge", 5.0),
+                ("Firefox", 3.0),
+                ("Other", 9.0),
+            ])
+            .pad_angle(1.0),
+    )
 }
 
 fn doughnut_sample() -> Chart {
-    Chart::new()
-        .title("Quarterly revenue split")
-        .series(
-            PieSeries::new("Revenue")
-                .data([
-                    ("EMEA", 42.0),
-                    ("AMER", 58.0),
-                    ("APAC", 31.0),
-                    ("LATAM", 14.0),
-                ])
-                .doughnut(0.55)
-                .pad_angle(2.0),
-        )
+    Chart::new().title("Quarterly revenue split").series(
+        PieSeries::new("Revenue")
+            .data([
+                ("EMEA", 42.0),
+                ("AMER", 58.0),
+                ("APAC", 31.0),
+                ("LATAM", 14.0),
+            ])
+            .doughnut(0.55)
+            .pad_angle(2.0),
+    )
 }
 
 fn rose_sample() -> Chart {
@@ -309,87 +314,73 @@ fn rose_sample() -> Chart {
 }
 
 fn radar_sample() -> Chart {
-    Chart::new()
-        .title("Product fit by segment")
-        .series(
-            RadarSeries::new("Segments")
-                .indicators([
-                    ("Performance", 100.0),
-                    ("Ergonomics", 100.0),
-                    ("Cost", 100.0),
-                    ("Reliability", 100.0),
-                    ("Power efficiency", 100.0),
-                    ("Aesthetics", 100.0),
-                ])
-                .dataset(
-                    RadarDataset::new("Current")
-                        .values([78.0, 88.0, 64.0, 92.0, 70.0, 55.0]),
-                )
-                .dataset(
-                    RadarDataset::new("Competitor")
-                        .values([65.0, 70.0, 80.0, 60.0, 85.0, 78.0]),
-                ),
-        )
+    Chart::new().title("Product fit by segment").series(
+        RadarSeries::new("Segments")
+            .indicators([
+                ("Performance", 100.0),
+                ("Ergonomics", 100.0),
+                ("Cost", 100.0),
+                ("Reliability", 100.0),
+                ("Power efficiency", 100.0),
+                ("Aesthetics", 100.0),
+            ])
+            .dataset(RadarDataset::new("Current").values([78.0, 88.0, 64.0, 92.0, 70.0, 55.0]))
+            .dataset(RadarDataset::new("Competitor").values([65.0, 70.0, 80.0, 60.0, 85.0, 78.0])),
+    )
 }
 
 fn gauge_sample() -> Chart {
-    Chart::new()
-        .title("Cluster CPU usage")
-        .series(
-            GaugeSeries::new("CPU")
-                .range(0.0, 100.0)
-                .value(67.4)
-                .unit("%"),
-        )
+    Chart::new().title("Cluster CPU usage").series(
+        GaugeSeries::new("CPU")
+            .range(0.0, 100.0)
+            .value(67.4)
+            .unit("%"),
+    )
 }
 
 fn polar_bar_sample() -> Chart {
     Chart::new()
         .title("Polar bar — pull requests merged by weekday")
-        .series(
-            PolarBarSeries::new("PRs").data([
-                ("Mon", 32.0),
-                ("Tue", 41.0),
-                ("Wed", 28.0),
-                ("Thu", 38.0),
-                ("Fri", 22.0),
-                ("Sat", 7.0),
-                ("Sun", 4.0),
-            ]),
-        )
+        .series(PolarBarSeries::new("PRs").data([
+            ("Mon", 32.0),
+            ("Tue", 41.0),
+            ("Wed", 28.0),
+            ("Thu", 38.0),
+            ("Fri", 22.0),
+            ("Sat", 7.0),
+            ("Sun", 4.0),
+        ]))
 }
 
 fn sunburst_sample() -> Chart {
     Chart::new()
         .title("Subscription tier breakdown")
-        .series(
-            SunburstSeries::new("Tiers").root(SunburstNode::parent(
-                "All",
-                vec![
-                    SunburstNode::parent(
-                        "Free",
-                        vec![
-                            SunburstNode::leaf("Active", 60.0),
-                            SunburstNode::leaf("Idle", 22.0),
-                        ],
-                    ),
-                    SunburstNode::parent(
-                        "Pro",
-                        vec![
-                            SunburstNode::leaf("Solo", 32.0),
-                            SunburstNode::leaf("Team", 18.0),
-                        ],
-                    ),
-                    SunburstNode::parent(
-                        "Enterprise",
-                        vec![
-                            SunburstNode::leaf("Annual", 8.0),
-                            SunburstNode::leaf("Custom", 5.0),
-                        ],
-                    ),
-                ],
-            )),
-        )
+        .series(SunburstSeries::new("Tiers").root(SunburstNode::parent(
+            "All",
+            vec![
+                SunburstNode::parent(
+                    "Free",
+                    vec![
+                        SunburstNode::leaf("Active", 60.0),
+                        SunburstNode::leaf("Idle", 22.0),
+                    ],
+                ),
+                SunburstNode::parent(
+                    "Pro",
+                    vec![
+                        SunburstNode::leaf("Solo", 32.0),
+                        SunburstNode::leaf("Team", 18.0),
+                    ],
+                ),
+                SunburstNode::parent(
+                    "Enterprise",
+                    vec![
+                        SunburstNode::leaf("Annual", 8.0),
+                        SunburstNode::leaf("Custom", 5.0),
+                    ],
+                ),
+            ],
+        )))
 }
 
 fn treemap_sample() -> Chart {
@@ -424,9 +415,8 @@ fn treemap_sample() -> Chart {
 }
 
 fn tree_sample() -> Chart {
-    Chart::new()
-        .title("Org tree — engineering")
-        .series(TreeSeries::new(
+    Chart::new().title("Org tree — engineering").series(
+        TreeSeries::new(
             "Eng",
             TreeNode::parent(
                 "VP Eng",
@@ -441,39 +431,28 @@ fn tree_sample() -> Chart {
                     ),
                     TreeNode::parent(
                         "Product",
-                        vec![
-                            TreeNode::leaf("Web"),
-                            TreeNode::leaf("Mobile"),
-                        ],
+                        vec![TreeNode::leaf("Web"), TreeNode::leaf("Mobile")],
                     ),
                     TreeNode::parent(
                         "Data",
-                        vec![
-                            TreeNode::leaf("Pipelines"),
-                            TreeNode::leaf("ML"),
-                        ],
+                        vec![TreeNode::leaf("Pipelines"), TreeNode::leaf("ML")],
                     ),
                 ],
             ),
         )
-        .orientation(TreeOrientation::LeftRight))
+        .orientation(TreeOrientation::LeftRight),
+    )
 }
 
 fn sankey_sample() -> Chart {
     let names = [
-        "Visits",
-        "Signups",
-        "Free",
-        "Trial",
-        "Paid",
-        "Churned",
-        "Retained",
+        "Visits", "Signups", "Free", "Trial", "Paid", "Churned", "Retained",
     ];
 
-    Chart::new()
-        .title("Funnel as Sankey flow")
-        .series(
-            SankeySeries::new("Flow").nodes(names.iter().copied()).links([
+    Chart::new().title("Funnel as Sankey flow").series(
+        SankeySeries::new("Flow")
+            .nodes(names.iter().copied())
+            .links([
                 SankeyLink::new(0, 1, 100.0),
                 SankeyLink::new(1, 2, 60.0),
                 SankeyLink::new(1, 3, 40.0),
@@ -484,7 +463,7 @@ fn sankey_sample() -> Chart {
                 SankeyLink::new(4, 6, 20.0),
                 SankeyLink::new(4, 5, 5.0),
             ]),
-        )
+    )
 }
 
 fn graph_sample() -> Chart {
@@ -512,50 +491,44 @@ fn graph_sample() -> Chart {
         GraphLink::new(5, 6, 2.0),
     ];
 
-    Chart::new()
-        .title("Service graph")
-        .series(
-            GraphSeries::new("Services")
-                .nodes(nodes)
-                .links(links)
-                .layout(GraphLayout::Force),
-        )
+    Chart::new().title("Service graph").series(
+        GraphSeries::new("Services")
+            .nodes(nodes)
+            .links(links)
+            .layout(GraphLayout::Force),
+    )
 }
 
 fn parallel_sample() -> Chart {
-    Chart::new()
-        .title("Parallel — laptop specs")
-        .series(
-            ParallelSeries::new("Models")
-                .axes([
-                    ParallelAxis::new("Battery (h)", 6.0, 20.0),
-                    ParallelAxis::new("Weight (kg)", 0.9, 2.2),
-                    ParallelAxis::new("RAM (GB)", 8.0, 64.0),
-                    ParallelAxis::new("Price ($)", 800.0, 3200.0),
-                    ParallelAxis::new("Score", 50.0, 100.0),
-                ])
-                .line(ParallelLine::new("A", vec![14.0, 1.3, 16.0, 1600.0, 82.0]))
-                .line(ParallelLine::new("B", vec![10.5, 1.5, 32.0, 2400.0, 89.0]))
-                .line(ParallelLine::new("C", vec![18.0, 1.0, 8.0, 1100.0, 70.0]))
-                .line(ParallelLine::new("D", vec![8.0, 2.0, 64.0, 3100.0, 96.0]))
-                .line(ParallelLine::new("E", vec![12.0, 1.7, 16.0, 1900.0, 78.0])),
-        )
+    Chart::new().title("Parallel — laptop specs").series(
+        ParallelSeries::new("Models")
+            .axes([
+                ParallelAxis::new("Battery (h)", 6.0, 20.0),
+                ParallelAxis::new("Weight (kg)", 0.9, 2.2),
+                ParallelAxis::new("RAM (GB)", 8.0, 64.0),
+                ParallelAxis::new("Price ($)", 800.0, 3200.0),
+                ParallelAxis::new("Score", 50.0, 100.0),
+            ])
+            .line(ParallelLine::new("A", vec![14.0, 1.3, 16.0, 1600.0, 82.0]))
+            .line(ParallelLine::new("B", vec![10.5, 1.5, 32.0, 2400.0, 89.0]))
+            .line(ParallelLine::new("C", vec![18.0, 1.0, 8.0, 1100.0, 70.0]))
+            .line(ParallelLine::new("D", vec![8.0, 2.0, 64.0, 3100.0, 96.0]))
+            .line(ParallelLine::new("E", vec![12.0, 1.7, 16.0, 1900.0, 78.0])),
+    )
 }
 
 fn funnel_sample() -> Chart {
-    Chart::new()
-        .title("Acquisition funnel")
-        .series(
-            FunnelSeries::new("Conversion")
-                .data([
-                    ("Visits", 100_000.0),
-                    ("Signups", 32_500.0),
-                    ("Activated", 14_200.0),
-                    ("Paying", 4_100.0),
-                    ("Retained", 1_850.0),
-                ])
-                .gap(3.0),
-        )
+    Chart::new().title("Acquisition funnel").series(
+        FunnelSeries::new("Conversion")
+            .data([
+                ("Visits", 100_000.0),
+                ("Signups", 32_500.0),
+                ("Activated", 14_200.0),
+                ("Paying", 4_100.0),
+                ("Retained", 1_850.0),
+            ])
+            .gap(3.0),
+    )
 }
 
 fn word_cloud_sample() -> Chart {

@@ -52,10 +52,20 @@ pub fn render(
         let band_color = theme.series_color(series_idx + bi);
 
         let top_pts: Vec<Pos2> = (0..n_slots)
-            .map(|i| layout.to_screen(DataPoint { x: i as f64, y: tops[bi][i] }))
+            .map(|i| {
+                layout.to_screen(DataPoint {
+                    x: i as f64,
+                    y: tops[bi][i],
+                })
+            })
             .collect();
         let bot_pts: Vec<Pos2> = (0..n_slots)
-            .map(|i| layout.to_screen(DataPoint { x: i as f64, y: bots[bi][i] }))
+            .map(|i| {
+                layout.to_screen(DataPoint {
+                    x: i as f64,
+                    y: bots[bi][i],
+                })
+            })
             .collect();
 
         let top_smooth = smooth_polyline(&top_pts, 12);
@@ -66,7 +76,8 @@ pub fn render(
         shape.extend(top_smooth.iter().copied());
         shape.extend(bot_smooth.iter().rev().copied());
 
-        let fill = Color32::from_rgba_unmultiplied(band_color.r(), band_color.g(), band_color.b(), 200);
+        let fill =
+            Color32::from_rgba_unmultiplied(band_color.r(), band_color.g(), band_color.b(), 200);
         // Decompose into trapezoids — band may be concave around y = 0.
         let trapezoid_count = top_smooth.len().min(bot_smooth.len()).saturating_sub(1);
         for i in 0..trapezoid_count {

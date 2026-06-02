@@ -41,7 +41,12 @@ pub fn render(
     }
 
     let bbox = if let Some((minl, maxl, mina, maxa)) = s.bbox {
-        GeoBbox { min_lon: minl, max_lon: maxl, min_lat: mina, max_lat: maxa }
+        GeoBbox {
+            min_lon: minl,
+            max_lon: maxl,
+            min_lat: mina,
+            max_lat: maxa,
+        }
     } else {
         GeoBbox::world()
     };
@@ -56,7 +61,10 @@ pub fn render(
         }
     }
     let vmin = s.min.unwrap_or(if vmin.is_finite() { vmin } else { 0.0 });
-    let vmax = s.max.unwrap_or(if vmax.is_finite() { vmax } else { 1.0 }).max(vmin + 1e-12);
+    let vmax = s
+        .max
+        .unwrap_or(if vmax.is_finite() { vmax } else { 1.0 })
+        .max(vmin + 1e-12);
     let palette = &theme.sequential;
     let last = palette.len().saturating_sub(1);
     let neutral = Color32::from_rgba_unmultiplied(
@@ -111,7 +119,13 @@ pub fn render(
                 screen_pos: Some(centroid),
             });
             // Region label on hover.
-            p.text(centroid, Align2::CENTER_CENTER, name.clone(), font.clone(), theme.text);
+            p.text(
+                centroid,
+                Align2::CENTER_CENTER,
+                name.clone(),
+                font.clone(),
+                theme.text,
+            );
         }
     }
 

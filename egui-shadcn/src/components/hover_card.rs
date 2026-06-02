@@ -51,8 +51,7 @@ impl HoverCard {
             ui.ctx().request_repaint();
         } else {
             if hover_count > 0 {
-                ui.ctx()
-                    .data_mut(|d| d.insert_temp(hover_count_id, 0u32));
+                ui.ctx().data_mut(|d| d.insert_temp(hover_count_id, 0u32));
             }
         }
 

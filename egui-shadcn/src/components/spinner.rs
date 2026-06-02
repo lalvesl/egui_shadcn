@@ -10,14 +10,25 @@ pub struct Spinner {
 
 impl Default for Spinner {
     fn default() -> Self {
-        Self { size: Size::Default, thickness: None }
+        Self {
+            size: Size::Default,
+            thickness: None,
+        }
     }
 }
 
 impl Spinner {
-    pub fn new() -> Self { Self::default() }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
-    pub fn thickness(mut self, t: f32) -> Self { self.thickness = Some(t); self }
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
+    pub fn thickness(mut self, t: f32) -> Self {
+        self.thickness = Some(t);
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -49,7 +60,10 @@ impl Spinner {
             for i in 0..points.len().saturating_sub(1) {
                 let alpha = (i as f32 / n as f32 * 255.0) as u8;
                 let color = egui::Color32::from_rgba_unmultiplied(
-                    theme.primary.r(), theme.primary.g(), theme.primary.b(), alpha,
+                    theme.primary.r(),
+                    theme.primary.g(),
+                    theme.primary.b(),
+                    alpha,
                 );
                 painter.line_segment([points[i], points[i + 1]], Stroke::new(thickness, color));
             }

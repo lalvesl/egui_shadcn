@@ -1,3 +1,5 @@
+use crate::i18n as t;
+use ::i18n::t as tr;
 use egui_shadcn::spacing::Spacing;
 use egui_shadcn::{
     ShadcnTheme,
@@ -8,8 +10,6 @@ use egui_shadcn::{
         small_text,
     },
 };
-use crate::i18n as t;
-use ::i18n::t as tr;
 
 use crate::app::DemoApp;
 
@@ -20,13 +20,19 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let desc = tr!(t::OverviewSec::HWelcomeDesc);
-            card_header(ui, tr!(t::OverviewSec::HWelcome).as_ref(), Some(desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::OverviewSec::HWelcome).as_ref(),
+                Some(desc.as_ref()),
+            );
             muted_text(ui, tr!(t::OverviewSec::Body).as_ref());
             Spacing::Lg.show(ui);
             ui.horizontal(|ui| {
                 Badge::new("v0.1.0").show(ui);
                 Spacing::Xs.show(ui);
-                Badge::new("egui 0.34").variant(BadgeVariant::Secondary).show(ui);
+                Badge::new("egui 0.34")
+                    .variant(BadgeVariant::Secondary)
+                    .show(ui);
                 Spacing::Xs.show(ui);
                 Badge::new("Rust").variant(BadgeVariant::Outline).show(ui);
             });
@@ -37,10 +43,7 @@ impl DemoApp {
 
         let comps_label = tr!(t::OverviewSec::Components);
         let themes_label = tr!(t::OverviewSec::Themes);
-        let row1: &[(&str, &str)] = &[
-            ("56", comps_label.as_ref()),
-            ("2",  themes_label.as_ref()),
-        ];
+        let row1: &[(&str, &str)] = &[("56", comps_label.as_ref()), ("2", themes_label.as_ref())];
 
         ui.horizontal(|ui| {
             for (n, desc) in row1 {
@@ -60,10 +63,7 @@ impl DemoApp {
 
         let presets_label = tr!(t::OverviewSec::ColorPresets);
         let custom_label = tr!(t::OverviewSec::Customizable);
-        let row2: &[(&str, &str)] = &[
-            ("8", presets_label.as_ref()),
-            ("∞", custom_label.as_ref()),
-        ];
+        let row2: &[(&str, &str)] = &[("8", presets_label.as_ref()), ("∞", custom_label.as_ref())];
 
         ui.horizontal(|ui| {
             for (n, desc) in row2 {

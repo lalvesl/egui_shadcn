@@ -117,13 +117,23 @@ pub fn render(
         let dir = polar.dir(mid);
         let label_pos = polar.center + dir * (outer + 14.0);
         let anchor = if dir.x.abs() > 0.5 {
-            if dir.x > 0.0 { Align2::LEFT_CENTER } else { Align2::RIGHT_CENTER }
+            if dir.x > 0.0 {
+                Align2::LEFT_CENTER
+            } else {
+                Align2::RIGHT_CENTER
+            }
         } else if dir.y < 0.0 {
             Align2::CENTER_BOTTOM
         } else {
             Align2::CENTER_TOP
         };
-        p.text(label_pos, anchor, datum.name.clone(), font.clone(), theme.text_dim);
+        p.text(
+            label_pos,
+            anchor,
+            datum.name.clone(),
+            font.clone(),
+            theme.text_dim,
+        );
     }
 
     tip

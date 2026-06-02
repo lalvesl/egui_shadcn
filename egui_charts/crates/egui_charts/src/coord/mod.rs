@@ -67,7 +67,13 @@ impl CoordLayout {
         to_screen: Box<dyn Fn(DataPoint) -> Pos2>,
         to_data: Box<dyn Fn(Pos2) -> DataPoint>,
     ) -> Self {
-        Self { kind, plot_rect, axes, to_screen, to_data }
+        Self {
+            kind,
+            plot_rect,
+            axes,
+            to_screen,
+            to_data,
+        }
     }
 
     pub fn to_screen(&self, p: DataPoint) -> Pos2 {

@@ -12,12 +12,27 @@ pub struct Radio<'a, T: PartialEq> {
 
 impl<'a, T: PartialEq + Clone> Radio<'a, T> {
     pub fn new(current: &'a mut T, value: T) -> Self {
-        Self { current, value, label: None, enabled: true, size: Size::Default }
+        Self {
+            current,
+            value,
+            label: None,
+            enabled: true,
+            size: Size::Default,
+        }
     }
 
-    pub fn label(mut self, l: &'a str) -> Self { self.label = Some(l); self }
-    pub fn enabled(mut self, e: bool) -> Self { self.enabled = e; self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn label(mut self, l: &'a str) -> Self {
+        self.label = Some(l);
+        self
+    }
+    pub fn enabled(mut self, e: bool) -> Self {
+        self.enabled = e;
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -36,7 +51,11 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
         let text_w = text_g.as_ref().map(|g| g.size().x + gap).unwrap_or(0.0);
         let (rect, resp) = ui.allocate_exact_size(
             Vec2::new(box_d + text_w, box_d),
-            if self.enabled { Sense::click() } else { Sense::hover() },
+            if self.enabled {
+                Sense::click()
+            } else {
+                Sense::hover()
+            },
         );
 
         let checked = *self.current == self.value;
@@ -47,13 +66,20 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
         if ui.is_rect_visible(rect) {
             let painter = ui.painter();
             let center = egui::Pos2::new(rect.left() + box_r, rect.center().y);
-            let border_color = if checked || resp.hovered() { theme.primary } else { theme.border };
+            let border_color = if checked || resp.hovered() {
+                theme.primary
+            } else {
+                theme.border
+            };
             painter.circle_stroke(center, box_r - 1.0, Stroke::new(1.5, border_color));
             if checked {
                 painter.circle_filled(center, box_r * 0.52, theme.primary);
             }
             if let Some(g) = text_g {
-                let pos = egui::Pos2::new(rect.left() + box_d + gap, rect.center().y - g.size().y / 2.0);
+                let pos = egui::Pos2::new(
+                    rect.left() + box_d + gap,
+                    rect.center().y - g.size().y / 2.0,
+                );
                 painter.galley(pos, g, theme.foreground);
             }
         }

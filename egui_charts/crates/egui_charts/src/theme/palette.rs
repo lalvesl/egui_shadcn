@@ -47,7 +47,11 @@ pub fn sequential(primary: Color32, steps: usize, dark: bool) -> Vec<Color32> {
     let base = to_oklch(primary);
     (0..steps)
         .map(|i| {
-            let t = if steps == 1 { 0.0 } else { i as f32 / (steps - 1) as f32 };
+            let t = if steps == 1 {
+                0.0
+            } else {
+                i as f32 / (steps - 1) as f32
+            };
             let (l_lo, l_hi) = if dark { (0.20, 0.85) } else { (0.95, 0.40) };
             let l = l_lo + (l_hi - l_lo) * t;
             let c = base.c * (0.20 + 0.80 * t);
@@ -71,7 +75,11 @@ pub fn diverging(primary: Color32, steps: usize, dark: bool) -> Vec<Color32> {
 
     (0..steps)
         .map(|i| {
-            let t = if steps == 1 { 0.5 } else { i as f32 / (steps - 1) as f32 };
+            let t = if steps == 1 {
+                0.5
+            } else {
+                i as f32 / (steps - 1) as f32
+            };
             if t < 0.5 {
                 mix_oklab(primary, neutral, t * 2.0)
             } else {

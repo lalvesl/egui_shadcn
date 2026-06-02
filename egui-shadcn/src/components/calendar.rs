@@ -1,6 +1,6 @@
 use super::spacing::Spacing;
 use crate::i18n;
-use crate::{ShadcnTheme, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT};
+use crate::{ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
 use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 
 // ── CalDate ───────────────────────────────────────────────────────────────────
@@ -34,17 +34,33 @@ impl CalDate {
 
     pub fn next_month(self) -> Self {
         if self.month == 12 {
-            Self { year: self.year + 1, month: 1, day: 1 }
+            Self {
+                year: self.year + 1,
+                month: 1,
+                day: 1,
+            }
         } else {
-            Self { year: self.year, month: self.month + 1, day: 1 }
+            Self {
+                year: self.year,
+                month: self.month + 1,
+                day: 1,
+            }
         }
     }
 
     pub fn prev_month(self) -> Self {
         if self.month == 1 {
-            Self { year: self.year - 1, month: 12, day: 1 }
+            Self {
+                year: self.year - 1,
+                month: 12,
+                day: 1,
+            }
         } else {
-            Self { year: self.year, month: self.month - 1, day: 1 }
+            Self {
+                year: self.year,
+                month: self.month - 1,
+                day: 1,
+            }
         }
     }
 
@@ -60,7 +76,11 @@ impl CalDate {
         let d = doy - (153 * mp + 2) / 5 + 1;
         let m = if mp < 10 { mp + 3 } else { mp - 9 };
         let y = if m <= 2 { y + 1 } else { y };
-        Self { year: y, month: m as u8, day: d as u8 }
+        Self {
+            year: y,
+            month: m as u8,
+            day: d as u8,
+        }
     }
 }
 
@@ -100,7 +120,6 @@ fn weekday_of(year: i32, month: u8, day: u8) -> usize {
     }
     ((y + y / 4 - y / 100 + y / 400 + T[month as usize - 1] + day as i32).rem_euclid(7)) as usize
 }
-
 
 // ── internal egui state ───────────────────────────────────────────────────────
 
@@ -204,16 +223,20 @@ impl<'a> Calendar<'a> {
             let mut s_end: Option<CalDate> = *end_ref;
 
             if self.compact {
-                let (nav, clicked) = draw_month(ui, &theme, DrawConfig {
-                    view: state.view,
-                    sel_start: s_start,
-                    sel_end: s_end,
-                    show_prev: true,
-                    show_next: true,
-                    today,
-                    cell_h,
-                    cell_fn,
-                });
+                let (nav, clicked) = draw_month(
+                    ui,
+                    &theme,
+                    DrawConfig {
+                        view: state.view,
+                        sel_start: s_start,
+                        sel_end: s_end,
+                        show_prev: true,
+                        show_next: true,
+                        today,
+                        cell_h,
+                        cell_fn,
+                    },
+                );
 
                 match nav {
                     -1 => state.view = state.view.prev_month(),
@@ -228,27 +251,35 @@ impl<'a> Calendar<'a> {
                 let right_view = state.view.next_month();
                 let (nav, c0, c1) = ui
                     .horizontal(|ui| {
-                        let (n, c0) = draw_month(ui, &theme, DrawConfig {
-                            view: state.view,
-                            sel_start: s_start,
-                            sel_end: s_end,
-                            show_prev: true,
-                            show_next: false,
-                            today,
-                            cell_h,
-                            cell_fn,
-                        });
+                        let (n, c0) = draw_month(
+                            ui,
+                            &theme,
+                            DrawConfig {
+                                view: state.view,
+                                sel_start: s_start,
+                                sel_end: s_end,
+                                show_prev: true,
+                                show_next: false,
+                                today,
+                                cell_h,
+                                cell_fn,
+                            },
+                        );
                         Spacing::Xl.show(ui);
-                        let (_, c1) = draw_month(ui, &theme, DrawConfig {
-                            view: right_view,
-                            sel_start: s_start,
-                            sel_end: s_end,
-                            show_prev: false,
-                            show_next: true,
-                            today,
-                            cell_h,
-                            cell_fn,
-                        });
+                        let (_, c1) = draw_month(
+                            ui,
+                            &theme,
+                            DrawConfig {
+                                view: right_view,
+                                sel_start: s_start,
+                                sel_end: s_end,
+                                show_prev: false,
+                                show_next: true,
+                                today,
+                                cell_h,
+                                cell_fn,
+                            },
+                        );
                         (n, c0, c1)
                     })
                     .inner;
@@ -268,16 +299,20 @@ impl<'a> Calendar<'a> {
         } else {
             let mut sel: Option<CalDate> = *self.selected;
 
-            let (nav, clicked) = draw_month(ui, &theme, DrawConfig {
-                view: state.view,
-                sel_start: sel,
-                sel_end: None,
-                show_prev: true,
-                show_next: true,
-                today,
-                cell_h,
-                cell_fn,
-            });
+            let (nav, clicked) = draw_month(
+                ui,
+                &theme,
+                DrawConfig {
+                    view: state.view,
+                    sel_start: sel,
+                    sel_end: None,
+                    show_prev: true,
+                    show_next: true,
+                    today,
+                    cell_h,
+                    cell_fn,
+                },
+            );
 
             match nav {
                 -1 => state.view = state.view.prev_month(),

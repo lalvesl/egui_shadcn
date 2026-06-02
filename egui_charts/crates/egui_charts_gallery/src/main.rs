@@ -125,12 +125,8 @@ impl GalleryApp {
             for (cat, kinds) in groups {
                 let header = self.expanded.entry(cat.to_string()).or_insert(true);
                 let toggle = ui.add(
-                    egui::Button::new(format!(
-                        "{} {}",
-                        if *header { "▾" } else { "▸" },
-                        cat
-                    ))
-                    .frame(false),
+                    egui::Button::new(format!("{} {}", if *header { "▾" } else { "▸" }, cat))
+                        .frame(false),
                 );
                 if toggle.clicked() {
                     *header = !*header;

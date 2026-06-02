@@ -133,7 +133,12 @@ impl ChartTheme {
     pub fn rebuild_palette(&mut self, series: usize) {
         let mut palette = harmony_palette(self.primary, self.harmony);
         if palette.len() < series.max(1) {
-            palette = categorical(self.primary, series.max(1), self.mode.is_dark(), self.distribution);
+            palette = categorical(
+                self.primary,
+                series.max(1),
+                self.mode.is_dark(),
+                self.distribution,
+            );
         }
         self.palette = palette;
     }

@@ -1,10 +1,10 @@
 use super::button::{Button, ButtonVariant};
 use super::spacing::Spacing;
 use super::typography::{heading4, muted_text};
-use crate::i18n;
 use crate::ShadcnTheme;
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke};
+use crate::i18n;
 use ::i18n::t;
+use egui::{Color32, CornerRadius, Frame, Margin, Stroke};
 
 pub struct AlertDialog<'a> {
     title: &'a str,
@@ -94,12 +94,18 @@ impl<'a> AlertDialog<'a> {
                 let cancel_owned;
                 let cancel_text: &str = match self.cancel_label {
                     Some(l) => l,
-                    None => { cancel_owned = t!(i18n::AlertDialog::Cancel); cancel_owned.as_ref() }
+                    None => {
+                        cancel_owned = t!(i18n::AlertDialog::Cancel);
+                        cancel_owned.as_ref()
+                    }
                 };
                 let confirm_owned;
                 let confirm_text: &str = match self.confirm_label {
                     Some(l) => l,
-                    None => { confirm_owned = t!(i18n::AlertDialog::Confirm); confirm_owned.as_ref() }
+                    None => {
+                        confirm_owned = t!(i18n::AlertDialog::Confirm);
+                        confirm_owned.as_ref()
+                    }
                 };
 
                 ui.horizontal(|ui| {

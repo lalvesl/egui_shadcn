@@ -72,8 +72,12 @@ pub fn draw(
 
     let panel = Rect::from_min_size(origin, panel_size);
     p.rounded_rect_filled(panel, 6.0, theme.surface);
-    p.painter
-        .rect_stroke(panel, 6.0, Stroke::new(1.0, theme.grid_line), StrokeKind::Inside);
+    p.painter.rect_stroke(
+        panel,
+        6.0,
+        Stroke::new(1.0, theme.grid_line),
+        StrokeKind::Inside,
+    );
 
     let mut y = origin.y + pad.y;
     for ((line, color), size) in lines.iter().zip(measured.iter()) {

@@ -9,7 +9,11 @@ pub struct Collapsible<'a> {
 
 impl<'a> Collapsible<'a> {
     pub fn new(id: impl std::hash::Hash, trigger: &'a str, open: &'a mut bool) -> Self {
-        Self { id: egui::Id::new(id), trigger, open }
+        Self {
+            id: egui::Id::new(id),
+            trigger,
+            open,
+        }
     }
 
     pub fn show(self, ui: &mut Ui, content: impl FnOnce(&mut Ui)) {
@@ -17,9 +21,15 @@ impl<'a> Collapsible<'a> {
         let width = ui.available_width();
         let h = 36.0;
         let (rect, resp) = ui.allocate_exact_size(Vec2::new(width, h), Sense::click());
-        if resp.clicked() { *self.open = !*self.open; }
+        if resp.clicked() {
+            *self.open = !*self.open;
+        }
 
-        let icon = if *self.open { ICON_KEYBOARD_ARROW_DOWN } else { ICON_KEYBOARD_ARROW_RIGHT };
+        let icon = if *self.open {
+            ICON_KEYBOARD_ARROW_DOWN
+        } else {
+            ICON_KEYBOARD_ARROW_RIGHT
+        };
         ui.painter().text(
             egui::Pos2::new(rect.left() + 2.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
@@ -40,7 +50,12 @@ impl<'a> Collapsible<'a> {
         if anim > 0.01 {
             Frame::new()
                 .fill(Color32::TRANSPARENT)
-                .inner_margin(Margin { left: 24, right: 0, top: 0, bottom: 8 })
+                .inner_margin(Margin {
+                    left: 24,
+                    right: 0,
+                    top: 0,
+                    bottom: 8,
+                })
                 .show(ui, content);
         }
     }

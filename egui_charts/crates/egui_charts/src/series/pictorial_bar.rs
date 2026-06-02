@@ -34,7 +34,12 @@ pub fn render(
         if !v.is_finite() || v <= 0.0 {
             continue;
         }
-        let center_x = layout.to_screen(DataPoint { x: i as f64, y: 0.0 }).x;
+        let center_x = layout
+            .to_screen(DataPoint {
+                x: i as f64,
+                y: 0.0,
+            })
+            .x;
         let top_y = layout.to_screen(DataPoint { x: i as f64, y: v }).y;
         let height = (baseline_y - top_y).abs().max(1.0);
         let glyph_count = ((v / unit).ceil() as usize).max(1);
@@ -42,7 +47,13 @@ pub fn render(
 
         for g in 0..glyph_count {
             let cy = baseline_y - (g as f32 + 0.5) * pitch;
-            symbol(p, s.symbol, Pos2::new(center_x, cy), s.symbol_size.min(pitch * 0.9), color);
+            symbol(
+                p,
+                s.symbol,
+                Pos2::new(center_x, cy),
+                s.symbol_size.min(pitch * 0.9),
+                color,
+            );
         }
 
         if hovered_idx == Some(i as i64) {

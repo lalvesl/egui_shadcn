@@ -1,5 +1,5 @@
 use super::spacing::Spacing;
-use crate::{ShadcnTheme, ICON_CLOSE};
+use crate::{ICON_CLOSE, ShadcnTheme};
 use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
 
 pub struct Dialog<'a> {

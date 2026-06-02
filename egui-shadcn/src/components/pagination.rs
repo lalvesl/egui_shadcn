@@ -1,5 +1,5 @@
 use super::button::{Button, ButtonSize, ButtonVariant};
-use crate::{ShadcnTheme, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT};
+use crate::{ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
 use egui::{Sense, Ui, Vec2};
 
 pub struct Pagination {
@@ -10,9 +10,16 @@ pub struct Pagination {
 
 impl Pagination {
     pub fn new(current: usize, total: usize) -> Self {
-        Self { current, total, siblings: 1 }
+        Self {
+            current,
+            total,
+            siblings: 1,
+        }
     }
-    pub fn siblings(mut self, s: usize) -> Self { self.siblings = s; self }
+    pub fn siblings(mut self, s: usize) -> Self {
+        self.siblings = s;
+        self
+    }
 
     /// Returns Some(new_page) if a page was clicked (1-indexed).
     pub fn show(self, ui: &mut Ui) -> Option<usize> {
@@ -43,7 +50,11 @@ impl Pagination {
                 }
                 let active = self.current == *page;
                 let label = page.to_string();
-                let variant = if active { ButtonVariant::Default } else { ButtonVariant::Ghost };
+                let variant = if active {
+                    ButtonVariant::Default
+                } else {
+                    ButtonVariant::Ghost
+                };
                 if Button::new(&label).variant(variant).show(ui).clicked() && !active {
                     result = Some(*page);
                 }
@@ -74,7 +85,9 @@ impl Pagination {
         pages.insert(self.total);
         let start = self.current.saturating_sub(self.siblings).max(1);
         let end = (self.current + self.siblings).min(self.total);
-        for p in start..=end { pages.insert(p); }
+        for p in start..=end {
+            pages.insert(p);
+        }
         pages.into_iter().collect()
     }
 

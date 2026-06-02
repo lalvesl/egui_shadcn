@@ -58,15 +58,22 @@ impl<'a> ChartWidget<'a> {
     }
 
     pub fn show(self, ui: &mut Ui) -> Response {
-        let resolved_theme = self
-            .theme
-            .clone()
-            .unwrap_or_else(|| ChartTheme::follow_egui(ui.ctx(), egui::Color32::from_rgb(0x4f, 0x8c, 0xff), crate::theme::Harmony::Square, self.chart.series.len().max(6)));
+        let resolved_theme = self.theme.clone().unwrap_or_else(|| {
+            ChartTheme::follow_egui(
+                ui.ctx(),
+                egui::Color32::from_rgb(0x4f, 0x8c, 0xff),
+                crate::theme::Harmony::Square,
+                self.chart.series.len().max(6),
+            )
+        });
 
         let available = ui.available_size_before_wrap();
         let size = vec2(
             available.x.max(self.desired_size.x).min(available.x),
-            self.desired_size.y.max(160.0).min(available.y.max(self.desired_size.y)),
+            self.desired_size
+                .y
+                .max(160.0)
+                .min(available.y.max(self.desired_size.y)),
         );
         let (rect, response) = ui.allocate_exact_size(size, Sense::hover());
         let id = self.id_source.unwrap_or(response.id);
@@ -81,9 +88,12 @@ impl<'a> ChartWidget<'a> {
 
         // Background card.
         chart_p.rounded_rect_filled(rect, 8.0, resolved_theme.background);
-        chart_p
-            .painter
-            .rect_stroke(rect, 8.0, Stroke::new(1.0, resolved_theme.grid_line), StrokeKind::Inside);
+        chart_p.painter.rect_stroke(
+            rect,
+            8.0,
+            Stroke::new(1.0, resolved_theme.grid_line),
+            StrokeKind::Inside,
+        );
 
         // Title bar.
         let mut content = rect.shrink2(vec2(8.0, 8.0));
@@ -109,33 +119,29 @@ impl<'a> ChartWidget<'a> {
             let layout = coord.layout(plot_area, &resolved_theme);
 
             // Draw split areas (alternating bands across y-axis).
-            let y_axis = self
-                .chart
-                .y_axis
-                .clone()
-                .unwrap_or_else(Axis::value);
+            let y_axis = self.chart.y_axis.clone().unwrap_or_else(Axis::value);
             if y_axis.show_grid
-                && let Some(y_layout) = layout.axes.iter().find(|a| !a.is_x) {
-                    let mut last_px = layout.plot_rect.min.y;
-                    for (i, t) in y_layout.ticks.iter().enumerate() {
-                        let band = egui::Rect::from_min_max(
-                            egui::Pos2::new(layout.plot_rect.min.x, last_px.min(t.pixel)),
-                            egui::Pos2::new(layout.plot_rect.max.x, last_px.max(t.pixel)),
-                        );
-                        if band.height() > 0.0 {
-                            chart_p.rect_filled(band, resolved_theme.split_area[i % 2]);
-                        }
-                        last_px = t.pixel;
+                && let Some(y_layout) = layout.axes.iter().find(|a| !a.is_x)
+            {
+                let mut last_px = layout.plot_rect.min.y;
+                for (i, t) in y_layout.ticks.iter().enumerate() {
+                    let band = egui::Rect::from_min_max(
+                        egui::Pos2::new(layout.plot_rect.min.x, last_px.min(t.pixel)),
+                        egui::Pos2::new(layout.plot_rect.max.x, last_px.max(t.pixel)),
+                    );
+                    if band.height() > 0.0 {
+                        chart_p.rect_filled(band, resolved_theme.split_area[i % 2]);
                     }
-                    if last_px < layout.plot_rect.max.y {
-                        let band = egui::Rect::from_min_max(
-                            egui::Pos2::new(layout.plot_rect.min.x, last_px),
-                            egui::Pos2::new(layout.plot_rect.max.x, layout.plot_rect.max.y),
-                        );
-                        chart_p
-                            .rect_filled(band, resolved_theme.split_area[y_layout.ticks.len() % 2]);
-                    }
+                    last_px = t.pixel;
                 }
+                if last_px < layout.plot_rect.max.y {
+                    let band = egui::Rect::from_min_max(
+                        egui::Pos2::new(layout.plot_rect.min.x, last_px),
+                        egui::Pos2::new(layout.plot_rect.max.x, layout.plot_rect.max.y),
+                    );
+                    chart_p.rect_filled(band, resolved_theme.split_area[y_layout.ticks.len() % 2]);
+                }
+            }
 
             // Grid lines + axes.
             draw_axes(&chart_p, &layout, &resolved_theme, self.chart);
@@ -166,17 +172,18 @@ impl<'a> ChartWidget<'a> {
 
         // Tooltip.
         if self.chart.show_tooltip
-            && let (Some(cursor), false) = (hover_pos, tips.is_empty()) {
-                tooltip::draw(
-                    &chart_p,
-                    ui.ctx(),
-                    cursor,
-                    tooltip_rect,
-                    &resolved_theme,
-                    &tips,
-                    x_label,
-                );
-            }
+            && let (Some(cursor), false) = (hover_pos, tips.is_empty())
+        {
+            tooltip::draw(
+                &chart_p,
+                ui.ctx(),
+                cursor,
+                tooltip_rect,
+                &resolved_theme,
+                &tips,
+                x_label,
+            );
+        }
 
         // Legend (after plot so it overlays cleanly).
         legend::draw_and_handle(
@@ -195,7 +202,10 @@ impl<'a> ChartWidget<'a> {
     }
 }
 
-fn build_x_label(chart: &Chart, tips: &[crate::interaction::tooltip::TooltipDatum]) -> Option<String> {
+fn build_x_label(
+    chart: &Chart,
+    tips: &[crate::interaction::tooltip::TooltipDatum],
+) -> Option<String> {
     let idx = tips.first()?.data_index;
     let axis = chart.x_axis.as_ref()?;
     match axis.kind {
@@ -204,7 +214,12 @@ fn build_x_label(chart: &Chart, tips: &[crate::interaction::tooltip::TooltipDatu
     }
 }
 
-fn draw_axes(p: &ChartPainter, layout: &crate::coord::CoordLayout, theme: &ChartTheme, chart: &Chart) {
+fn draw_axes(
+    p: &ChartPainter,
+    layout: &crate::coord::CoordLayout,
+    theme: &ChartTheme,
+    chart: &Chart,
+) {
     let font = label_font();
     for axis in &layout.axes {
         // Axis line.
@@ -215,7 +230,11 @@ fn draw_axes(p: &ChartPainter, layout: &crate::coord::CoordLayout, theme: &Chart
                 .map(|a| a.show_axis_line)
                 .unwrap_or(true)
             {
-                p.line(axis.line_start, axis.line_end, Stroke::new(1.0, theme.axis_line));
+                p.line(
+                    axis.line_start,
+                    axis.line_end,
+                    Stroke::new(1.0, theme.axis_line),
+                );
             }
         } else if chart
             .y_axis
@@ -223,7 +242,11 @@ fn draw_axes(p: &ChartPainter, layout: &crate::coord::CoordLayout, theme: &Chart
             .map(|a| a.show_axis_line)
             .unwrap_or(true)
         {
-            p.line(axis.line_start, axis.line_end, Stroke::new(1.0, theme.axis_line));
+            p.line(
+                axis.line_start,
+                axis.line_end,
+                Stroke::new(1.0, theme.axis_line),
+            );
         }
 
         // Gridlines + tick labels.
@@ -243,7 +266,12 @@ fn draw_axes(p: &ChartPainter, layout: &crate::coord::CoordLayout, theme: &Chart
                     egui::Pos2::new(tick.pixel, layout.plot_rect.max.y + 4.0),
                     Stroke::new(1.0, theme.axis_line),
                 );
-                if chart.x_axis.as_ref().map(|a| a.show_tick_labels).unwrap_or(true) {
+                if chart
+                    .x_axis
+                    .as_ref()
+                    .map(|a| a.show_tick_labels)
+                    .unwrap_or(true)
+                {
                     p.text(
                         egui::Pos2::new(tick.pixel, layout.plot_rect.max.y + 6.0),
                         Align2::CENTER_TOP,
@@ -266,7 +294,12 @@ fn draw_axes(p: &ChartPainter, layout: &crate::coord::CoordLayout, theme: &Chart
                     egui::Pos2::new(layout.plot_rect.min.x, tick.pixel),
                     Stroke::new(1.0, theme.axis_line),
                 );
-                if chart.y_axis.as_ref().map(|a| a.show_tick_labels).unwrap_or(true) {
+                if chart
+                    .y_axis
+                    .as_ref()
+                    .map(|a| a.show_tick_labels)
+                    .unwrap_or(true)
+                {
                     p.text(
                         egui::Pos2::new(layout.plot_rect.min.x - 6.0, tick.pixel),
                         Align2::RIGHT_CENTER,

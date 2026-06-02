@@ -30,8 +30,9 @@ impl<'a> InputOtp<'a> {
         let sep_w = 16.0f32;
 
         let sep_count = if self.separator_after.is_some() { 1 } else { 0 };
-        let total_width =
-            self.digits as f32 * box_w + (self.digits - 1) as f32 * gap + sep_count as f32 * (sep_w + gap * 2.0);
+        let total_width = self.digits as f32 * box_w
+            + (self.digits - 1) as f32 * gap
+            + sep_count as f32 * (sep_w + gap * 2.0);
 
         let hidden_id = egui::Id::new("shadcn_otp_hidden").with(ui.id());
 

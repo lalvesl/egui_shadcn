@@ -97,7 +97,11 @@ pub fn draw_and_handle(
         }
 
         let entry_rect = Rect::from_min_size(cursor, entry_size);
-        let resp = ui.interact(entry_rect, ui.id().with(("legend", it.series_index)), Sense::click());
+        let resp = ui.interact(
+            entry_rect,
+            ui.id().with(("legend", it.series_index)),
+            Sense::click(),
+        );
 
         let swatch_rect = Rect::from_min_size(
             cursor + vec2(2.0, (entry_size.y - 10.0) * 0.5),
@@ -111,7 +115,11 @@ pub fn draw_and_handle(
         };
         p.rounded_rect_filled(swatch_rect, 2.0, fill);
 
-        let text_color = if it.visible { theme.text } else { theme.text_dim };
+        let text_color = if it.visible {
+            theme.text
+        } else {
+            theme.text_dim
+        };
         p.text(
             cursor + vec2(18.0, entry_size.y * 0.5),
             Align2::LEFT_CENTER,
@@ -121,13 +129,18 @@ pub fn draw_and_handle(
         );
 
         if resp.hovered() {
-            p.painter
-                .rect_stroke(entry_rect, 4.0, Stroke::new(1.0, theme.text_dim), StrokeKind::Inside);
+            p.painter.rect_stroke(
+                entry_rect,
+                4.0,
+                Stroke::new(1.0, theme.text_dim),
+                StrokeKind::Inside,
+            );
         }
         if resp.clicked()
-            && let Some(state) = states.get_mut(it.series_index) {
-                state.visible = !state.visible;
-            }
+            && let Some(state) = states.get_mut(it.series_index)
+        {
+            state.visible = !state.visible;
+        }
 
         if horizontal {
             cursor.x += entry_size.x + 4.0;

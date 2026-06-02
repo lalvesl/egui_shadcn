@@ -55,7 +55,12 @@ pub fn render(
     faces.push((
         (p00.1 + p10.1 + p11.1 + p01.1) * 0.25 + 1000.0, // push behind everything
         vec![p00.0, p10.0, p11.0, p01.0],
-        Color32::from_rgba_unmultiplied(theme.surface.r(), theme.surface.g(), theme.surface.b(), 180),
+        Color32::from_rgba_unmultiplied(
+            theme.surface.r(),
+            theme.surface.g(),
+            theme.surface.b(),
+            180,
+        ),
         Stroke::new(0.8, grid_color),
         usize::MAX,
     ));

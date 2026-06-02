@@ -34,8 +34,16 @@ pub fn symbol(p: &ChartPainter, kind: SymbolKind, pos: Pos2, size: f32, color: C
         }
         SymbolKind::Cross => {
             let s = Stroke::new(2.0, color);
-            p.line(Pos2::new(pos.x - half, pos.y - half), Pos2::new(pos.x + half, pos.y + half), s);
-            p.line(Pos2::new(pos.x + half, pos.y - half), Pos2::new(pos.x - half, pos.y + half), s);
+            p.line(
+                Pos2::new(pos.x - half, pos.y - half),
+                Pos2::new(pos.x + half, pos.y + half),
+                s,
+            );
+            p.line(
+                Pos2::new(pos.x + half, pos.y - half),
+                Pos2::new(pos.x - half, pos.y + half),
+                s,
+            );
         }
     }
 }
@@ -78,8 +86,16 @@ pub fn symbol_outline(
             p.poly(pts, fill, stroke);
         }
         SymbolKind::Cross => {
-            p.line(Pos2::new(pos.x - half, pos.y - half), Pos2::new(pos.x + half, pos.y + half), stroke);
-            p.line(Pos2::new(pos.x + half, pos.y - half), Pos2::new(pos.x - half, pos.y + half), stroke);
+            p.line(
+                Pos2::new(pos.x - half, pos.y - half),
+                Pos2::new(pos.x + half, pos.y + half),
+                stroke,
+            );
+            p.line(
+                Pos2::new(pos.x + half, pos.y - half),
+                Pos2::new(pos.x - half, pos.y + half),
+                stroke,
+            );
         }
     }
 }
@@ -156,12 +172,7 @@ pub fn fill_under(p: &ChartPainter, line: &[Pos2], baseline_y: f32, fill: Color3
         for w in line.windows(2) {
             let a = w[0];
             let b = w[1];
-            let poly = vec![
-                a,
-                b,
-                Pos2::new(b.x, baseline_y),
-                Pos2::new(a.x, baseline_y),
-            ];
+            let poly = vec![a, b, Pos2::new(b.x, baseline_y), Pos2::new(a.x, baseline_y)];
             p.poly(poly, fill, Stroke::NONE);
         }
     }

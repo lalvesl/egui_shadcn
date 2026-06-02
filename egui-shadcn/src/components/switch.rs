@@ -11,12 +11,26 @@ pub struct Switch<'a> {
 
 impl<'a> Switch<'a> {
     pub fn new(checked: &'a mut bool) -> Self {
-        Self { checked, label: None, enabled: true, size: Size::Default }
+        Self {
+            checked,
+            label: None,
+            enabled: true,
+            size: Size::Default,
+        }
     }
 
-    pub fn label(mut self, l: &'a str) -> Self { self.label = Some(l); self }
-    pub fn enabled(mut self, e: bool) -> Self { self.enabled = e; self }
-    pub fn size(mut self, s: Size) -> Self { self.size = s; self }
+    pub fn label(mut self, l: &'a str) -> Self {
+        self.label = Some(l);
+        self
+    }
+    pub fn enabled(mut self, e: bool) -> Self {
+        self.enabled = e;
+        self
+    }
+    pub fn size(mut self, s: Size) -> Self {
+        self.size = s;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
@@ -31,10 +45,17 @@ impl<'a> Switch<'a> {
         });
 
         let gap = self.size.h_pad() * 0.67;
-        let text_w = text_galley.as_ref().map(|g| g.size().x + gap).unwrap_or(0.0);
+        let text_w = text_galley
+            .as_ref()
+            .map(|g| g.size().x + gap)
+            .unwrap_or(0.0);
         let (rect, resp) = ui.allocate_exact_size(
             Vec2::new(track_w + text_w, track_h),
-            if self.enabled { Sense::click() } else { Sense::hover() },
+            if self.enabled {
+                Sense::click()
+            } else {
+                Sense::hover()
+            },
         );
 
         if resp.clicked() && self.enabled {
@@ -48,19 +69,33 @@ impl<'a> Switch<'a> {
                 Vec2::new(track_w, track_h),
             );
             let cr = CornerRadius::same(255);
-            let track_color = if *self.checked { theme.primary } else { theme.muted_foreground };
+            let track_color = if *self.checked {
+                theme.primary
+            } else {
+                theme.muted_foreground
+            };
             let track_alpha = if self.enabled { 255 } else { 128 };
             let track_color = Color32::from_rgba_unmultiplied(
-                track_color.r(), track_color.g(), track_color.b(), track_alpha,
+                track_color.r(),
+                track_color.g(),
+                track_color.b(),
+                track_alpha,
             );
             painter.rect_filled(track_rect, cr, track_color);
 
-            let anim_t = ui.ctx().animate_bool_with_time(resp.id, *self.checked, 0.12);
+            let anim_t = ui
+                .ctx()
+                .animate_bool_with_time(resp.id, *self.checked, 0.12);
             let thumb_x = track_rect.left() + track_h / 2.0 + anim_t * (track_w - track_h);
             let thumb_center = egui::Pos2::new(thumb_x, track_rect.center().y);
             painter.circle_filled(
-                thumb_center, thumb_r,
-                if self.enabled { Color32::WHITE } else { ShadcnTheme::with_alpha(Color32::WHITE, 180) },
+                thumb_center,
+                thumb_r,
+                if self.enabled {
+                    Color32::WHITE
+                } else {
+                    ShadcnTheme::with_alpha(Color32::WHITE, 180)
+                },
             );
 
             if let Some(g) = text_galley {

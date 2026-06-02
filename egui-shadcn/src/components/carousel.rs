@@ -1,4 +1,4 @@
-use crate::{ShadcnTheme, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT};
+use crate::{ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
 use egui::{CornerRadius, Pos2, Rect, Sense, Stroke, Ui, Vec2};
 
 pub struct Carousel {
@@ -46,9 +46,7 @@ impl Carousel {
         };
 
         let idx_id = self.id.with("index");
-        let mut current = ui
-            .ctx()
-            .data(|d| d.get_temp::<usize>(idx_id).unwrap_or(0));
+        let mut current = ui.ctx().data(|d| d.get_temp::<usize>(idx_id).unwrap_or(0));
 
         // Clamp in case item_count changed
         if self.item_count > 0 {
@@ -88,10 +86,11 @@ impl Carousel {
         }
 
         // Prev button
-        let prev_center =
-            Pos2::new(outer_rect.left() + btn_size / 2.0 + 8.0, slide_rect.center().y);
-        let prev_rect =
-            Rect::from_center_size(prev_center, Vec2::splat(btn_size));
+        let prev_center = Pos2::new(
+            outer_rect.left() + btn_size / 2.0 + 8.0,
+            slide_rect.center().y,
+        );
+        let prev_rect = Rect::from_center_size(prev_center, Vec2::splat(btn_size));
         let prev_resp = ui.interact(prev_rect, self.id.with("prev"), Sense::click());
         let prev_bg = if prev_resp.hovered() {
             theme.accent
@@ -169,7 +168,8 @@ impl Carousel {
             let dot_row_y = outer_rect.top() + self.height + dot_area / 2.0;
             let dot_r = 4.0;
             let dot_spacing = 12.0;
-            let total_dots_width = self.item_count as f32 * dot_spacing - (dot_spacing - dot_r * 2.0);
+            let total_dots_width =
+                self.item_count as f32 * dot_spacing - (dot_spacing - dot_r * 2.0);
             let mut dot_x = outer_rect.center().x - total_dots_width / 2.0 + dot_r;
 
             for i in 0..self.item_count {

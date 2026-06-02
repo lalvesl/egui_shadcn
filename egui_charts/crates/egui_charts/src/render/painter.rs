@@ -41,15 +41,15 @@ impl<'a> ChartPainter<'a> {
     }
 
     pub fn poly(&self, pts: Vec<Pos2>, fill: Color32, stroke: Stroke) {
-        self.painter.add(egui::Shape::convex_polygon(pts, fill, stroke));
+        self.painter
+            .add(egui::Shape::convex_polygon(pts, fill, stroke));
     }
 
     pub fn path(&self, pts: Vec<Pos2>, stroke: Stroke) {
         if pts.len() < 2 {
             return;
         }
-        self.painter
-            .add(egui::Shape::line(pts, stroke));
+        self.painter.add(egui::Shape::line(pts, stroke));
     }
 
     pub fn circle_filled(&self, pos: Pos2, radius: f32, fill: Color32) {

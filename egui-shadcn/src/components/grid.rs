@@ -15,19 +15,32 @@ pub struct Grid {
 }
 
 impl Default for Grid {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Grid {
     pub fn new() -> Self {
-        Self { min_col_width: 240.0, gap: 16.0 }
+        Self {
+            min_col_width: 240.0,
+            gap: 16.0,
+        }
     }
 
-    pub fn min_col_width(mut self, w: f32) -> Self { self.min_col_width = w; self }
-    pub fn gap(mut self, g: f32) -> Self { self.gap = g; self }
+    pub fn min_col_width(mut self, w: f32) -> Self {
+        self.min_col_width = w;
+        self
+    }
+    pub fn gap(mut self, g: f32) -> Self {
+        self.gap = g;
+        self
+    }
 
     pub fn show(self, ui: &mut Ui, count: usize, mut item_fn: impl FnMut(&mut Ui, usize)) {
-        if count == 0 { return; }
+        if count == 0 {
+            return;
+        }
 
         let available = ui.available_width();
         let cols = ((available + self.gap) / (self.min_col_width + self.gap))
