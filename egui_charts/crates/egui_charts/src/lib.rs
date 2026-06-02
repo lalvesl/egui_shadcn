@@ -32,9 +32,19 @@ pub mod widget;
 
 pub use coord::{CoordKind, CoordLayout, DataPoint};
 pub use option::{
-    Axis, AxisKind, BarSeries, Chart, ChartKind, FunnelSeries, GaugeSeries, Legend, LegendPosition,
-    LineSeries, LineStyle, PieDatum, PieSeries, RadarDataset, RadarIndicator, RadarSeries,
-    ScatterSeries, Series, SeriesCoord, SymbolKind, Title,
+    Axis, AxisKind, BarSeries, BoxDatum, BoxPlotSeries, CalendarHeatmapSeries, Candle,
+    CandlestickSeries, Chart, ChartKind, EffectScatterSeries, FunnelSeries, GaugeSeries, GraphLayout,
+    GraphLink, GraphNode, GraphSeries, HeatmapSeries, Legend, LegendPosition, LineSegment,
+    LineSeries, LineStyle, LinesCartesianSeries, ParallelAxis, ParallelLine, ParallelSeries,
+    PictorialBarSeries, PieDatum, PieSeries, PolarBarDatum, PolarBarSeries, RadarDataset,
+    RadarIndicator, RadarSeries, SankeyLink, SankeyNode, SankeySeries, ScatterSeries, Series,
+    SeriesCoord, SunburstNode, SunburstSeries, SymbolKind, ThemeRiverBand, ThemeRiverSeries, Title,
+    Bar3DSeries, ChordSeries, CustomRenderFn, CustomSeries, GeoLine, GeoPath, GeoPoint,
+    GlobeSeries, Line3DSeries, Lines3DSeries, LinesGeoSeries, LiquidFillSeries, Map3DSeries,
+    MapRegion, MapSeries, Scatter3DSeries, ScatterGeoSeries, Surface3DSeries, TreeNode,
+    TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
 };
+pub use coord::geo::GeoBbox;
+pub use coord::three_d::{Camera3D, ThreeDLayout, Vec3};
 pub use theme::{ChartTheme, Distribution, Harmony, ThemeMode};
 pub use widget::ChartWidget;

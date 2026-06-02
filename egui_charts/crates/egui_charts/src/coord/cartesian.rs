@@ -241,7 +241,67 @@ fn series_value_extent(chart: &Chart) -> (f64, f64) {
                     max = max.max(y);
                 }
             }
-            // Non-cartesian series don't contribute to cartesian extent.
+            Series::EffectScatter(s) => {
+                for &(_, y, _) in &s.data {
+                    if !y.is_finite() {
+                        continue;
+                    }
+                    any = true;
+                    min = min.min(y);
+                    max = max.max(y);
+                }
+            }
+            Series::Candlestick(c) => {
+                for cd in &c.data {
+                    if cd.high.is_finite() && cd.low.is_finite() {
+                        any = true;
+                        min = min.min(cd.low);
+                        max = max.max(cd.high);
+                    }
+                }
+            }
+            Series::BoxPlot(b) => {
+                for bd in &b.data {
+                    if bd.min.is_finite() && bd.max.is_finite() {
+                        any = true;
+                        min = min.min(bd.min);
+                        max = max.max(bd.max);
+                    }
+                }
+            }
+            Series::LinesCartesian(lc) => {
+                for seg in &lc.segments {
+                    if seg.from.1.is_finite() && seg.to.1.is_finite() {
+                        any = true;
+                        min = min.min(seg.from.1).min(seg.to.1);
+                        max = max.max(seg.from.1).max(seg.to.1);
+                    }
+                }
+            }
+            Series::PictorialBar(pb) => {
+                for &v in &pb.data {
+                    if v.is_finite() {
+                        any = true;
+                        min = min.min(v).min(0.0);
+                        max = max.max(v).max(0.0);
+                    }
+                }
+            }
+            Series::ThemeRiver(tr) => {
+                let n_slots = tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0);
+                for slot in 0..n_slots {
+                    let total: f64 = tr
+                        .bands
+                        .iter()
+                        .map(|b| b.data.get(slot).copied().unwrap_or(0.0).max(0.0))
+                        .sum();
+                    any = true;
+                    min = min.min(-total * 0.5);
+                    max = max.max(total * 0.5);
+                }
+            }
+            // Heatmap is purely categorical on both axes; non-cartesian series
+            // don't contribute to a cartesian Y extent.
             _ => {}
         }
     }
@@ -260,15 +320,35 @@ fn series_x_extent(chart: &Chart) -> (f64, f64) {
     let mut max = f64::NEG_INFINITY;
     let mut any = false;
     for s in &chart.series {
-        if let Series::Scatter(sc) = s {
-            for &(x, _, _) in &sc.data {
-                if !x.is_finite() {
-                    continue;
+        match s {
+            Series::Scatter(sc) => {
+                for &(x, _, _) in &sc.data {
+                    if x.is_finite() {
+                        any = true;
+                        min = min.min(x);
+                        max = max.max(x);
+                    }
                 }
-                any = true;
-                min = min.min(x);
-                max = max.max(x);
             }
+            Series::EffectScatter(sc) => {
+                for &(x, _, _) in &sc.data {
+                    if x.is_finite() {
+                        any = true;
+                        min = min.min(x);
+                        max = max.max(x);
+                    }
+                }
+            }
+            Series::LinesCartesian(lc) => {
+                for seg in &lc.segments {
+                    if seg.from.0.is_finite() && seg.to.0.is_finite() {
+                        any = true;
+                        min = min.min(seg.from.0).min(seg.to.0);
+                        max = max.max(seg.from.0).max(seg.to.0);
+                    }
+                }
+            }
+            _ => {}
         }
     }
     if !any {
@@ -288,6 +368,11 @@ fn max_series_len(chart: &Chart) -> usize {
             Series::Line(l) => l.data.len(),
             Series::Bar(b) => b.data.len(),
             Series::Scatter(sc) => sc.data.len(),
+            Series::Candlestick(c) => c.data.len(),
+            Series::BoxPlot(b) => b.data.len(),
+            Series::PictorialBar(pb) => pb.data.len(),
+            Series::Heatmap(h) => h.data.iter().map(|(x, _, _)| *x).max().map(|m| m + 1).unwrap_or(0),
+            Series::ThemeRiver(tr) => tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0),
             _ => 0,
         })
         .max()
