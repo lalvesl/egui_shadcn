@@ -2,11 +2,10 @@
 
 # Process
 
-- Create another example of range-calendar with only one calendar, not tow colendars;
-- Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
-
 # Done
 
+- Create another example of range-calendar with only one calendar, not tow colendars;
+- Calendar has small error in your component, the arrow to click to next month is not in the "end" and shows like more near to middle, the arrow to return months is on start and this is correct;
 - Sidebar auto-scroll to active section only works after first navigation — fixed by calling `request_repaint()` when `sidebar_needs_scroll` is set, guaranteeing the sidebar sees the flag in the next frame even when the user stops scrolling.
 - For the Demo, i need to create a paralles effect, i need to binding all components inside the unique and large scroll, the sidebar will works like a goto links;
 - Command pallet, does not reusing components, the separator, input, cards, typography is not used;
