@@ -10,6 +10,9 @@ members  = [
   "egui_charts/crates/egui_charts",
   "egui_charts/crates/egui_charts_gallery",
 ]
+# `e2e` is its own workspace: keeps its heavy async/browser deps out of this
+# lockfile and out of the wasm32 build of `demo`.
+exclude = ["e2e"]
 resolver = "2"
 
 [workspace.dependencies]

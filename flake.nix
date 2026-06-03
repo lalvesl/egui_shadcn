@@ -94,7 +94,9 @@
         craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
 
         # ── e2e tooling ────────────────────────────────────────────────────────
-        e2ePython = pkgs.python3.withPackages (ps: [ ps.playwright ps.pillow ]);
+        # Headless browser for the Rust e2e harness (chromiumoxide drives it
+        # over the DevTools Protocol — no WebDriver, no Playwright, no Python).
+        e2eChromium = pkgs.chromium;
       in
       {
         # ── Native dev shell ───────────────────────────────────────────────────
@@ -103,6 +105,7 @@
             pkg-config
             rustToolchain
             trunk
+            e2eChromium # headless browser for `cargo run -p e2e`
           ];
 
           buildInputs = nativeLibs ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
@@ -115,6 +118,7 @@
 
           shellHook = ''
             export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}:$LD_LIBRARY_PATH"
+            export E2E_CHROME="${e2eChromium}/bin/chromium"
           '';
         };
 
@@ -223,7 +227,12 @@ HTML
             "${script}";
         };
 
-        # ── nix run .#e2e — end-to-end browser test ───────────────────────────
+        # ── nix run .#e2e — full confidence run (Python-free) ─────────────────
+        #   1. headless unit + smoke tests — these also *run* the demo and
+        #      gallery apps' real update loops (every component, every chart),
+        #   2. execute the i18n example binary,
+        #   3. build the WASM demo and drive it in headless Chromium via the
+        #      Rust harness (chromiumoxide over CDP — replaces Playwright).
         apps.e2e = {
           type = "app";
           program =
@@ -232,36 +241,40 @@ HTML
                 set -euo pipefail
                 export PATH="${rustToolchain}/bin:${pkgs.trunk}/bin:${pkgs.git}/bin:$PATH"
                 export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
-                export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
-                export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
                 REPO="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                cd "$REPO"
 
-                echo "[e2e] Building WASM with trunk…"
-                (cd "$REPO/demo" && trunk build)
+                echo "[e2e] == 1/4 unit + smoke tests (components, charts, demo, gallery, i18n) =="
+                cargo test --workspace
 
-                echo "[e2e] Serving demo/dist on :8081…"
-                ${pkgs.python3}/bin/python3 -m http.server 8081 \
-                  --directory "$REPO/demo/dist" &
-                SERVER_PID=$!
-                trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+                echo "[e2e] == 2/4 executing example app (i18n) =="
+                cargo run -p example-app
 
-                echo "[e2e] Waiting for server to be ready…"
-                ${pkgs.python3}/bin/python3 -c "
-import urllib.request, time, sys
-for _ in range(40):
-    try:
-        urllib.request.urlopen('http://localhost:8081/')
-        break
-    except Exception:
-        time.sleep(0.25)
-else:
-    print('[e2e] ERROR: HTTP server did not start', file=sys.stderr)
-    sys.exit(1)
-"
+                echo "[e2e] == 3/4 building WASM demo (trunk build) =="
+                ( cd "$REPO/demo" && trunk build )
 
-                echo "[e2e] Running Playwright test…"
-                ${e2ePython}/bin/python3 "$REPO/e2e/test.py"
+                echo "[e2e] == 4/4 headless browser test (Rust / chromiumoxide) =="
+                export E2E_SERVE_DIR="$REPO/demo/dist"
+                export E2E_CHROME="${e2eChromium}/bin/chromium"
+                exec cargo run --manifest-path "$REPO/e2e/Cargo.toml" --release
+              '';
+            in
+            "${script}";
+        };
+
+        # ── nix run .#test — headless unit + smoke suite only (fast) ──────────
+        apps.test = {
+          type = "app";
+          program =
+            let
+              script = pkgs.writeShellScript "egui-shadcn-test" ''
+                set -euo pipefail
+                export PATH="${rustToolchain}/bin:$PATH"
+                export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
+                REPO="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                cd "$REPO"
+                exec cargo test --workspace
               '';
             in
             "${script}";

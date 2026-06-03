@@ -606,6 +606,7 @@ dependencies = [
  "eframe",
  "egui",
  "egui_charts",
+ "egui_components",
 ]
 
 [[package]]

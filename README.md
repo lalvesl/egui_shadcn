@@ -83,6 +83,28 @@ trunk serve            # dev server at http://localhost:8080
 trunk build --release  # production bundle
 ```
 
+## Testing
+
+All tests are pure Rust — no Python, no Playwright.
+
+```sh
+cargo test --workspace   # unit + interaction + headless smoke tests
+nix run .#test           # same, inside the pinned toolchain
+nix run .#e2e            # full gate: tests → run examples → WASM browser test
+```
+
+Three layers:
+
+| Layer | Where | What it checks |
+| ----- | ----- | -------------- |
+| **Unit / interaction** | `egui_components/tests/`, `egui_charts/.../tests/` | Every component renders without panicking across variants, sizes and light/dark; clicks toggle state, sliders drag, inputs type; theme/token math. Driven by a real headless `egui::Context` (no window, no GPU). |
+| **Example smoke** | `demo/tests/smoke.rs`, gallery `#[cfg(test)]`, `i18n/example-app` | The real `DemoApp` and chart `GalleryApp` update loops are stepped frame-by-frame over every section / chart kind / locale — "the examples run" is itself a confidence test. |
+| **Web e2e** | `e2e/` (standalone crate) | Builds the WASM demo, serves it, and drives **headless Chromium** over the DevTools Protocol ([`chromiumoxide`](https://github.com/mattsse/chromiumoxide)). Scans the console for crash signatures and screenshots the canvas, asserting it rendered a real (multi-color) UI rather than a blank frame. |
+
+The browser harness self-serves `demo/dist` and talks CDP directly, so it needs
+only a Chromium binary (provided by the flake; override with `E2E_CHROME`). It
+replaces the former `e2e/test.py` Playwright script.
+
 ## Workspace structure
 
 ```
@@ -106,6 +128,8 @@ demo/                  — showcase app (native + WASM); depends on egui_sc + i1
     main.rs            — native entry
     lib.rs             — WASM entry (wasm_bindgen)
   index.html           — Trunk config
+
+e2e/                   — standalone crate: headless-Chromium web e2e (chromiumoxide)
 ```
 
 ## Tech stack

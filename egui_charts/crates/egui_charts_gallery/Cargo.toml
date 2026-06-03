@@ -10,6 +10,7 @@ name = "egui_charts_gallery"
 path = "src/main.rs"
 
 [dependencies]
-egui        = { workspace = true }
-eframe      = { workspace = true, features = ["default_fonts", "glow", "wayland", "x11"] }
-egui_charts = { path = "../egui_charts" }
+egui            = { workspace = true }
+eframe          = { workspace = true, features = ["default_fonts", "glow", "wayland", "x11"] }
+egui_charts     = { path = "../egui_charts" }
+egui_components = { path = "../../../egui_components" }
