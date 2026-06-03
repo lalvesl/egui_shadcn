@@ -59,6 +59,14 @@
 - **Nix Web Mode**: Fixed the `nix run .#web` command so it compiles and runs in web mode successfully.
 - **Component Implementations**: Continued implementing the remaining components listed in `README.md`, updating progress, and ensuring they are showcased in the demo.
 
+### Testing & E2E
+- **Unit & interaction tests**: Added a headless `egui::Context` test harness (`egui_components/tests/common`) — no `egui_kittest`, since components paint directly. Covers every component rendering across variants/sizes/light+dark (`render_simple`, `render_complex`), behavioural clicks/drags/typing (`interaction`), and theme/token math (`theme`).
+- **Chart tests**: `egui_charts` render-smoke for every chart kind (bar/line/scatter/pie/gauge/funnel/empty) in both modes, plus palette/theme assertions.
+- **Example smoke tests**: `DemoApp` and the chart `GalleryApp` update loops are split out of `eframe::App::ui` (`show` / `render`) and stepped frame-by-frame headlessly over every section / chart kind / locale; the `i18n` example binary is run as part of the gate.
+- **Rust web e2e (replaced Python Playwright)**: New standalone `e2e/` crate drives headless Chromium over CDP via `chromiumoxide`; self-serves `demo/dist`, scans the console for crash signatures, and screenshots the canvas asserting color diversity (not just non-background pixels). Deleted `e2e/test.py`.
+- **Flake**: `nix run .#e2e` now runs tests → example execution → WASM build → browser test (Python-free); added `nix run .#test`. Provides `pkgs.chromium`; `E2E_CHROME` overrides.
+- **Flaky-test fix**: serialized i18n language-dependent tests (global state) behind a `Mutex` so the parallel runner is deterministic.
+
 # Not so necessary / Future Ideas
 
 - **Demo Macro Crate**: Create a separate `demo-macro` crate exposing a macro to extract/copy a component's implementation code and display it inside the demo UI.
