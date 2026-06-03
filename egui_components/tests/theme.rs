@@ -1,8 +1,8 @@
 //! Pure-logic tests for the theme / design-token layer — no UI required.
 
 use egui::Color32;
-use egui_components::theme::hsl;
 use egui_components::ShadcnTheme;
+use egui_components::theme::hsl;
 
 fn luminance(c: Color32) -> f32 {
     let f = |v: u8| {
@@ -26,7 +26,11 @@ fn hsl_primary_hues_are_exact() {
 #[test]
 fn hsl_achromatic_is_gray() {
     assert_eq!(hsl(0.0, 0.0, 0.0), Color32::from_rgb(0, 0, 0), "black");
-    assert_eq!(hsl(0.0, 0.0, 1.0), Color32::from_rgb(255, 255, 255), "white");
+    assert_eq!(
+        hsl(0.0, 0.0, 1.0),
+        Color32::from_rgb(255, 255, 255),
+        "white"
+    );
     // Saturation 0 → r==g==b regardless of hue.
     let gray = hsl(200.0, 0.0, 0.5);
     assert_eq!(gray.r(), gray.g());
@@ -70,7 +74,10 @@ fn custom_hue_changes_primary_and_is_recorded() {
     let zinc = ShadcnTheme::dark();
     let red = ShadcnTheme::build(true, Some(0.0));
     assert_eq!(red.primary_hue, Some(0.0));
-    assert_ne!(zinc.primary, red.primary, "hue should change the primary color");
+    assert_ne!(
+        zinc.primary, red.primary,
+        "hue should change the primary color"
+    );
     // ring tracks primary.
     assert_eq!(red.ring, red.primary);
 }

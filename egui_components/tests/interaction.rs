@@ -5,7 +5,7 @@
 mod common;
 use common::*;
 
-use egui::{vec2, Event};
+use egui::{Event, vec2};
 
 #[test]
 fn checkbox_click_toggles_and_disabled_is_inert() {

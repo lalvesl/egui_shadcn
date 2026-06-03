@@ -6,8 +6,8 @@
 mod common;
 use common::*;
 
-use egui_components::size::Size;
 use egui_components::ICON_CHECK;
+use egui_components::size::Size;
 
 const THEMES: [bool; 2] = [true, false];
 const SIZES: [Size; 3] = [Size::Sm, Size::Default, Size::Lg];
@@ -175,7 +175,10 @@ fn radio_group() {
     let mut selected: u32 = 1;
     for s in SIZES {
         let resp = render(&ctx, |ui| {
-            Radio::new(&mut selected, 1u32).label("One").size(s).show(ui)
+            Radio::new(&mut selected, 1u32)
+                .label("One")
+                .size(s)
+                .show(ui)
         });
         assert_rect_sane(resp.rect);
     }
@@ -187,7 +190,10 @@ fn separator_orientations() {
     let ctx = ctx();
     render(&ctx, |ui| {
         Separator::horizontal().show(ui);
-        Separator::horizontal().thickness(3.0).length(120.0).show(ui);
+        Separator::horizontal()
+            .thickness(3.0)
+            .length(120.0)
+            .show(ui);
         ui.horizontal(|ui| {
             Separator::vertical().show(ui);
         });
@@ -236,8 +242,9 @@ fn switch_states() {
     let ctx = ctx();
     for s in SIZES {
         for mut on in [true, false] {
-            let resp =
-                render(&ctx, |ui| Switch::new(&mut on).enabled(true).size(s).show(ui));
+            let resp = render(&ctx, |ui| {
+                Switch::new(&mut on).enabled(true).size(s).show(ui)
+            });
             assert_rect_sane(resp.rect);
         }
     }

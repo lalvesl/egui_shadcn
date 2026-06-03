@@ -186,12 +186,24 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
             ui.add_space(12.0);
             small_text(ui, "Sequential");
             ui.add_space(4.0);
-            swatch_row(ui, &chart_theme.sequential, egui::vec2(14.0, 18.0), 0.0, false);
+            swatch_row(
+                ui,
+                &chart_theme.sequential,
+                egui::vec2(14.0, 18.0),
+                0.0,
+                false,
+            );
 
             ui.add_space(12.0);
             small_text(ui, "Diverging");
             ui.add_space(4.0);
-            swatch_row(ui, &chart_theme.diverging, egui::vec2(14.0, 18.0), 0.0, false);
+            swatch_row(
+                ui,
+                &chart_theme.diverging,
+                egui::vec2(14.0, 18.0),
+                0.0,
+                false,
+            );
         });
 }
 

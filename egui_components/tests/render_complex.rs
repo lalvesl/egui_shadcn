@@ -41,7 +41,7 @@ fn boxed_returns_inner() {
 
 #[test]
 fn card_with_header_and_footer() {
-    use egui_components::card::{card_footer, card_header, Card};
+    use egui_components::card::{Card, card_footer, card_header};
     let ctx = ctx();
     frame(&ctx, base_input(), |ui| {
         Card::new().padding(16.0).show(ui, |ui| {
@@ -240,9 +240,7 @@ fn dropdown_menu_trigger() {
             disabled: false,
         },
     ];
-    let chosen = render(&ctx, |ui| {
-        DropdownMenu::new("dd", "Menu", &items).show(ui)
-    });
+    let chosen = render(&ctx, |ui| DropdownMenu::new("dd", "Menu", &items).show(ui));
     assert_eq!(chosen, None);
 }
 
@@ -251,9 +249,12 @@ fn grid_lays_out_items() {
     use egui_components::grid::Grid;
     let ctx = ctx();
     frame(&ctx, base_input(), |ui| {
-        Grid::new().min_col_width(80.0).gap(8.0).show(ui, 6, |ui, i| {
-            ui.label(format!("cell {i}"));
-        });
+        Grid::new()
+            .min_col_width(80.0)
+            .gap(8.0)
+            .show(ui, 6, |ui, i| {
+                ui.label(format!("cell {i}"));
+            });
     });
 }
 

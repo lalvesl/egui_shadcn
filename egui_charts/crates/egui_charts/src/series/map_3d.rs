@@ -142,7 +142,8 @@ pub fn render(
     for (_, poly, fill, stroke, idx) in &faces {
         p.poly(poly.clone(), *fill, *stroke);
         if let Some(h) = hover_pos
-            && *idx != usize::MAX && polygon_contains(h, poly)
+            && *idx != usize::MAX
+            && polygon_contains(h, poly)
         {
             hovered_region = Some(*idx);
         }

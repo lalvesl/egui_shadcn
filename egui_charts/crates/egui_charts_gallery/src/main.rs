@@ -8,11 +8,12 @@ use controls::ControlsState;
 use eframe::egui;
 use egui_charts::{ChartKind, ChartWidget, ThemeMode};
 use egui_components::{
-    ICON_AUTO_GRAPH, ShadcnTheme, Size, icon_font_id,
+    ICON_AUTO_GRAPH, ShadcnTheme, Size,
     accordion::Accordion,
     alert::Alert,
     badge::{Badge, BadgeVariant},
     card::Card,
+    icon_font_id,
     separator::Separator,
     typography::{heading2, heading4, muted_text, small_text},
 };
@@ -300,4 +301,3 @@ mod tests {
         }
     }
 }
-

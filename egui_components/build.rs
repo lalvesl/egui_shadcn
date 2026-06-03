@@ -65,7 +65,10 @@ fn main() {
                 )
             });
             fs::write(&cp_path, &bytes).expect("write codepoints");
-            eprintln!("[egui_components] codepoints cached → {}", cp_path.display());
+            eprintln!(
+                "[egui_components] codepoints cached → {}",
+                cp_path.display()
+            );
         }
     }
     let codepoints = fs::read_to_string(&cp_path).expect("read codepoints");
@@ -86,7 +89,10 @@ fn main() {
             match download_bytes(&url) {
                 Ok(bytes) => {
                     fs::write(&custom_ttf, &bytes).expect("write custom font");
-                    eprintln!("[egui_components] custom font saved → {}", custom_ttf.display());
+                    eprintln!(
+                        "[egui_components] custom font saved → {}",
+                        custom_ttf.display()
+                    );
                 }
                 Err(e) => {
                     eprintln!("[egui_components] WARNING: could not download custom font: {e}");

@@ -5,9 +5,7 @@
 //! that panics — divide-by-zero on empty data, an out-of-range palette index,
 //! a bad axis transform — fails here instead of in a demo.
 
-use egui_charts::{
-    Axis, Chart, ChartTheme, ChartWidget, Distribution, Harmony, Series, ThemeMode,
-};
+use egui_charts::{Axis, Chart, ChartTheme, ChartWidget, Distribution, Harmony, Series, ThemeMode};
 
 /// Run one offscreen frame and hand the chart a real `Ui`. Returns the widget's
 /// response rect so callers can assert the geometry is sane.
@@ -66,7 +64,11 @@ fn line_variants_render() {
             .x_axis(Axis::category(["Mon", "Tue", "Wed", "Thu", "Fri"]))
             .y_axis(Axis::value())
             .series(Series::line("plain").data([3.0, 5.0, 2.0, 8.0, 6.0]))
-            .series(Series::line("smooth").smooth(true).data([4.0, 4.0, 5.0, 7.0, 7.0]))
+            .series(
+                Series::line("smooth")
+                    .smooth(true)
+                    .data([4.0, 4.0, 5.0, 7.0, 7.0]),
+            )
             .series(Series::line("area").area().data([1.0, 2.0, 3.0, 4.0, 5.0]))
     });
     assert_sane(r);
@@ -129,7 +131,11 @@ fn mixed_bar_and_line_render() {
             .x_axis(Axis::category(["Q1", "Q2", "Q3", "Q4"]))
             .y_axis(Axis::value())
             .series(Series::bar("rev").data([12.0, 18.0, 9.0, 22.0]))
-            .series(Series::line("trend").smooth(true).data([10.0, 15.0, 14.0, 20.0]))
+            .series(
+                Series::line("trend")
+                    .smooth(true)
+                    .data([10.0, 15.0, 14.0, 20.0]),
+            )
     });
     assert_sane(r);
 }
