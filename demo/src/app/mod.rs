@@ -1,8 +1,8 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
 use egui::Color32;
-use egui_shadcn::spacing::Spacing;
-use egui_shadcn::{
+use egui_sc::egui_components::spacing::Spacing;
+use egui_sc::egui_components::{
     ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE, ShadcnTheme,
     button::{Button, ButtonVariant},
     calendar::CalDate,
@@ -337,7 +337,7 @@ impl DemoApp {
                 // Theme color picker via Popover
                 let palette_color = self
                     .primary_hue
-                    .map(|h| egui_shadcn::theme::hsl(h, 0.8, 0.55))
+                    .map(|h| egui_sc::egui_components::theme::hsl(h, 0.8, 0.55))
                     .unwrap_or(theme.foreground);
                 let dark = self.dark;
 
@@ -375,12 +375,12 @@ impl DemoApp {
                         ui.horizontal_wrapped(|ui| {
                             for (hue, name_variant) in presets {
                                 let color = match hue {
-                                    None => egui_shadcn::theme::hsl(
+                                    None => egui_sc::egui_components::theme::hsl(
                                         240.0,
                                         0.059,
                                         if dark { 0.5 } else { 0.3 },
                                     ),
-                                    Some(h) => egui_shadcn::theme::hsl(*h, 0.8, 0.55),
+                                    Some(h) => egui_sc::egui_components::theme::hsl(*h, 0.8, 0.55),
                                 };
                                 let is_sel = *hue == self.primary_hue;
                                 let (swatch_rect, swatch_resp) = ui.allocate_exact_size(

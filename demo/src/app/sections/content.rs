@@ -1,7 +1,7 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
 use egui::Color32;
-use egui_shadcn::{
+use egui_sc::egui_components::{
     ShadcnTheme,
     avatar::Avatar,
     boxed::Boxed,

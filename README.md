@@ -86,7 +86,7 @@ trunk build --release  # production bundle
 ## Workspace structure
 
 ```
-egui-shadcn/           — library crate
+egui_components/       — Shadcn-style component library (formerly `egui-shadcn`)
   src/
     lib.rs             — re-exports
     theme.rs           — ShadcnTheme, HSL helpers, design tokens
@@ -96,9 +96,13 @@ egui-shadcn/           — library crate
     MaterialIcons-Regular.ttf   (downloaded by build.rs)
   build.rs             — downloads font, emits has_material_icons cfg
 
-demo/                  — showcase app (native + WASM)
+egui_charts/crates/    — egui_charts (charting lib) + egui_charts_gallery (bin)
+i18n/                  — i18n facade, i18n-format, i18n-macros, example-app
+egui_sc/               — umbrella crate; re-exports egui_components + egui_charts + i18n
+
+demo/                  — showcase app (native + WASM); depends on egui_sc + i18n
   src/
-    app.rs             — DemoApp, all component sections
+    app/               — DemoApp + component sections
     main.rs            — native entry
     lib.rs             — WASM entry (wasm_bindgen)
   index.html           — Trunk config

@@ -1,4 +1,4 @@
-//! Demo-only i18n catalogs. Component-level strings live in `egui_shadcn::i18n`;
+//! Demo-only i18n catalogs. Component-level strings live in `egui_sc::egui_components::i18n`;
 //! this module covers every string the demo app itself renders.
 
 use std::borrow::Cow;

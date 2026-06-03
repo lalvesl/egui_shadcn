@@ -1,0 +1,18 @@
+[package]
+name        = "egui_sc"
+version     = "0.1.0"
+edition     = "2024"
+description = "Umbrella crate: re-exports egui_components (UI), egui_charts (charts), and i18n under one import."
+license     = "MIT OR Apache-2.0"
+
+[features]
+default    = ["lang-en-us", "lang-pt-br"]
+lang-en    = ["egui_components/lang-en", "i18n/lang-en"]
+lang-en-us = ["egui_components/lang-en-us", "i18n/lang-en-us"]
+lang-pt    = ["egui_components/lang-pt", "i18n/lang-pt"]
+lang-pt-br = ["egui_components/lang-pt-br", "i18n/lang-pt-br"]
+
+[dependencies]
+egui_components = { path = "../egui_components", default-features = false }
+egui_charts     = { path = "../egui_charts/crates/egui_charts" }
+i18n            = { path = "../i18n/i18n" }

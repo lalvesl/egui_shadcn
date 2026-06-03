@@ -1,8 +1,8 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
-use egui_shadcn::size::Size;
-use egui_shadcn::spacing::Spacing;
-use egui_shadcn::{
+use egui_sc::egui_components::size::Size;
+use egui_sc::egui_components::spacing::Spacing;
+use egui_sc::egui_components::{
     alert::{Alert, AlertVariant},
     alert_dialog::AlertDialog,
     button::{Button, ButtonSize, ButtonVariant},

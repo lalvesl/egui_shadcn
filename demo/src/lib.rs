@@ -52,7 +52,7 @@ pub fn start() -> Result<(), JsValue> {
                     // Order matters: register_font_bytes must come AFTER DemoApp::new.
                     let app = DemoApp::new(cc);
                     if let Some(bytes) = icon_bytes {
-                        egui_shadcn::register_font_bytes(&cc.egui_ctx, bytes);
+                        egui_sc::egui_components::register_font_bytes(&cc.egui_ctx, bytes);
                     }
                     Ok(Box::new(app))
                 }),

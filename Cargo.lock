@@ -418,7 +418,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
- "egui-shadcn",
+ "egui_sc",
  "i18n",
  "js-sys",
  "skrifa",
@@ -550,17 +550,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "egui-shadcn"
-version = "0.1.0"
-dependencies = [
- "egui",
- "i18n",
- "js-sys",
- "skrifa",
- "ureq",
-]
-
-[[package]]
 name = "egui-wgpu"
 version = "0.34.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -620,6 +609,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "egui_components"
+version = "0.1.0"
+dependencies = [
+ "egui",
+ "i18n",
+ "js-sys",
+ "skrifa",
+ "ureq",
+]
+
+[[package]]
 name = "egui_glow"
 version = "0.34.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -634,6 +634,15 @@ dependencies = [
  "wasm-bindgen",
  "web-sys",
  "winit",
+]
+
+[[package]]
+name = "egui_sc"
+version = "0.1.0"
+dependencies = [
+ "egui_charts",
+ "egui_components",
+ "i18n",
 ]
 
 [[package]]

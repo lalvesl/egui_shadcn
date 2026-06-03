@@ -56,16 +56,16 @@ fn main() {
         if let Ok(src) = std::env::var("EGUI_SHADCN_CODEPOINTS_PATH") {
             fs::copy(&src, &cp_path).expect("copy codepoints from EGUI_SHADCN_CODEPOINTS_PATH");
         } else {
-            eprintln!("[egui-shadcn] downloading Material Icons codepoints…");
+            eprintln!("[egui_components] downloading Material Icons codepoints…");
             let bytes = download_bytes(CODEPOINTS_URL).unwrap_or_else(|e| {
                 panic!(
-                    "[egui-shadcn] could not download Material Icons codepoints: {e}\n\
+                    "[egui_components] could not download Material Icons codepoints: {e}\n\
                      Internet access required on the first build (or after `cargo clean`).\n\
                      For offline builds set EGUI_SHADCN_CODEPOINTS_PATH to a pre-fetched copy."
                 )
             });
             fs::write(&cp_path, &bytes).expect("write codepoints");
-            eprintln!("[egui-shadcn] codepoints cached → {}", cp_path.display());
+            eprintln!("[egui_components] codepoints cached → {}", cp_path.display());
         }
     }
     let codepoints = fs::read_to_string(&cp_path).expect("read codepoints");
@@ -82,14 +82,14 @@ fn main() {
 
         let custom_ttf = out_dir.join("custom_font.ttf");
         if !custom_ttf.exists() {
-            eprintln!("[egui-shadcn] downloading custom font '{font_name}'…");
+            eprintln!("[egui_components] downloading custom font '{font_name}'…");
             match download_bytes(&url) {
                 Ok(bytes) => {
                     fs::write(&custom_ttf, &bytes).expect("write custom font");
-                    eprintln!("[egui-shadcn] custom font saved → {}", custom_ttf.display());
+                    eprintln!("[egui_components] custom font saved → {}", custom_ttf.display());
                 }
                 Err(e) => {
-                    eprintln!("[egui-shadcn] WARNING: could not download custom font: {e}");
+                    eprintln!("[egui_components] WARNING: could not download custom font: {e}");
                 }
             }
         }
@@ -115,14 +115,14 @@ fn main() {
         if let Ok(src) = std::env::var("EGUI_SHADCN_FONT_PATH") {
             fs::copy(&src, &ttf_path).expect("copy font from EGUI_SHADCN_FONT_PATH");
         } else {
-            eprintln!("[egui-shadcn] downloading Material Icons font…");
+            eprintln!("[egui_components] downloading Material Icons font…");
             match download_bytes(FONT_URL) {
                 Ok(bytes) => {
                     fs::write(&ttf_path, &bytes).expect("write font");
-                    eprintln!("[egui-shadcn] font saved → {}", ttf_path.display());
+                    eprintln!("[egui_components] font saved → {}", ttf_path.display());
                 }
                 Err(e) => {
-                    eprintln!("[egui-shadcn] WARNING: could not download font: {e}");
+                    eprintln!("[egui_components] WARNING: could not download font: {e}");
                 }
             }
         }

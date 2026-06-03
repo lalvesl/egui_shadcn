@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 pub fn register_demo_fonts(ctx: &egui::Context) {
     #[allow(unused_mut)]
-    let mut fonts = egui_shadcn::font_definitions();
+    let mut fonts = egui_sc::egui_components::font_definitions();
 
     #[cfg(all(not(target_arch = "wasm32"), has_fallback_font))]
     {

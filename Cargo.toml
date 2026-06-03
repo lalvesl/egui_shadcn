@@ -1,6 +1,7 @@
 [workspace]
 members  = [
-  "egui-shadcn",
+  "egui_components",
+  "egui_sc",
   "demo",
   "i18n/i18n-format",
   "i18n/i18n-macros",

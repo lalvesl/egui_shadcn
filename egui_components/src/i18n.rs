@@ -4,7 +4,7 @@
 //! Usage:
 //!
 //! ```
-//! use egui_shadcn::i18n;
+//! use egui_components::i18n;
 //! i18n::set_language(i18n::Languages::PtBr);   // global; reads in t!()
 //! ```
 

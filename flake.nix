@@ -62,7 +62,7 @@
           hash = "sha256-7xSfCL3S/wmk4shXNHa3sPP7sVtiOVSt5ZiZ5xdb7do=";
         };
 
-        # Pre-fetched icon codepoints so egui-shadcn/build.rs doesn't need internet.
+        # Pre-fetched icon codepoints so egui_components/build.rs doesn't need internet.
         # Hash of: https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints
         materialIconsCodepoints = pkgs.fetchurl {
           url = "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints";

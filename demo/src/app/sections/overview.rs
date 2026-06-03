@@ -1,7 +1,7 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
-use egui_shadcn::spacing::Spacing;
-use egui_shadcn::{
+use egui_sc::egui_components::spacing::Spacing;
+use egui_sc::egui_components::{
     ShadcnTheme,
     badge::{Badge, BadgeVariant},
     card::{Card, card_header},

@@ -3,5 +3,5 @@
 **/dist
 .claude
 CLAUDE.md
-egui-shadcn/assets/
+egui_components/assets/
 result

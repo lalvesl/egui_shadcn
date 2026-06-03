@@ -1,7 +1,7 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
-use egui_shadcn::spacing::Spacing;
-use egui_shadcn::{
+use egui_sc::egui_components::spacing::Spacing;
+use egui_sc::egui_components::{
     ShadcnTheme,
     button::{Button, ButtonVariant},
     card::{Card, card_header},
@@ -49,12 +49,12 @@ impl DemoApp {
         let subtitle = tr!(t::ChartSec::Subtitle);
         self.section_title(ui, title.as_ref(), subtitle.as_ref());
 
-        let m1 = egui_shadcn::i18n::month_short(1);
-        let m2 = egui_shadcn::i18n::month_short(2);
-        let m3 = egui_shadcn::i18n::month_short(3);
-        let m4 = egui_shadcn::i18n::month_short(4);
-        let m5 = egui_shadcn::i18n::month_short(5);
-        let m6 = egui_shadcn::i18n::month_short(6);
+        let m1 = egui_sc::egui_components::i18n::month_short(1);
+        let m2 = egui_sc::egui_components::i18n::month_short(2);
+        let m3 = egui_sc::egui_components::i18n::month_short(3);
+        let m4 = egui_sc::egui_components::i18n::month_short(4);
+        let m5 = egui_sc::egui_components::i18n::month_short(5);
+        let m6 = egui_sc::egui_components::i18n::month_short(6);
         let months = &[
             m1.as_ref(),
             m2.as_ref(),

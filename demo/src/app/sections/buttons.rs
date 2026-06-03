@@ -1,7 +1,7 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
-use egui_shadcn::spacing::Spacing;
-use egui_shadcn::{
+use egui_sc::egui_components::spacing::Spacing;
+use egui_sc::egui_components::{
     ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_STRIKETHROUGH,
     ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH, ICON_SEND,
     badge::{Badge, BadgeVariant},
