@@ -191,6 +191,12 @@ impl DemoApp {
         app
     }
 
+    /// Test/embedding helper: pick the initial color scheme on a default app.
+    pub fn with_dark(mut self, dark: bool) -> Self {
+        self.dark = dark;
+        self
+    }
+
     fn apply_theme(&self, ctx: &egui::Context) {
         let theme = ShadcnTheme::build(self.dark, self.primary_hue);
         ShadcnTheme::set(ctx, theme.clone());
@@ -207,6 +213,14 @@ impl DemoApp {
 
 impl eframe::App for DemoApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.show(ui);
+    }
+}
+
+impl DemoApp {
+    /// Render the entire demo into `ui`. Split out from [`eframe::App::ui`] so
+    /// the app can be driven headlessly in tests without an `eframe::Frame`.
+    pub fn show(&mut self, ui: &mut egui::Ui) {
         self.apply_theme(ui.ctx());
         let ctx = ui.ctx().clone();
 

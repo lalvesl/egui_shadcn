@@ -1,10 +1,37 @@
-//! Right-panel theme + harmony controls.
+//! Right-panel theme + harmony controls — built entirely from
+//! `egui_components` (shadcn) widgets.
 
-use egui::{Color32, Ui, vec2};
+use egui::{Color32, Ui};
 use egui_charts::{ChartTheme, Distribution, Harmony, ThemeMode};
+use egui_components::{
+    ICON_DARK_MODE, ICON_LIGHT_MODE, ShadcnTheme, Size,
+    select::Select,
+    separator::Separator,
+    slider::Slider,
+    theme::hsl,
+    toggle_group::{ToggleGroup, ToggleGroupItem},
+    typography::{heading4, small_text},
+};
+
+/// Preset primary hues (label, degrees).
+const PRESET_HUES: &[(&str, f32)] = &[
+    ("Red", 0.0),
+    ("Orange", 25.0),
+    ("Amber", 45.0),
+    ("Green", 142.0),
+    ("Teal", 168.0),
+    ("Blue", 217.0),
+    ("Violet", 263.0),
+    ("Pink", 320.0),
+];
+
+const DISTRIBUTIONS: &[(Distribution, &str)] = &[
+    (Distribution::Even, "Even"),
+    (Distribution::GoldenAngle, "Golden angle"),
+];
 
 pub struct ControlsState {
-    pub primary: Color32,
+    pub hue: f32,
     pub mode: ThemeMode,
     pub harmony: Harmony,
     pub distribution: Distribution,
@@ -14,7 +41,7 @@ pub struct ControlsState {
 impl Default for ControlsState {
     fn default() -> Self {
         Self {
-            primary: Color32::from_rgb(0x4f, 0x8c, 0xff),
+            hue: 217.0,
             mode: ThemeMode::Dark,
             harmony: Harmony::Square,
             distribution: Distribution::Even,
@@ -24,9 +51,14 @@ impl Default for ControlsState {
 }
 
 impl ControlsState {
+    /// Primary seed color derived from the selected hue.
+    pub fn primary(&self) -> Color32 {
+        hsl(self.hue, 0.72, 0.55)
+    }
+
     pub fn build_theme(&self) -> ChartTheme {
         ChartTheme::from_primary(
-            self.primary,
+            self.primary(),
             self.mode,
             self.harmony,
             self.series_count,
@@ -35,127 +67,145 @@ impl ControlsState {
     }
 }
 
-pub fn show(ui: &mut Ui, state: &mut ControlsState) -> bool {
-    let mut changed = false;
-    ui.heading("Theme");
-    ui.add_space(6.0);
+pub fn show(ui: &mut Ui, state: &mut ControlsState) {
+    let theme = ShadcnTheme::get(ui.ctx());
 
-    ui.horizontal(|ui| {
-        let prev = state.mode;
-        if ui
-            .selectable_label(state.mode == ThemeMode::Light, "Light")
-            .clicked()
-        {
-            state.mode = ThemeMode::Light;
-        }
-        if ui
-            .selectable_label(state.mode == ThemeMode::Dark, "Dark")
-            .clicked()
-        {
-            state.mode = ThemeMode::Dark;
-        }
-        if state.mode != prev {
-            changed = true;
-            let visuals = if state.mode == ThemeMode::Dark {
-                egui::Visuals::dark()
-            } else {
-                egui::Visuals::light()
-            };
-            ui.ctx().set_visuals(visuals);
-        }
-    });
+    egui::ScrollArea::vertical()
+        .auto_shrink([false, false])
+        .show(ui, |ui| {
+            heading4(ui, "Theme");
+            ui.add_space(12.0);
 
-    ui.add_space(8.0);
-    ui.label("Primary color");
-    let mut rgba = [
-        state.primary.r() as f32 / 255.0,
-        state.primary.g() as f32 / 255.0,
-        state.primary.b() as f32 / 255.0,
-    ];
-    if ui.color_edit_button_rgb(&mut rgba).changed() {
-        state.primary = Color32::from_rgb(
-            (rgba[0] * 255.0) as u8,
-            (rgba[1] * 255.0) as u8,
-            (rgba[2] * 255.0) as u8,
-        );
-        changed = true;
-    }
+            // ── Mode (light / dark) ──────────────────────────────────────────
+            small_text(ui, "Mode");
+            ui.add_space(4.0);
+            let mode_items = [
+                (
+                    ThemeMode::Light,
+                    ToggleGroupItem {
+                        label: "Light",
+                        icon: Some(ICON_LIGHT_MODE),
+                    },
+                ),
+                (
+                    ThemeMode::Dark,
+                    ToggleGroupItem {
+                        label: "Dark",
+                        icon: Some(ICON_DARK_MODE),
+                    },
+                ),
+            ];
+            ToggleGroup::new(&mode_items, &mut state.mode)
+                .size(Size::Sm)
+                .show(ui);
 
-    ui.add_space(8.0);
-    ui.label("Harmony scheme");
-    egui::ComboBox::from_id_salt("harmony")
-        .selected_text(state.harmony.label())
-        .show_ui(ui, |ui| {
-            for h in Harmony::ALL {
-                if ui
-                    .selectable_label(state.harmony == *h, h.label())
-                    .clicked()
-                {
-                    state.harmony = *h;
-                    changed = true;
+            ui.add_space(14.0);
+
+            // ── Primary color ────────────────────────────────────────────────
+            small_text(ui, "Primary color");
+            ui.add_space(6.0);
+            ui.horizontal_wrapped(|ui| {
+                for (name, hue) in PRESET_HUES {
+                    let color = hsl(*hue, 0.72, 0.55);
+                    let selected = (state.hue - *hue).abs() < 0.5;
+                    let (rect, resp) =
+                        ui.allocate_exact_size(egui::Vec2::splat(26.0), egui::Sense::click());
+                    ui.painter().circle_filled(rect.center(), 11.0, color);
+                    if selected {
+                        ui.painter().circle_stroke(
+                            rect.center(),
+                            13.0,
+                            egui::Stroke::new(2.0, theme.foreground),
+                        );
+                    }
+                    let resp = resp.on_hover_text(*name);
+                    if resp.hovered() {
+                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                    }
+                    if resp.clicked() {
+                        state.hue = *hue;
+                    }
                 }
-            }
-        });
+            });
 
-    ui.add_space(8.0);
-    ui.label("Distribution");
-    egui::ComboBox::from_id_salt("dist")
-        .selected_text(match state.distribution {
-            Distribution::Even => "Even",
-            Distribution::GoldenAngle => "Golden angle",
-        })
-        .show_ui(ui, |ui| {
-            for (d, label) in [
-                (Distribution::Even, "Even"),
-                (Distribution::GoldenAngle, "Golden angle"),
-            ] {
-                if ui
-                    .selectable_label(state.distribution == d, label)
-                    .clicked()
-                {
-                    state.distribution = d;
-                    changed = true;
-                }
-            }
-        });
+            ui.add_space(8.0);
+            small_text(ui, "Hue");
+            ui.add_space(4.0);
+            Slider::new(&mut state.hue, 0.0, 360.0).show(ui);
 
-    ui.add_space(8.0);
-    ui.label(format!("Series in palette: {}", state.series_count));
-    if ui
-        .add(egui::Slider::new(&mut state.series_count, 1..=24))
-        .changed()
-    {
-        changed = true;
+            ui.add_space(14.0);
+            Separator::horizontal().show(ui);
+            ui.add_space(14.0);
+
+            // ── Harmony scheme ───────────────────────────────────────────────
+            small_text(ui, "Harmony scheme");
+            ui.add_space(4.0);
+            let harmony_labels: Vec<&str> = Harmony::ALL.iter().map(|h| h.label()).collect();
+            let mut harmony_idx = Harmony::ALL.iter().position(|h| *h == state.harmony);
+            if Select::new(&mut harmony_idx, &harmony_labels).show(ui)
+                && let Some(i) = harmony_idx
+            {
+                state.harmony = Harmony::ALL[i];
+            }
+
+            ui.add_space(10.0);
+
+            // ── Distribution ─────────────────────────────────────────────────
+            small_text(ui, "Distribution");
+            ui.add_space(4.0);
+            let dist_labels: Vec<&str> = DISTRIBUTIONS.iter().map(|(_, l)| *l).collect();
+            let mut dist_idx = DISTRIBUTIONS
+                .iter()
+                .position(|(d, _)| *d == state.distribution);
+            if Select::new(&mut dist_idx, &dist_labels).show(ui)
+                && let Some(i) = dist_idx
+            {
+                state.distribution = DISTRIBUTIONS[i].0;
+            }
+
+            ui.add_space(14.0);
+
+            // ── Series count ─────────────────────────────────────────────────
+            small_text(ui, &format!("Series in palette: {}", state.series_count));
+            ui.add_space(4.0);
+            let mut series = state.series_count as f32;
+            Slider::new(&mut series, 1.0, 24.0).step(1.0).show(ui);
+            state.series_count = series.round().clamp(1.0, 24.0) as usize;
+
+            ui.add_space(14.0);
+            Separator::horizontal().show(ui);
+            ui.add_space(14.0);
+
+            // ── Generated palette previews ───────────────────────────────────
+            let chart_theme = state.build_theme();
+
+            small_text(ui, "Palette");
+            ui.add_space(4.0);
+            swatch_row(ui, &chart_theme.palette, egui::vec2(18.0, 18.0), 3.0, true);
+
+            ui.add_space(12.0);
+            small_text(ui, "Sequential");
+            ui.add_space(4.0);
+            swatch_row(ui, &chart_theme.sequential, egui::vec2(14.0, 18.0), 0.0, false);
+
+            ui.add_space(12.0);
+            small_text(ui, "Diverging");
+            ui.add_space(4.0);
+            swatch_row(ui, &chart_theme.diverging, egui::vec2(14.0, 18.0), 0.0, false);
+        });
+}
+
+/// Draw a strip of color swatches (palette preview).
+fn swatch_row(ui: &mut Ui, colors: &[Color32], size: egui::Vec2, radius: f32, wrap: bool) {
+    let draw = |ui: &mut Ui| {
+        for color in colors {
+            let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
+            ui.painter().rect_filled(rect, radius, *color);
+        }
+    };
+    if wrap {
+        ui.horizontal_wrapped(draw);
+    } else {
+        ui.horizontal(draw);
     }
-
-    ui.add_space(12.0);
-    ui.label("Palette");
-    let theme = state.build_theme();
-    let swatch_size = vec2(18.0, 18.0);
-    ui.horizontal_wrapped(|ui| {
-        for color in theme.palette.iter() {
-            let (rect, _) = ui.allocate_exact_size(swatch_size, egui::Sense::hover());
-            ui.painter().rect_filled(rect, 3.0, *color);
-        }
-    });
-
-    ui.add_space(12.0);
-    ui.label("Sequential");
-    ui.horizontal(|ui| {
-        for color in theme.sequential.iter() {
-            let (rect, _) = ui.allocate_exact_size(vec2(14.0, 18.0), egui::Sense::hover());
-            ui.painter().rect_filled(rect, 0.0, *color);
-        }
-    });
-
-    ui.add_space(8.0);
-    ui.label("Diverging");
-    ui.horizontal(|ui| {
-        for color in theme.diverging.iter() {
-            let (rect, _) = ui.allocate_exact_size(vec2(14.0, 18.0), egui::Sense::hover());
-            ui.painter().rect_filled(rect, 0.0, *color);
-        }
-    });
-
-    changed
 }
