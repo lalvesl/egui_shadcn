@@ -2,7 +2,8 @@ use egui::{Color32, Context, FontFamily, FontId, Visuals};
 
 // ── HSL helpers ──────────────────────────────────────────────────────────────
 
-pub fn hsl(h: f32, s: f32, l: f32) -> Color32 {
+#[inline]
+pub const fn hsl(h: f32, s: f32, l: f32) -> Color32 {
     let h = h / 360.0;
     let (r, g, b) = if s == 0.0 {
         (l, l, l)
@@ -22,7 +23,8 @@ pub fn hsl(h: f32, s: f32, l: f32) -> Color32 {
     Color32::from_rgb((r * 255.0) as u8, (g * 255.0) as u8, (b * 255.0) as u8)
 }
 
-fn hue2rgb(p: f32, q: f32, mut t: f32) -> f32 {
+#[inline]
+const fn hue2rgb(p: f32, q: f32, mut t: f32) -> f32 {
     if t < 0.0 {
         t += 1.0;
     }
@@ -42,6 +44,7 @@ fn hue2rgb(p: f32, q: f32, mut t: f32) -> f32 {
 }
 
 // relative luminance (WCAG)
+#[inline]
 fn luminance(c: Color32) -> f32 {
     let f = |v: u8| {
         let v = v as f32 / 255.0;
@@ -54,6 +57,7 @@ fn luminance(c: Color32) -> f32 {
     0.2126 * f(c.r()) + 0.7152 * f(c.g()) + 0.0722 * f(c.b())
 }
 
+#[inline]
 fn foreground_for(bg: Color32) -> Color32 {
     if luminance(bg) > 0.3 {
         hsl(0.0, 0.0, 0.08)
@@ -95,13 +99,26 @@ pub struct ShadcnTheme {
 }
 
 impl ShadcnTheme {
+    /// Opacity applied to disabled inputs — mirrors Shadcn's `opacity-50`.
+    pub const DISABLED_OPACITY: f32 = 0.5;
+
+    /// Dim a single color to [`Self::DISABLED_OPACITY`]. Prefer
+    /// [`egui::Ui::multiply_opacity`] when fading a whole widget.
+    #[inline]
+    pub fn disabled(c: Color32) -> Color32 {
+        c.gamma_multiply(Self::DISABLED_OPACITY)
+    }
+
+    #[inline]
     pub fn light() -> Self {
         Self::build(false, None)
     }
+    #[inline]
     pub fn dark() -> Self {
         Self::build(true, None)
     }
 
+    #[inline]
     pub fn build(dark: bool, primary_hue: Option<f32>) -> Self {
         if dark {
             Self::build_dark(primary_hue)
@@ -110,6 +127,7 @@ impl ShadcnTheme {
         }
     }
 
+    #[inline]
     fn build_light(hue: Option<f32>) -> Self {
         let (primary, primary_fg) = match hue {
             None => (hsl(240.0, 0.059, 0.10), hsl(0.0, 0.0, 0.98)),
@@ -143,6 +161,7 @@ impl ShadcnTheme {
         }
     }
 
+    #[inline]
     fn build_dark(hue: Option<f32>) -> Self {
         let (primary, primary_fg) = match hue {
             None => (hsl(0.0, 0.0, 0.98), hsl(240.0, 0.059, 0.10)),
@@ -178,17 +197,20 @@ impl ShadcnTheme {
 
     // ── Persistence ──────────────────────────────────────────────────────────
 
+    #[inline]
     pub fn get(ctx: &Context) -> Self {
         ctx.data(|d| d.get_temp::<ShadcnTheme>(egui::Id::new(THEME_KEY)))
             .unwrap_or_else(ShadcnTheme::dark)
     }
 
+    #[inline]
     pub fn set(ctx: &Context, theme: ShadcnTheme) {
         ctx.data_mut(|d| d.insert_temp(egui::Id::new(THEME_KEY), theme));
     }
 
     // ── Apply to egui visuals ────────────────────────────────────────────────
 
+    #[inline]
     pub fn apply(&self, ctx: &Context) {
         let mut vis = if self.dark {
             Visuals::dark()
@@ -231,27 +253,93 @@ impl ShadcnTheme {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
+    #[inline]
     pub fn with_alpha(c: Color32, a: u8) -> Color32 {
         Color32::from_rgba_unmultiplied(c.r(), c.g(), c.b(), a)
     }
 
-    pub fn text_style_body() -> egui::TextStyle {
+    #[inline]
+    pub const fn text_style_body() -> egui::TextStyle {
         egui::TextStyle::Body
     }
 
-    pub fn body_font() -> FontId {
+    #[inline]
+    pub const fn body_font() -> FontId {
         FontId::new(14.0, FontFamily::Proportional)
     }
 
-    pub fn small_font() -> FontId {
+    #[inline]
+    pub const fn small_font() -> FontId {
         FontId::new(12.0, FontFamily::Proportional)
     }
 
-    pub fn heading_font(size: f32) -> FontId {
+    #[inline]
+    pub const fn heading_font(size: f32) -> FontId {
         FontId::new(size, FontFamily::Proportional)
     }
 
+    #[inline]
     pub fn icon_font(size: f32) -> FontId {
         FontId::new(size, FontFamily::Name("MaterialIcons".into()))
+    }
+}
+
+// ── Animation settings ───────────────────────────────────────────────────────
+
+const ANIM_KEY: &str = "egui_shadcn_animations";
+
+/// Global animation controls, stored in [`egui::Memory`] like [`ShadcnTheme`].
+///
+/// Every animated component scales its built-in duration through
+/// [`Animations::duration`], so this single setting tunes the velocity of — or
+/// completely disables — every animation in the library.
+///
+/// ```ignore
+/// // Half speed everywhere:
+/// Animations::set(ctx, Animations { enabled: true, speed: 0.5 });
+/// // Turn animations off:
+/// Animations::set(ctx, Animations { enabled: false, ..Default::default() });
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Animations {
+    /// Master switch. When `false`, every animation resolves instantly.
+    pub enabled: bool,
+    /// Speed multiplier: `1.0` = default, `2.0` = twice as fast, `0.5` = half.
+    pub speed: f32,
+}
+
+impl Default for Animations {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            speed: 1.0,
+        }
+    }
+}
+
+impl Animations {
+    #[inline]
+    pub fn get(ctx: &Context) -> Self {
+        ctx.data(|d| d.get_temp::<Animations>(egui::Id::new(ANIM_KEY)))
+            .unwrap_or_default()
+    }
+
+    #[inline]
+    pub fn set(ctx: &Context, anim: Animations) {
+        ctx.data_mut(|d| d.insert_temp(egui::Id::new(ANIM_KEY), anim));
+    }
+
+    /// Scale a base duration (seconds) by the current settings. Returns `0.0`
+    /// when animations are disabled, which makes egui's `animate_*` helpers
+    /// jump straight to the target value with no transition.
+    #[inline]
+    pub fn duration(ctx: &Context, base_secs: f32) -> f32 {
+        let a = Self::get(ctx);
+        if !a.enabled {
+            0.0
+        } else {
+            base_secs / a.speed.max(0.05)
+        }
     }
 }

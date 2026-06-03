@@ -7,4 +7,4 @@ pub mod theme;
 pub use components::*;
 pub use fonts::*;
 pub use icons::*;
-pub use theme::ShadcnTheme;
+pub use theme::{Animations, ShadcnTheme};
