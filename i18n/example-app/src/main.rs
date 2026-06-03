@@ -81,6 +81,12 @@ fn main() {
 mod tests {
     use super::*;
     use i18n::Translate;
+    use std::sync::Mutex;
+
+    // The active language is global process state, so tests that set it and then
+    // assert on translations must not interleave with each other under the
+    // default multi-threaded test runner. Serialize them on this lock.
+    static LANG_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn distinct_app_ids() {
@@ -96,6 +102,7 @@ mod tests {
     #[cfg(feature = "lang-en")]
     #[test]
     fn english() {
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::En);
         assert_eq!(t!(Calendar::January), "January");
         assert_eq!(t!(Calendar::Month, month = "May"), "The month May");
@@ -107,6 +114,7 @@ mod tests {
     #[cfg(feature = "lang-pt-br")]
     #[test]
     fn portuguese() {
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::PtBr);
         assert_eq!(t!(Calendar::January), "Janeiro");
         assert_eq!(t!(Calendar::Apples, count = 1), "1 maçã");
@@ -121,6 +129,7 @@ mod tests {
         // embedded for Pt, falls back to Pt (terminal), then to the marker —
         // unless en is embedded and we ask for it. Here we check PtBr works and
         // an unknown language degrades to a visible marker.
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::EnUs); // not embedded; falls back to En
         #[cfg(feature = "lang-en")]
         assert_eq!(t!(Calendar::January), "January");

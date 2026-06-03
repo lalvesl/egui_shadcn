@@ -198,9 +198,16 @@ pub fn translate(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    // The active language is global state; serialize the tests that mutate it so
+    // the default parallel runner can't interleave a `set_language` from one test
+    // into another's assertions.
+    static LANG_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn current_language_roundtrip() {
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::PtBr);
         assert_eq!(current_language(), Languages::PtBr);
         set_language(Languages::En);
@@ -209,6 +216,7 @@ mod tests {
 
     #[test]
     fn missing_shows_marker() {
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::En);
         // App id/variant that nothing registered.
         let s = translate(0xDEAD, 7, None, &[]);
@@ -217,6 +225,7 @@ mod tests {
 
     #[test]
     fn runtime_catalog_lookup() {
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         // Simulate the wasm path: fetch bytes, install, then resolve.
         let bytes = i18n_format::encode_catalog(
             Languages::En,
