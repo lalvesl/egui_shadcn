@@ -37,16 +37,35 @@ pub use linkme;
 // ---------------------------------------------------------------------------
 pub mod registry {
     use super::Catalog;
+    #[cfg(not(target_arch = "wasm32"))]
     use linkme::distributed_slice;
 
+    // Native: linkme distributed slices, filled by `#[traductions]` expansions.
+    #[cfg(not(target_arch = "wasm32"))]
     #[distributed_slice]
     pub static __I18N_CATALOGS_EN: [Catalog<'static>] = [..];
+    #[cfg(not(target_arch = "wasm32"))]
     #[distributed_slice]
     pub static __I18N_CATALOGS_ENUS: [Catalog<'static>] = [..];
+    #[cfg(not(target_arch = "wasm32"))]
     #[distributed_slice]
     pub static __I18N_CATALOGS_PT: [Catalog<'static>] = [..];
+    #[cfg(not(target_arch = "wasm32"))]
     #[distributed_slice]
     pub static __I18N_CATALOGS_PTBR: [Catalog<'static>] = [..];
+
+    // wasm: `linkme` has no wasm backend (`distributed_slice is not implemented
+    // for this platform`), and nothing is embedded there anyway — every lookup
+    // misses and the async `Source` is asked instead. So the registry is just
+    // four empty slices.
+    #[cfg(target_arch = "wasm32")]
+    pub static __I18N_CATALOGS_EN: [Catalog<'static>; 0] = [];
+    #[cfg(target_arch = "wasm32")]
+    pub static __I18N_CATALOGS_ENUS: [Catalog<'static>; 0] = [];
+    #[cfg(target_arch = "wasm32")]
+    pub static __I18N_CATALOGS_PT: [Catalog<'static>; 0] = [];
+    #[cfg(target_arch = "wasm32")]
+    pub static __I18N_CATALOGS_PTBR: [Catalog<'static>; 0] = [];
 }
 
 /// The catalogs compiled in for a language — selected without a map.

@@ -248,7 +248,10 @@ pub fn traductions(item: TokenStream) -> TokenStream {
         let slice_ident = format_ident!("__I18N_CATALOGS_{}", lang_variant.to_uppercase());
 
         lang_blobs.extend(quote! {
-            #[cfg(feature = #feature)]
+            // linkme has no wasm backend, so the registration only exists on
+            // native targets; on wasm the registry slices are empty and lookups
+            // fall through to the async `Source`.
+            #[cfg(all(feature = #feature, not(target_arch = "wasm32")))]
             const _: () = {
                 static #const_ident: &[u8] = #byte_lit;
                 #[::i18n::linkme::distributed_slice(::i18n::registry::#slice_ident)]
