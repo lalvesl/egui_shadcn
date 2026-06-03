@@ -1,12 +1,14 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
+use egui_sc::egui_charts::{
+    self, Axis, ChartTheme, ChartWidget, Distribution, Harmony, Series, ThemeMode,
+};
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
     ShadcnTheme,
     button::{Button, ButtonVariant},
     card::{Card, card_header},
     carousel::Carousel,
-    chart::{Chart, ChartDataset, ChartKind},
     command::{Command, CommandGroup, CommandItem},
     resizable::{Resizable, ResizeDir},
 };
@@ -44,6 +46,32 @@ impl DemoApp {
         });
     }
 
+    /// Build an `egui_charts` theme that tracks the active Shadcn theme: the
+    /// palette is derived from the Shadcn `primary` color (so picking a new
+    /// primary recolors the charts automatically) and the canvas background is
+    /// forced transparent so charts blend into their host `Card`.
+    fn chart_theme(ui: &egui::Ui, series: usize) -> ChartTheme {
+        let theme = ShadcnTheme::get(ui.ctx());
+        let mode = if theme.dark {
+            ThemeMode::Dark
+        } else {
+            ThemeMode::Light
+        };
+        let mut ct = ChartTheme::from_primary(
+            theme.primary,
+            mode,
+            Harmony::Analogous,
+            series.max(1),
+            Distribution::Even,
+        );
+        ct.background = egui::Color32::TRANSPARENT;
+        ct.text = theme.foreground;
+        ct.text_dim = theme.muted_foreground;
+        ct.axis_line = theme.border;
+        ct.grid_line = ShadcnTheme::with_alpha(theme.muted_foreground, 40);
+        ct
+    }
+
     pub(in crate::app) fn section_chart(&mut self, ui: &mut egui::Ui) {
         let title = t::section_name(13);
         let subtitle = tr!(t::ChartSec::Subtitle);
@@ -55,7 +83,7 @@ impl DemoApp {
         let m4 = egui_sc::egui_components::i18n::month_short(4);
         let m5 = egui_sc::egui_components::i18n::month_short(5);
         let m6 = egui_sc::egui_components::i18n::month_short(6);
-        let months = &[
+        let months = [
             m1.as_ref(),
             m2.as_ref(),
             m3.as_ref(),
@@ -63,45 +91,42 @@ impl DemoApp {
             m5.as_ref(),
             m6.as_ref(),
         ];
-        let desktop = &[186.0, 305.0, 237.0, 73.0, 209.0, 214.0];
-        let mobile = &[80.0, 200.0, 120.0, 190.0, 130.0, 140.0];
+        let desktop = [186.0, 305.0, 237.0, 73.0, 209.0, 214.0];
+        let mobile = [80.0, 200.0, 120.0, 190.0, 130.0, 140.0];
 
+        // ── Bar chart (Desktop + Mobile) ──────────────────────────────────────
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::ChartSec::HBar).as_ref(), None);
             let desktop_lbl = tr!(t::ChartSec::Desktop);
             let mobile_lbl = tr!(t::ChartSec::Mobile);
-            let datasets = &[
-                ChartDataset {
-                    label: desktop_lbl.as_ref(),
-                    values: desktop,
-                    color: None,
-                },
-                ChartDataset {
-                    label: mobile_lbl.as_ref(),
-                    values: mobile,
-                    color: Some(egui::Color32::from_rgb(100, 160, 240)),
-                },
-            ];
-            Chart::new(datasets, months)
-                .height(200.0)
-                .show_legend(true)
+            let chart = egui_charts::Chart::new()
+                .x_axis(Axis::category(months))
+                .y_axis(Axis::value())
+                .series(Series::bar(desktop_lbl.as_ref()).data(desktop))
+                .series(Series::bar(mobile_lbl.as_ref()).data(mobile));
+            let w = ui.available_width();
+            ChartWidget::new(&chart)
+                .id("demo_bar_chart")
+                .theme(Self::chart_theme(ui, 2))
+                .min_size(egui::vec2(w, 240.0))
                 .show(ui);
         });
 
         Spacing::Lg.show(ui);
 
+        // ── Line chart (Desktop) ──────────────────────────────────────────────
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::ChartSec::HLine).as_ref(), None);
             let desktop_lbl = tr!(t::ChartSec::Desktop);
-            let datasets = &[ChartDataset {
-                label: desktop_lbl.as_ref(),
-                values: desktop,
-                color: None,
-            }];
-            Chart::new(datasets, months)
-                .kind(ChartKind::Line)
-                .height(200.0)
-                .show_grid(true)
+            let chart = egui_charts::Chart::new()
+                .x_axis(Axis::category(months))
+                .y_axis(Axis::value())
+                .series(Series::line(desktop_lbl.as_ref()).data(desktop).smooth(true));
+            let w = ui.available_width();
+            ChartWidget::new(&chart)
+                .id("demo_line_chart")
+                .theme(Self::chart_theme(ui, 1))
+                .min_size(egui::vec2(w, 240.0))
                 .show(ui);
         });
     }

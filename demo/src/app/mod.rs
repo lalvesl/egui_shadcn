@@ -3,7 +3,7 @@ use ::i18n::t as tr;
 use egui::Color32;
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
-    ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE, ShadcnTheme,
+    Animations, ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE, ShadcnTheme,
     button::{Button, ButtonVariant},
     calendar::CalDate,
     dialog::Dialog,
@@ -13,6 +13,7 @@ use egui_sc::egui_components::{
     select::Select,
     separator::Separator,
     slider::Slider,
+    switch::Switch,
     toast::Toaster,
     typography::{body_text, heading2, heading4, muted_text, small_text},
 };
@@ -91,6 +92,8 @@ pub struct DemoApp {
     pub(super) scroll_to_section: Option<usize>,
     pub(super) locale_idx: Option<usize>,
     pub(super) sidebar_last_interaction: f64,
+    pub(super) anim_enabled: bool,
+    pub(super) anim_speed: f32,
 }
 
 impl Default for DemoApp {
@@ -154,6 +157,8 @@ impl Default for DemoApp {
             scroll_to_section: None,
             locale_idx: Some(0),
             sidebar_last_interaction: 0.0,
+            anim_enabled: true,
+            anim_speed: 1.0,
         }
     }
 }
@@ -201,6 +206,14 @@ impl DemoApp {
         let theme = ShadcnTheme::build(self.dark, self.primary_hue);
         ShadcnTheme::set(ctx, theme.clone());
         theme.apply(ctx);
+
+        Animations::set(
+            ctx,
+            Animations {
+                enabled: self.anim_enabled,
+                speed: self.anim_speed,
+            },
+        );
 
         ctx.data_mut(|d| {
             d.insert_persisted(egui::Id::new("demo_dark"), self.dark);
@@ -283,6 +296,11 @@ impl DemoApp {
         let theme = ShadcnTheme::get(ui.ctx());
 
         ui.horizontal(|ui| {
+            // Pin the row height to the tallest control (the 36px Select) *before*
+            // adding any items, so egui vertically centers every element — icons
+            // included — against the same height. Without this, the icons are laid
+            // out before the taller Select grows the row and end up top-aligned.
+            ui.set_min_height(36.0);
             let hamburger_resp = ui.add(
                 egui::Label::new(
                     egui::RichText::new(ICON_MENU)
@@ -444,6 +462,19 @@ impl DemoApp {
                         {
                             self.primary_hue = None;
                         }
+
+                        // ── Animation controls (velocity / disable) ───────────
+                        Spacing::Lg.show(ui);
+                        Separator::horizontal().show(ui);
+                        Spacing::Md.show(ui);
+                        heading4(ui, "Animations");
+                        Spacing::Sm.show(ui);
+                        Switch::new(&mut self.anim_enabled)
+                            .label("Enabled")
+                            .show(ui);
+                        Spacing::Md.show(ui);
+                        small_text(ui, "Speed");
+                        let _ = Slider::new(&mut self.anim_speed, 0.25, 3.0).show(ui);
                     },
                 );
             });

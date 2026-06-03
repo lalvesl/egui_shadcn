@@ -1,22 +1,40 @@
 # Todo
 
-- In demo, the icon to switch between light and dark mode, is not centralized in line with another elements, also the sidebar toggle too, it's more above.
-- Make the theme in @egui_components/src/theme.rs all functions #[inline] and const that possible;
-- Add in @egui_components/src/theme.rs a default value of opaque for disabled elements and implement for all inputs components;
-- Create a constant in The checkbox, disable options need to be more opaque,
-- Calendar, when select range, after clicked in the first day automatically when hovering another days make "auto selected", only a visual trick for hovering;
-  ** Animations, there's no animations for this application
-  ** Accordion, can have animation to slide down and up;
-  ** Dialog, to show up and goes down;
-  ** Carousel, makes slide swap between right and left depending the what to go to;
-- Replace the demo chart to use egui_charts crate in this directory, add bar and line charts equals already implemented in demo, don't forgot to pass the "primary" color to charts context, to automatically change;
-- The backbround of charts need to be transparant;
+_(No active tasks)_
 
 # Process
 
 _(No active tasks)_
 
 # Done
+
+### Theme, Inputs & Disabled States
+
+- **Theme `#[inline]` / `const`**: Marked the `theme.rs` functions `#[inline]`, and promoted the pure helpers to `const fn` where the compiler allows (`hsl`, `hue2rgb`, `text_style_body`, `body_font`, `small_font`, `heading_font`). Confirmed const float arithmetic + float→int casts compile on the pinned toolchain.
+- **Disabled opacity token**: Added `ShadcnTheme::DISABLED_OPACITY` (mirrors Shadcn `opacity-50`) plus a `ShadcnTheme::disabled(color)` helper. Every input now fades uniformly via `ui.multiply_opacity(DISABLED_OPACITY)` (restored after painting) when disabled — Button, Checkbox, Input, Textarea, Radio, Switch, Toggle, and ToggleGroup (inherited through Toggle). Removed the old ad-hoc per-color alpha hacks so there is no double-dimming.
+- **Checkbox**: disabled checkboxes now fade correctly through the shared opacity token.
+
+### Calendar
+
+- **Range hover preview**: While picking the second endpoint of a range, hovering a day shows a live "auto-selected" preview of the start→hovered range (shaded in-range cells + a primary endpoint circle), driven by the previous frame's hovered day. No effect in single-date mode.
+
+### Animations
+
+- **Global animation directive**: Added an `Animations { enabled, speed }` setting stored in `egui::Memory` (like the theme) with `Animations::duration(ctx, base)`, which scales — or zeroes (instant) — every component's animation duration. One switch controls velocity or disables animations library-wide.
+- **Accordion / Collapsible**: bodies slide open/closed by clipping to an animated height (natural height measured each frame) instead of popping in.
+- **Dialog**: eases in sliding up + fading, and plays a slide-down + fade-out on close (stays rendered through the close transition; non-interactive while closing).
+- **Carousel**: slides swap horizontally — incoming from the right on _next_, from the left on _prev_ — with an ease-out cubic transition.
+- **Switch**: thumb travel respects the global animation speed/disable setting.
+- **Demo control**: the theme-settings popover gained an "Animations" section — an Enabled switch + Speed slider (0.25×–3×) wired to `Animations::set` each frame.
+
+### Demo Charts
+
+- **egui_charts integration**: Replaced the demo's local `Chart` with the `egui_charts` `ChartWidget` for the Bar (Desktop + Mobile) and Line (Desktop, smooth) examples. The chart theme is built from the active Shadcn `primary` via `ChartTheme::from_primary`, so changing the primary recolors charts automatically; text/grid/axis tokens also track the Shadcn theme.
+- **Transparent chart background**: `ChartWidget` skips its background card + outer border when the theme background is fully transparent, and the demo passes a transparent background so charts blend into their `Card`. The legacy `Chart` component's plot fill was likewise made transparent.
+
+### Demo Layout
+
+- **Toolbar alignment**: Pinned the top toolbar row height (`set_min_height(36)`) before adding items so the sidebar (hamburger) toggle and the dark/light icon vertically center against the taller Select/heading instead of floating above them.
 
 ### Components & Layout
 

@@ -86,14 +86,18 @@ impl<'a> ChartWidget<'a> {
         let painter = ui.painter_at(rect);
         let chart_p = ChartPainter::new(&painter, rect);
 
-        // Background card.
-        chart_p.rounded_rect_filled(rect, 8.0, resolved_theme.background);
-        chart_p.painter.rect_stroke(
-            rect,
-            8.0,
-            Stroke::new(1.0, resolved_theme.grid_line),
-            StrokeKind::Inside,
-        );
+        // Background card. Skipped entirely when the theme background is fully
+        // transparent, so the chart blends into its host surface (e.g. a Card)
+        // with no fill and no outer border.
+        if resolved_theme.background.a() != 0 {
+            chart_p.rounded_rect_filled(rect, 8.0, resolved_theme.background);
+            chart_p.painter.rect_stroke(
+                rect,
+                8.0,
+                Stroke::new(1.0, resolved_theme.grid_line),
+                StrokeKind::Inside,
+            );
+        }
 
         // Title bar.
         let mut content = rect.shrink2(vec2(8.0, 8.0));
