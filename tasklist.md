@@ -1,15 +1,16 @@
 # Todo
 
 - In demo, the icon to switch between light and dark mode, is not centralized in line with another elements, also the sidebar toggle too, it's more above.
+- Make the theme in @egui_components/src/theme.rs all functions #[inline] and const that possible;
+- Add in @egui_components/src/theme.rs a default value of opaque for disabled elements and implement for all inputs components;
+- Create a constant in The checkbox, disable options need to be more opaque,
 - Calendar, when select range, after clicked in the first day automatically when hovering another days make "auto selected", only a visual trick for hovering;
   ** Animations, there's no animations for this application
   ** Accordion, can have animation to slide down and up;
   ** Dialog, to show up and goes down;
   ** Carousel, makes slide swap between right and left depending the what to go to;
-
 - Replace the demo chart to use egui_charts crate in this directory, add bar and line charts equals already implemented in demo, don't forgot to pass the "primary" color to charts context, to automatically change;
-
--
+- The backbround of charts need to be transparant;
 
 # Process
 
