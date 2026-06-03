@@ -126,6 +126,8 @@ fn weekday_of(year: i32, month: u8, day: u8) -> usize {
 #[derive(Clone, Debug)]
 struct CalState {
     view: CalDate,
+    /// Day the pointer hovered last frame — drives the range hover preview.
+    hover: Option<CalDate>,
 }
 
 // ── type alias ────────────────────────────────────────────────────────────────
@@ -211,6 +213,7 @@ impl<'a> Calendar<'a> {
         let mut state = ui.ctx().data_mut(|d| {
             d.get_temp::<CalState>(id).unwrap_or_else(|| CalState {
                 view: CalDate::new(today.year, today.month, 1),
+                hover: None,
             })
         });
 
@@ -221,15 +224,21 @@ impl<'a> Calendar<'a> {
         if let Some(end_ref) = self.end {
             let mut s_start: Option<CalDate> = *self.selected;
             let mut s_end: Option<CalDate> = *end_ref;
+            // Only preview while picking the second endpoint (start set, end not).
+            let preview = match (s_start, s_end) {
+                (Some(_), None) => state.hover,
+                _ => None,
+            };
 
             if self.compact {
-                let (nav, clicked) = draw_month(
+                let (nav, clicked, hov) = draw_month(
                     ui,
                     &theme,
                     DrawConfig {
                         view: state.view,
                         sel_start: s_start,
                         sel_end: s_end,
+                        preview,
                         show_prev: true,
                         show_next: true,
                         today,
@@ -244,20 +253,22 @@ impl<'a> Calendar<'a> {
                     _ => {}
                 }
 
+                state.hover = hov;
                 if let Some(d) = clicked {
                     range_click(d, &mut s_start, &mut s_end);
                 }
             } else {
                 let right_view = state.view.next_month();
-                let (nav, c0, c1) = ui
+                let (nav, c0, c1, h0, h1) = ui
                     .horizontal(|ui| {
-                        let (n, c0) = draw_month(
+                        let (n, c0, h0) = draw_month(
                             ui,
                             &theme,
                             DrawConfig {
                                 view: state.view,
                                 sel_start: s_start,
                                 sel_end: s_end,
+                                preview,
                                 show_prev: true,
                                 show_next: false,
                                 today,
@@ -266,13 +277,14 @@ impl<'a> Calendar<'a> {
                             },
                         );
                         Spacing::Xl.show(ui);
-                        let (_, c1) = draw_month(
+                        let (_, c1, h1) = draw_month(
                             ui,
                             &theme,
                             DrawConfig {
                                 view: right_view,
                                 sel_start: s_start,
                                 sel_end: s_end,
+                                preview,
                                 show_prev: false,
                                 show_next: true,
                                 today,
@@ -280,7 +292,7 @@ impl<'a> Calendar<'a> {
                                 cell_fn,
                             },
                         );
-                        (n, c0, c1)
+                        (n, c0, c1, h0, h1)
                     })
                     .inner;
 
@@ -290,6 +302,7 @@ impl<'a> Calendar<'a> {
                     _ => {}
                 }
 
+                state.hover = h0.or(h1);
                 for d in c0.into_iter().chain(c1) {
                     range_click(d, &mut s_start, &mut s_end);
                 }
@@ -299,13 +312,14 @@ impl<'a> Calendar<'a> {
         } else {
             let mut sel: Option<CalDate> = *self.selected;
 
-            let (nav, clicked) = draw_month(
+            let (nav, clicked, hov) = draw_month(
                 ui,
                 &theme,
                 DrawConfig {
                     view: state.view,
                     sel_start: sel,
                     sel_end: None,
+                    preview: None,
                     show_prev: true,
                     show_next: true,
                     today,
@@ -320,6 +334,7 @@ impl<'a> Calendar<'a> {
                 _ => {}
             }
 
+            state.hover = hov;
             if let Some(d) = clicked {
                 sel = if sel == Some(d) { None } else { Some(d) };
             }
@@ -359,6 +374,8 @@ struct DrawConfig<'f> {
     view: CalDate,
     sel_start: Option<CalDate>,
     sel_end: Option<CalDate>,
+    /// Hovered day (from last frame) used to preview an in-progress range.
+    preview: Option<CalDate>,
     show_prev: bool,
     show_next: bool,
     today: CalDate,
@@ -366,10 +383,16 @@ struct DrawConfig<'f> {
     cell_fn: Option<&'f CellFn<'f>>,
 }
 
-fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8, Option<CalDate>) {
+/// Returns `(nav, clicked_day, hovered_day)`.
+fn draw_month<'f>(
+    ui: &mut Ui,
+    theme: &ShadcnTheme,
+    cfg: DrawConfig<'f>,
+) -> (i8, Option<CalDate>, Option<CalDate>) {
     let cell_w: f32 = 36.0;
     let mut nav: i8 = 0;
     let mut clicked: Option<CalDate> = None;
+    let mut hovered_day: Option<CalDate> = None;
 
     ui.vertical(|ui| {
         // Zero horizontal spacing so day cells sit flush — keeps the day grid
@@ -450,9 +473,27 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
                     let date     = CalDate::new(cfg.view.year, cfg.view.month, day as u8);
                     let is_start = cfg.sel_start == Some(date);
                     let is_end   = cfg.sel_end == Some(date);
-                    let in_range = matches!((cfg.sel_start, cfg.sel_end), (Some(s), Some(e)) if date > s && date < e);
+                    let real_in_range = matches!((cfg.sel_start, cfg.sel_end), (Some(s), Some(e)) if date > s && date < e);
+
+                    // Range hover preview: once the first endpoint is picked
+                    // (start set, end still empty) shade start→hovered-day as if
+                    // it were already the selected range.
+                    let (preview_end, preview_in_range) =
+                        match (cfg.sel_start, cfg.sel_end, cfg.preview) {
+                            (Some(s), None, Some(p)) => {
+                                let (lo, hi) = if p < s { (p, s) } else { (s, p) };
+                                (date == p && p != s, date > lo && date < hi)
+                            }
+                            _ => (false, false),
+                        };
+
+                    let in_range = real_in_range || preview_in_range;
+                    let is_endpoint = is_start || is_end || preview_end;
                     let is_today = date == cfg.today;
                     let hovered  = resp.hovered();
+                    if hovered {
+                        hovered_day = Some(date);
+                    }
                     // When cell has extra content, pin the number near the top;
                     // all highlight geometry is anchored to the same point.
                     let num_center = if cfg.cell_fn.is_some() {
@@ -462,7 +503,7 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
                     };
                     let r = (cell_w / 2.0 - 2.0).max(1.0);
 
-                    if is_start || is_end {
+                    if is_endpoint {
                         ui.painter().circle_filled(num_center, r, theme.primary);
                     } else if in_range {
                         ui.painter().rect_filled(rect, CornerRadius::ZERO, theme.accent);
@@ -470,14 +511,14 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
                         ui.painter().circle_filled(num_center, r, theme.accent);
                     }
 
-                    if is_today && !is_start && !is_end {
+                    if is_today && !is_endpoint {
                         ui.painter().circle_stroke(
                             num_center, r,
                             Stroke::new(1.5, theme.primary),
                         );
                     }
 
-                    let num_color = if is_start || is_end { theme.primary_foreground }
+                    let num_color = if is_endpoint        { theme.primary_foreground }
                                     else if is_today      { theme.primary }
                                     else                  { theme.foreground };
 
@@ -507,5 +548,5 @@ fn draw_month<'f>(ui: &mut Ui, theme: &ShadcnTheme, cfg: DrawConfig<'f>) -> (i8,
         }
     });
 
-    (nav, clicked)
+    (nav, clicked, hovered_day)
 }

@@ -1,5 +1,5 @@
 use super::size::Size;
-use crate::ShadcnTheme;
+use crate::{Animations, ShadcnTheme};
 use egui::{Color32, CornerRadius, Response, Sense, Ui, Vec2};
 
 pub struct Switch<'a> {
@@ -34,6 +34,10 @@ impl<'a> Switch<'a> {
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let (track_w, track_h, thumb_r) = self.size.switch_track();
 
         let text_galley = self.label.map(|lbl| {
@@ -74,29 +78,15 @@ impl<'a> Switch<'a> {
             } else {
                 theme.muted_foreground
             };
-            let track_alpha = if self.enabled { 255 } else { 128 };
-            let track_color = Color32::from_rgba_unmultiplied(
-                track_color.r(),
-                track_color.g(),
-                track_color.b(),
-                track_alpha,
-            );
             painter.rect_filled(track_rect, cr, track_color);
 
+            let thumb_dur = Animations::duration(ui.ctx(), 0.12);
             let anim_t = ui
                 .ctx()
-                .animate_bool_with_time(resp.id, *self.checked, 0.12);
+                .animate_bool_with_time(resp.id, *self.checked, thumb_dur);
             let thumb_x = track_rect.left() + track_h / 2.0 + anim_t * (track_w - track_h);
             let thumb_center = egui::Pos2::new(thumb_x, track_rect.center().y);
-            painter.circle_filled(
-                thumb_center,
-                thumb_r,
-                if self.enabled {
-                    Color32::WHITE
-                } else {
-                    ShadcnTheme::with_alpha(Color32::WHITE, 180)
-                },
-            );
+            painter.circle_filled(thumb_center, thumb_r, Color32::WHITE);
 
             if let Some(g) = text_galley {
                 let text_pos = egui::Pos2::new(
@@ -106,6 +96,7 @@ impl<'a> Switch<'a> {
                 painter.galley(text_pos, g, theme.foreground);
             }
         }
+        ui.set_opacity(prev_opacity);
         resp
     }
 }

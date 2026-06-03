@@ -36,6 +36,10 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let box_r = self.size.box_size() / 2.0;
         let box_d = box_r * 2.0;
 
@@ -83,6 +87,7 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
                 painter.galley(pos, g, theme.foreground);
             }
         }
+        ui.set_opacity(prev_opacity);
         resp
     }
 }

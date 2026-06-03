@@ -34,6 +34,10 @@ impl<'a> Checkbox<'a> {
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let box_size = self.size.box_size();
         let icon_size = (box_size * 0.75).floor();
         let gap = self.size.h_pad() * 0.67;
@@ -101,6 +105,7 @@ impl<'a> Checkbox<'a> {
                 painter.galley(text_pos, g, theme.foreground);
             }
         }
+        ui.set_opacity(prev_opacity);
         resp
     }
 }

@@ -1,5 +1,16 @@
-use crate::{ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
+use crate::{Animations, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ShadcnTheme};
 use egui::{CornerRadius, Pos2, Rect, Sense, Stroke, Ui, Vec2};
+
+/// In-flight slide transition: the outgoing slide index, when it started, and
+/// the direction (`+1` = new slide enters from the right, `-1` = from the left).
+#[derive(Clone, Copy)]
+struct CarAnim {
+    from: usize,
+    start: f64,
+    dir: f32,
+}
+
+const SLIDE_DUR_BASE: f32 = 0.32;
 
 pub struct Carousel {
     id: egui::Id,
@@ -46,7 +57,12 @@ impl Carousel {
         };
 
         let idx_id = self.id.with("index");
+        let anim_id = self.id.with("anim");
         let mut current = ui.ctx().data(|d| d.get_temp::<usize>(idx_id).unwrap_or(0));
+        let mut anim = ui
+            .ctx()
+            .data(|d| d.get_temp::<Option<CarAnim>>(anim_id))
+            .flatten();
 
         // Clamp in case item_count changed
         if self.item_count > 0 {
@@ -74,24 +90,59 @@ impl Carousel {
         // Slide area (excluding dot row)
         let slide_rect = Rect::from_min_size(outer_rect.min, Vec2::new(avail_width, self.height));
 
-        // Draw active slide using a child UI clipped to slide_rect
-        if self.item_count > 0 {
+        let now = ui.input(|i| i.time);
+        let slide_dur = Animations::duration(ui.ctx(), SLIDE_DUR_BASE) as f64;
+
+        // ── Render the slide(s) from persisted state, sliding them during a
+        //    swap. A click is handled *after* the buttons (below) and the
+        //    transition plays from the next frame, so the swap never pops. ──────
+        let mut draw_slide = |ui: &mut Ui, idx: usize, dx: f32| {
+            let r = slide_rect.translate(Vec2::new(dx, 0.0));
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
-                    .max_rect(slide_rect)
+                    .max_rect(r)
                     .layout(egui::Layout::top_down(egui::Align::LEFT)),
             );
-            child.set_clip_rect(slide_rect);
-            item_fn(current, &mut child);
+            child.set_clip_rect(slide_rect.intersect(ui.clip_rect()));
+            item_fn(idx, &mut child);
+        };
+
+        if self.item_count > 0 {
+            match anim {
+                Some(a) if (now - a.start) < slide_dur && a.from < self.item_count => {
+                    let t = ((now - a.start) / slide_dur).clamp(0.0, 1.0) as f32;
+                    let e = 1.0 - (1.0 - t).powi(3); // ease-out cubic
+                    let w = slide_rect.width();
+                    let new_dx = a.dir * (1.0 - e) * w;
+                    let old_dx = -a.dir * e * w;
+                    draw_slide(ui, a.from, old_dx);
+                    draw_slide(ui, current, new_dx);
+                    ui.ctx().request_repaint();
+                }
+                _ => {
+                    anim = None;
+                    draw_slide(ui, current, 0.0);
+                }
+            }
         }
 
-        // Prev button
+        // ── Navigation buttons, registered AFTER the slides so they sit on top
+        //    for hit-testing even when a slide holds interactive content. ────────
         let prev_center = Pos2::new(
             outer_rect.left() + btn_size / 2.0 + 8.0,
             slide_rect.center().y,
         );
         let prev_rect = Rect::from_center_size(prev_center, Vec2::splat(btn_size));
         let prev_resp = ui.interact(prev_rect, self.id.with("prev"), Sense::click());
+
+        let next_center = Pos2::new(
+            outer_rect.right() - btn_size / 2.0 - 8.0,
+            slide_rect.center().y,
+        );
+        let next_rect = Rect::from_center_size(next_center, Vec2::splat(btn_size));
+        let next_resp = ui.interact(next_rect, self.id.with("next"), Sense::click());
+
+        // ── Button visuals (drawn over the slides) ─────────────────────────────
         let prev_bg = if prev_resp.hovered() {
             theme.accent
         } else {
@@ -112,14 +163,10 @@ impl Carousel {
             ShadcnTheme::icon_font(18.0),
             theme.foreground,
         );
+        if prev_resp.hovered() {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+        }
 
-        // Next button
-        let next_center = Pos2::new(
-            outer_rect.right() - btn_size / 2.0 - 8.0,
-            slide_rect.center().y,
-        );
-        let next_rect = Rect::from_center_size(next_center, Vec2::splat(btn_size));
-        let next_resp = ui.interact(next_rect, self.id.with("next"), Sense::click());
         let next_bg = if next_resp.hovered() {
             theme.accent
         } else {
@@ -140,9 +187,14 @@ impl Carousel {
             ShadcnTheme::icon_font(18.0),
             theme.foreground,
         );
+        if next_resp.hovered() {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+        }
 
-        // Handle button clicks
+        // ── Handle clicks (after drawing): commit the new index and start (or
+        //    refresh) the slide animation, which plays from the next frame. ──────
         if prev_resp.clicked() && self.item_count > 0 {
+            let from = current;
             if current == 0 {
                 if self.loop_ {
                     current = self.item_count - 1;
@@ -150,9 +202,13 @@ impl Carousel {
             } else {
                 current -= 1;
             }
-            ui.ctx().data_mut(|d| d.insert_temp(idx_id, current));
+            if current != from {
+                anim = Some(CarAnim { from, start: now, dir: -1.0 }); // enters from left
+                ui.ctx().request_repaint();
+            }
         }
         if next_resp.clicked() && self.item_count > 0 {
+            let from = current;
             if current + 1 >= self.item_count {
                 if self.loop_ {
                     current = 0;
@@ -160,8 +216,17 @@ impl Carousel {
             } else {
                 current += 1;
             }
-            ui.ctx().data_mut(|d| d.insert_temp(idx_id, current));
+            if current != from {
+                anim = Some(CarAnim { from, start: now, dir: 1.0 }); // enters from right
+                ui.ctx().request_repaint();
+            }
         }
+
+        // Persist index + in-flight animation.
+        ui.ctx().data_mut(|d| {
+            d.insert_temp(idx_id, current);
+            d.insert_temp(anim_id, anim);
+        });
 
         // Dot indicators
         if self.item_count > 0 {

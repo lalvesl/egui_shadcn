@@ -47,6 +47,10 @@ impl<'a> Toggle<'a> {
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let h_pad = self.size.h_pad();
         let height = self.size.height();
         let fs = self.size.font_size();
@@ -84,24 +88,9 @@ impl<'a> Toggle<'a> {
             let cr = self
                 .corner_radius
                 .unwrap_or(CornerRadius::same(theme.radius as u8));
-            let (bg, fg) = if !self.enabled {
-                let base_bg = if *self.pressed {
-                    theme.primary
-                } else {
-                    theme.secondary
-                };
-                let base_fg = if *self.pressed {
-                    theme.primary_foreground
-                } else {
-                    theme.secondary_foreground
-                };
-                (
-                    ShadcnTheme::with_alpha(base_bg, 100),
-                    ShadcnTheme::with_alpha(base_fg, 128),
-                )
-            } else if *self.pressed {
+            let (bg, fg) = if *self.pressed {
                 (theme.primary, theme.primary_foreground)
-            } else if resp.hovered() {
+            } else if resp.hovered() && self.enabled {
                 (theme.muted, theme.muted_foreground)
             } else {
                 (theme.secondary, theme.secondary_foreground)
@@ -125,6 +114,7 @@ impl<'a> Toggle<'a> {
             let ty = rect.center().y - text_g.size().y / 2.0;
             ui.painter().galley(egui::Pos2::new(cx, ty), text_g, fg);
         }
+        ui.set_opacity(prev_opacity);
         resp
     }
 }

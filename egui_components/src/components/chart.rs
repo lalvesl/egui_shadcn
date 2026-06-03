@@ -97,9 +97,8 @@ impl<'a> Chart<'a> {
             ),
         );
 
-        // Background
-        ui.painter()
-            .rect_filled(plot_rect, egui::CornerRadius::ZERO, theme.background);
+        // Plot background is intentionally transparent so the chart blends into
+        // its host surface (e.g. a Card) instead of punching an opaque panel.
 
         // Auto-scale Y
         let max_val = self

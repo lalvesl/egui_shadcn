@@ -67,6 +67,10 @@ impl<'a> Textarea<'a> {
         let height_id = ui.next_auto_id();
 
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
 
         if let Some(lbl) = self.label {
             ui.label(
@@ -87,11 +91,8 @@ impl<'a> Textarea<'a> {
         };
 
         let cr = CornerRadius::same(theme.radius as u8);
-        let bg = if self.enabled {
-            theme.background
-        } else {
-            theme.muted
-        };
+        // Disabled fading handled uniformly via painter opacity (Shadcn `opacity-50`).
+        let bg = theme.background;
 
         let te = egui::TextEdit::multiline(self.value)
             .desired_width(width - h_pad * 2.0)
@@ -163,6 +164,7 @@ impl<'a> Textarea<'a> {
                     egui::StrokeKind::Outside,
                 );
             }
+            ui.set_opacity(prev_opacity);
             return resp;
         }
 
@@ -221,6 +223,7 @@ impl<'a> Textarea<'a> {
             );
         }
 
+        ui.set_opacity(prev_opacity);
         resp
     }
 }

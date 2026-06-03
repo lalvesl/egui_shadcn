@@ -65,6 +65,10 @@ impl<'a> Button<'a> {
 
     pub fn show(self, ui: &mut Ui) -> Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let (bg, fg, stroke) = self.colors(&theme);
         let (h_pad, _v_pad, height, font_size) = self.metrics();
 
@@ -102,16 +106,14 @@ impl<'a> Button<'a> {
             let default_cr = CornerRadius::same(if is_link { 0 } else { theme.radius as u8 });
             let cr = self.corner_radius.unwrap_or(default_cr);
 
-            let actual_bg = if !self.enabled {
-                ShadcnTheme::with_alpha(bg, 128)
-            } else if resp.is_pointer_button_down_on() {
+            let actual_bg = if self.enabled && resp.is_pointer_button_down_on() {
                 match self.variant {
                     ButtonVariant::Outline | ButtonVariant::Ghost => {
                         ShadcnTheme::with_alpha(theme.accent, 200)
                     }
                     _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 220),
                 }
-            } else if resp.hovered() {
+            } else if self.enabled && resp.hovered() {
                 match self.variant {
                     ButtonVariant::Outline | ButtonVariant::Ghost => theme.accent,
                     _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 230),
@@ -127,11 +129,7 @@ impl<'a> Button<'a> {
                 }
             }
 
-            let text_color = if !self.enabled {
-                ShadcnTheme::with_alpha(fg, 128)
-            } else {
-                fg
-            };
+            let text_color = fg;
 
             let total_content_w = icon_w + text_w;
             let start_x = rect.center().x - total_content_w / 2.0;
@@ -159,6 +157,7 @@ impl<'a> Button<'a> {
             }
         }
 
+        ui.set_opacity(prev_opacity);
         resp
     }
 

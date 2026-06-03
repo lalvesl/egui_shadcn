@@ -58,6 +58,10 @@ impl<'a> Input<'a> {
 
     pub fn show(self, ui: &mut Ui) -> egui::Response {
         let theme = ShadcnTheme::get(ui.ctx());
+        let prev_opacity = ui.opacity();
+        if !self.enabled {
+            ui.multiply_opacity(ShadcnTheme::DISABLED_OPACITY);
+        }
         let width = self.width.unwrap_or(ui.available_width());
 
         if let Some(lbl) = self.label {
@@ -71,11 +75,9 @@ impl<'a> Input<'a> {
 
         let height = 36.0;
         let cr = CornerRadius::same(theme.radius as u8);
-        let bg = if self.enabled {
-            theme.background
-        } else {
-            theme.muted
-        };
+        // Disabled fading is handled uniformly via the painter opacity above,
+        // so the fill stays the same as the enabled state (Shadcn `opacity-50`).
+        let bg = theme.background;
 
         let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
 
@@ -112,11 +114,7 @@ impl<'a> Input<'a> {
             .password(self.password)
             .hint_text(self.placeholder)
             .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
-            .text_color(if self.enabled {
-                theme.foreground
-            } else {
-                theme.muted_foreground
-            })
+            .text_color(theme.foreground)
             .interactive(self.enabled)
             .frame(egui::Frame::new());
 
@@ -136,6 +134,7 @@ impl<'a> Input<'a> {
             );
         }
 
+        ui.set_opacity(prev_opacity);
         resp
     }
 }
