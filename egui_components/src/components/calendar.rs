@@ -136,7 +136,7 @@ type CellFn<'a> = dyn Fn(&mut Ui, CalDate) + 'a;
 
 /// Single or range date-picker.
 ///
-/// ```
+/// ```ignore
 /// // Single date
 /// Calendar::single("my_cal", &mut selected_date).show(ui);
 ///

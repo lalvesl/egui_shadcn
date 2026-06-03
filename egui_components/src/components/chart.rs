@@ -7,7 +7,9 @@ pub struct ChartDataset<'a> {
     pub color: Option<Color32>,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum ChartKind {
+    #[default]
     Bar,
     Line,
 }
