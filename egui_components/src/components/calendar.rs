@@ -235,6 +235,7 @@ impl<'a> Calendar<'a> {
                     ui,
                     &theme,
                     DrawConfig {
+                        id,
                         view: state.view,
                         sel_start: s_start,
                         sel_end: s_end,
@@ -265,6 +266,7 @@ impl<'a> Calendar<'a> {
                             ui,
                             &theme,
                             DrawConfig {
+                                id,
                                 view: state.view,
                                 sel_start: s_start,
                                 sel_end: s_end,
@@ -281,6 +283,7 @@ impl<'a> Calendar<'a> {
                             ui,
                             &theme,
                             DrawConfig {
+                                id: id.with("right"),
                                 view: right_view,
                                 sel_start: s_start,
                                 sel_end: s_end,
@@ -316,6 +319,7 @@ impl<'a> Calendar<'a> {
                 ui,
                 &theme,
                 DrawConfig {
+                    id,
                     view: state.view,
                     sel_start: sel,
                     sel_end: None,
@@ -371,6 +375,9 @@ fn range_click(d: CalDate, start: &mut Option<CalDate>, end: &mut Option<CalDate
 // ── month grid ────────────────────────────────────────────────────────────────
 
 struct DrawConfig<'f> {
+    /// The calendar's own unique id — used to namespace nav-button interactions
+    /// so multiple calendars on screen don't share the same egui widget id.
+    id: egui::Id,
     view: CalDate,
     sel_start: Option<CalDate>,
     sel_end: Option<CalDate>,
@@ -407,7 +414,7 @@ fn draw_month<'f>(
 
         if cfg.show_prev {
             let btn = egui::Rect::from_min_size(hdr.min, Vec2::splat(36.0));
-            let r = ui.interact(btn, ui.id().with("cprev"), Sense::click());
+            let r = ui.interact(btn, cfg.id.with("cprev"), Sense::click());
             if r.hovered() || r.is_pointer_button_down_on() {
                 ui.painter().rect_filled(btn, egui::CornerRadius::same(theme.radius as u8), theme.accent);
             }
@@ -430,7 +437,7 @@ fn draw_month<'f>(
                 egui::Pos2::new(hdr.max.x - 36.0, hdr.min.y),
                 hdr.max,
             );
-            let r = ui.interact(btn, ui.id().with("cnext"), Sense::click());
+            let r = ui.interact(btn, cfg.id.with("cnext"), Sense::click());
             if r.hovered() || r.is_pointer_button_down_on() {
                 ui.painter().rect_filled(btn, egui::CornerRadius::same(theme.radius as u8), theme.accent);
             }
