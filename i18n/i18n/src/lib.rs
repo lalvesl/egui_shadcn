@@ -23,7 +23,7 @@ use std::sync::OnceLock;
 pub use i18n_format as format;
 pub use i18n_format::Languages;
 pub use i18n_format::{
-    composite_key, Arg, ArgValue, Catalog, LanguagesWithValue, Plural, Translate,
+    composite_key, ArgValue, Catalog, LanguagesWithValue, Plural, Translate,
 };
 pub use i18n_macros::{t, traductions};
 #[doc(hidden)]
@@ -153,6 +153,56 @@ pub fn install_runtime_catalog(lang: Languages, bytes: &'static [u8]) -> bool {
 }
 
 // ---------------------------------------------------------------------------
+// Per-language bundle: the generator exports every embedded catalog for a
+// language as one file; the wasm runtime fetches it and installs the lot. This
+// is the artifact that lets wasm ship zero embedded languages yet still resolve
+// strings on demand.
+// ---------------------------------------------------------------------------
+
+/// Concatenate every embedded catalog for `lang` into one length-prefixed blob:
+/// `[count:u32]` then, per catalog, `[len:u32][catalog bytes]`. Run on a native
+/// build with all language features on (see `demo/examples/gen_catalogs.rs`).
+pub fn export_catalogs(lang: Languages) -> Vec<u8> {
+    let cats = catalogs_for(lang);
+    let mut out = Vec::with_capacity(4 + cats.len() * 8);
+    out.extend_from_slice(&(cats.len() as u32).to_le_bytes());
+    for c in cats {
+        let b = c.raw_bytes();
+        out.extend_from_slice(&(b.len() as u32).to_le_bytes());
+        out.extend_from_slice(b);
+    }
+    out
+}
+
+/// Install a bundle produced by [`export_catalogs`]. `bytes` must be `'static`
+/// (leak the fetched buffer); the per-catalog sub-slices borrow it. Returns the
+/// number of catalogs installed.
+pub fn install_exported(lang: Languages, bytes: &'static [u8]) -> usize {
+    if bytes.len() < 4 {
+        return 0;
+    }
+    let count = u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]) as usize;
+    let mut cur = 4usize;
+    let mut installed = 0usize;
+    for _ in 0..count {
+        if cur + 4 > bytes.len() {
+            break;
+        }
+        let len =
+            u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]) as usize;
+        cur += 4;
+        if cur + len > bytes.len() {
+            break;
+        }
+        if install_runtime_catalog(lang, &bytes[cur..cur + len]) {
+            installed += 1;
+        }
+        cur += len;
+    }
+    installed
+}
+
+// ---------------------------------------------------------------------------
 // The dispatcher `t!` lowers to.
 // ---------------------------------------------------------------------------
 
@@ -160,13 +210,12 @@ fn lookup(
     lang: Languages,
     app_id: u16,
     variant: u8,
-    count: Option<i64>,
-    args: &[Arg<'_>],
+    args: &[ArgValue<'_>],
 ) -> Option<Cow<'static, str>> {
     // 1. Embedded catalogs.
     for cat in catalogs_for(lang) {
         if let Some(entry) = cat.lookup(app_id, variant) {
-            return Some(entry.render(lang, count, args));
+            return Some(entry.render(lang, args));
         }
     }
     // 2. Runtime-fetched catalogs.
@@ -175,7 +224,7 @@ fn lookup(
         for bytes in guard.iter() {
             if let Some(cat) = Catalog::new(bytes) {
                 if let Some(entry) = cat.lookup(app_id, variant) {
-                    return Some(entry.render(lang, count, args));
+                    return Some(entry.render(lang, args));
                 }
             }
         }
@@ -189,15 +238,10 @@ fn lookup(
 /// Resolution order: current language (embedded, then runtime) → kick the async
 /// source on a miss → fallback language → a visible `⟦app:variant⟧` marker so a
 /// missing key is obvious rather than silently empty.
-pub fn translate(
-    app_id: u16,
-    variant: u8,
-    count: Option<i64>,
-    args: &[Arg<'_>],
-) -> Cow<'static, str> {
+pub fn translate(app_id: u16, variant: u8, args: &[ArgValue<'_>]) -> Cow<'static, str> {
     let lang = current_language();
 
-    if let Some(s) = lookup(lang, app_id, variant, count, args) {
+    if let Some(s) = lookup(lang, app_id, variant, args) {
         return s;
     }
 
@@ -206,7 +250,7 @@ pub fn translate(
 
     let fb = lang.fallback();
     if fb != lang {
-        if let Some(s) = lookup(fb, app_id, variant, count, args) {
+        if let Some(s) = lookup(fb, app_id, variant, args) {
             return s;
         }
     }
@@ -238,7 +282,7 @@ mod tests {
         let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::En);
         // App id/variant that nothing registered.
-        let s = translate(0xDEAD, 7, None, &[]);
+        let s = translate(0xDEAD, 7, &[]);
         assert_eq!(s, "\u{27E6}dead:7\u{27E7}");
     }
 
@@ -255,11 +299,47 @@ mod tests {
                     category: Plural::Other,
                     template: "Hello".into(),
                 }],
+                plural_driver: None,
             }],
         );
         let leaked: &'static [u8] = Box::leak(bytes.into_boxed_slice());
         assert!(install_runtime_catalog(Languages::En, leaked));
         set_language(Languages::En);
-        assert_eq!(translate(0x1234, 0, None, &[]), "Hello");
+        assert_eq!(translate(0x1234, 0, &[]), "Hello");
+    }
+
+    #[test]
+    fn exported_bundle_roundtrip() {
+        // Two catalogs framed as one bundle ([count][len][cat]…), then installed
+        // and resolved — the exact wasm fetch path.
+        let mk = |app: u16, t: &str| {
+            i18n_format::encode_catalog(
+                Languages::PtBr,
+                vec![i18n_format::EntrySpec {
+                    app_id: app,
+                    variant: 0,
+                    forms: vec![i18n_format::FormSpec {
+                        category: Plural::Other,
+                        template: t.into(),
+                    }],
+                    plural_driver: None,
+                }],
+            )
+        };
+        let a = mk(0x4441, "Olá");
+        let b = mk(0x4442, "Mundo");
+        let mut bundle = Vec::new();
+        bundle.extend_from_slice(&2u32.to_le_bytes());
+        for c in [&a, &b] {
+            bundle.extend_from_slice(&(c.len() as u32).to_le_bytes());
+            bundle.extend_from_slice(c);
+        }
+        let leaked: &'static [u8] = Box::leak(bundle.into_boxed_slice());
+
+        let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        assert_eq!(install_exported(Languages::PtBr, leaked), 2);
+        set_language(Languages::PtBr);
+        assert_eq!(translate(0x4441, 0, &[]), "Olá");
+        assert_eq!(translate(0x4442, 0, &[]), "Mundo");
     }
 }

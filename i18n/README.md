@@ -33,7 +33,7 @@ i18n::traductions! {
     pub enum Calendar {
         January([En("January"), PtBr("Janeiro")]),
         Month([En("The month {month}"), PtBr("O mês {month}")]),   // placeholder
-        Apples(plural {                                            // plural/singular
+        Apples(plural(n) {                                         // plural/singular; `n` drives it
             one:   [En("{n} apple"),  PtBr("{n} maçã")],
             other: [En("{n} apples"), PtBr("{n} maçãs")],
         }),
@@ -58,7 +58,7 @@ time by FNV-1a hashing the enum name with a constant salt.
 ```rust
 ui.label(t!(Calendar::January));
 ui.label(t!(Calendar::Month, month = some_str));
-ui.label(t!(Calendar::Apples, count = 5));            // picks the plural form
+ui.label(t!(Calendar::Apples, n = 5));               // `n` is the declared driver
 ```
 
 `t!` reads the current `Languages` value and calls the runtime, which returns a
@@ -66,6 +66,14 @@ ui.label(t!(Calendar::Apples, count = 5));            // picks the plural form
 when a placeholder/plural actually has to be formatted. egui is **not** a
 dependency: `t!` just yields a `Cow` and you hand it to `ui.label`, which accepts
 anything `Into<String>`/`Into<WidgetText>`.
+
+There is **no `count` keyword**: the plural driver is an ordinary named argument,
+declared on the definition (`plural(n) { … }`) and passed at the call site like
+any other (`n = 5`). Arguments are addressed **positionally** — `t!` sorts the
+names it was given and emits the values in that order; the catalog computed the
+same order by sorting the same names, so placeholder names never travel on the
+wire. Args bind by name regardless of order, so a language may reorder them
+freely (`"{days} dias do mês {month}"`).
 
 ## The key & the binary format (no HashMap)
 
@@ -84,14 +92,28 @@ header (16 bytes): magic b"I18N", version, language, key_count:u16,
                    records_offset:u32, strings_offset:u32
 key table:         key_count × 12-byte records, SORTED by key, for binary search
                    [app_id:u16][variant:u8][flags:u8][offset:u32][len:u32]
-strings region:    plain  -> raw UTF-8 template bytes
-                   plural -> [form_count:u8] then [category:u8][len:u16][bytes]…
+strings region:    a "payload" is one rendered form:
+                     [quantity:u8]                       arg insertion count
+                     [ (pos:u16, arg_index:u8) * quantity ]
+                     [size:u32][literal: size]           template, placeholders removed
+                   plain  -> one payload
+                   plural -> [form_count:u8][plural_arg_index:u8] then
+                             form_count × ([category:u8] + one payload)
 ```
+
+The placeholders are **stripped** from `literal`; each `(pos, arg_index)` says
+"splice arg #`arg_index` in at byte offset `pos`". `arg_index` is the rank of the
+arg name in the entry's sorted name set (the `plural(name)` driver is included),
+so names never appear on the wire and the call site reproduces the indices by
+sorting. `plural_arg_index` is the driver's rank; the runtime reads that arg's
+numeric value to pick a form. `quantity` is a `u8` (≤ 255 insertions per form,
+any arg repeatable); `pos` is a `u16`.
 
 Lookup is: `match` on the language discriminant to pick the per-language set of
 catalogs (no map), then binary-search the sorted key table inside the chosen
-catalog. `flags` carries `F_ARGS` (has `{placeholder}`) and `F_PLURAL`; when
-`F_ARGS` is clear the bytes are returned as `Cow::Borrowed` with no allocation.
+catalog. `flags` carries `F_ARGS` (any payload has insertions) and `F_PLURAL`;
+when a form has zero insertions its literal is returned as `Cow::Borrowed` with
+no allocation.
 
 > Serialization note: the on-disk widths are fixed (`u16`/`u32`) rather than the
 > platform `usize` from the original sketch. A catalog is a portable artifact (it
@@ -117,13 +139,20 @@ If the current language's feature was not compiled in (or you built with
 The runtime then:
 
 1. calls the registered async `Source` (`notify_missing`) so your code can fetch
-   `/i18n/{bcp47}/{app_id}/{variant}` from a server and later
-   `install_runtime_catalog(...)` the bytes it gets back, and
+   that language's bundle and `install_exported(lang, bytes)` it, and
 2. returns the language's `fallback()` string (EnUs→En, PtBr→Pt) if available, or
    a visible `⟦app_id:variant⟧` marker so missing strings are obvious in the UI.
 
-A fetched catalog uses the **exact same binary format**, so the server can ship
-the very bytes the macro would have baked in.
+Rather than fetch per key, ship **one bundle per language**:
+`export_catalogs(lang)` concatenates every embedded catalog for a language into
+`[count:u32]` then per catalog `[len:u32][catalog bytes]`; `install_exported`
+walks that and installs each. A bundle is just the **exact same binary catalogs**
+the macro would have baked in, so generation is: build natively with every
+language feature on, then dump each language (see the demo's
+`demo-native --gen-i18n <dir>`, run by Trunk before the wasm build). The wasm app
+fetches `wasm_assets/i18n/{bcp47}.cat` the first time a language is shown,
+installs it, and repaints — so the wasm binary embeds **zero** languages yet
+every string resolves on demand.
 
 ## Languages
 

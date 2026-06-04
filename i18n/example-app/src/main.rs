@@ -18,8 +18,8 @@ i18n::traductions! {
         February([En("February"), PtBr("Fevereiro")]),
         // Placeholder: rendered with `t!(.., month = ..)`.
         Month([En("The month {month}"), PtBr("O mês {month}")]),
-        // Plural: `t!(.., count = n)` picks the form; `{n}` is the count.
-        Apples(plural {
+        // Plural: `n` is declared as the driver; `t!(.., n = k)` picks the form.
+        Apples(plural(n) {
             one: [En("{n} apple"), PtBr("{n} maçã")],
             other: [En("{n} apples"), PtBr("{n} maçãs")],
         }),
@@ -66,8 +66,8 @@ pub fn demo() {
         println!("== {} ==", lang.bcp47());
         ui.label(t!(Calendar::January));
         ui.label(t!(Calendar::Month, month = t!(Calendar::February)));
-        ui.label(t!(Calendar::Apples, count = 1));
-        ui.label(t!(Calendar::Apples, count = 5));
+        ui.label(t!(Calendar::Apples, n = 1));
+        ui.label(t!(Calendar::Apples, n = 5));
         ui.label(t!(Settings::Title));
         ui.label(t!(Settings::Language));
     }
@@ -106,8 +106,8 @@ mod tests {
         set_language(Languages::En);
         assert_eq!(t!(Calendar::January), "January");
         assert_eq!(t!(Calendar::Month, month = "May"), "The month May");
-        assert_eq!(t!(Calendar::Apples, count = 1), "1 apple");
-        assert_eq!(t!(Calendar::Apples, count = 7), "7 apples");
+        assert_eq!(t!(Calendar::Apples, n = 1), "1 apple");
+        assert_eq!(t!(Calendar::Apples, n = 7), "7 apples");
         assert_eq!(t!(Settings::Title), "Settings");
     }
 
@@ -117,8 +117,8 @@ mod tests {
         let _guard = LANG_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         set_language(Languages::PtBr);
         assert_eq!(t!(Calendar::January), "Janeiro");
-        assert_eq!(t!(Calendar::Apples, count = 1), "1 maçã");
-        assert_eq!(t!(Calendar::Apples, count = 3), "3 maçãs");
+        assert_eq!(t!(Calendar::Apples, n = 1), "1 maçã");
+        assert_eq!(t!(Calendar::Apples, n = 3), "3 maçãs");
         assert_eq!(t!(Settings::Language), "Idioma");
     }
 

@@ -108,7 +108,7 @@ pub fn month_long(month: u8) -> std::borrow::Cow<'static, str> {
         12 => MonthLong12,
         _ => return std::borrow::Cow::Borrowed(""),
     };
-    ::i18n::translate(Calendar::APP_ID, v as u8, None, &[])
+    ::i18n::translate(Calendar::APP_ID, v as u8, &[])
 }
 
 /// Abbreviated month name (1..=12) for the active language.
@@ -129,7 +129,7 @@ pub fn month_short(month: u8) -> std::borrow::Cow<'static, str> {
         12 => MonthShort12,
         _ => return std::borrow::Cow::Borrowed(""),
     };
-    ::i18n::translate(Calendar::APP_ID, v as u8, None, &[])
+    ::i18n::translate(Calendar::APP_ID, v as u8, &[])
 }
 
 /// Weekday label (0..=6, Sunday-first) for the active language.
@@ -145,5 +145,5 @@ pub fn weekday_short(day: usize) -> std::borrow::Cow<'static, str> {
         6 => Day6,
         _ => return std::borrow::Cow::Borrowed(""),
     };
-    ::i18n::translate(Calendar::APP_ID, v as u8, None, &[])
+    ::i18n::translate(Calendar::APP_ID, v as u8, &[])
 }

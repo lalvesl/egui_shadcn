@@ -180,7 +180,13 @@ impl DemoApp {
                 .unwrap_or(0)
         });
 
-        i18n::set_language(locale_idx_to_lang(locale_idx));
+        let lang = locale_idx_to_lang(locale_idx);
+        i18n::set_language(lang);
+        // wasm: register the async catalog source and prefetch the active
+        // language so the first paint already has strings. No-op on native.
+        #[cfg(target_arch = "wasm32")]
+        t::init_web(&cc.egui_ctx);
+        t::ensure_loaded(lang);
 
         let app = Self {
             dark,
@@ -357,8 +363,10 @@ impl DemoApp {
                 if Select::new(&mut idx, &locale_labels).width(64.0).show(ui)
                     && let Some(i) = idx
                 {
+                    let lang = locale_idx_to_lang(i);
                     self.locale_idx = Some(i);
-                    i18n::set_language(locale_idx_to_lang(i));
+                    i18n::set_language(lang);
+                    t::ensure_loaded(lang);
                     ui.ctx().data_mut(|d| {
                         d.insert_persisted(egui::Id::new("demo_locale_idx"), i);
                     });

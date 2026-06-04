@@ -120,7 +120,7 @@ pub fn section_name(idx: usize) -> Cow<'static, str> {
         50 => Typography,
         _ => return Cow::Borrowed(""),
     };
-    ::i18n::translate(SectionName::APP_ID, v as u8, None, &[])
+    ::i18n::translate(SectionName::APP_ID, v as u8, &[])
 }
 
 pub const SECTION_COUNT: usize = 51;
@@ -863,5 +863,98 @@ pub const SECTION_COUNT: usize = 51;
                PtBr("Texto pequeno — notas de rodapé e legendas.")]),
         InlinePre([EnUs("Inline "),                         PtBr("Em linha ")]),
         InlinePost([EnUs(" inside a sentence."),            PtBr(" dentro de uma frase.")]),
+    }
+}
+
+// ── Dynamic catalog loading (wasm) ──────────────────────────────────────────
+//
+// On wasm the binary embeds *no* language (smaller download); every `t!` misses
+// and we fetch the active language's catalog bundle from the server, install it,
+// and repaint. Native embeds its languages, so these are no-ops there. The
+// bundle files are produced by `demo-native --gen-i18n <dir>` and served from
+// `wasm_assets/i18n/{bcp47}.cat`.
+
+/// No-op on native (languages are embedded).
+#[cfg(not(target_arch = "wasm32"))]
+pub fn ensure_loaded(_lang: Languages) {}
+
+#[cfg(target_arch = "wasm32")]
+pub use web::{ensure_loaded, init_web};
+
+#[cfg(target_arch = "wasm32")]
+mod web {
+    use super::Languages;
+    use std::collections::HashSet;
+    use std::sync::{Mutex, OnceLock};
+
+    struct WebState {
+        ctx: egui::Context,
+        requested: Mutex<HashSet<u8>>,
+    }
+
+    static STATE: OnceLock<WebState> = OnceLock::new();
+
+    /// Zero-sized [`i18n::Source`]: on a missing string the runtime calls this,
+    /// which triggers a one-shot fetch of that language's bundle.
+    struct WebSource;
+    impl ::i18n::Source for WebSource {
+        fn request(&self, lang: Languages, _app_id: u16, _variant: u8) {
+            ensure_loaded(lang);
+        }
+    }
+
+    /// Register the async source and remember the egui context for repaints.
+    /// Call once at startup with the eframe creation context.
+    pub fn init_web(ctx: &egui::Context) {
+        let _ = STATE.set(WebState {
+            ctx: ctx.clone(),
+            requested: Mutex::new(HashSet::new()),
+        });
+        ::i18n::set_source(WebSource);
+    }
+
+    /// Fetch + install `lang`'s catalog bundle once. Calls for an already
+    /// loaded / in-flight language are ignored.
+    pub fn ensure_loaded(lang: Languages) {
+        let Some(state) = STATE.get() else { return };
+        {
+            let mut seen = state.requested.lock().unwrap();
+            if !seen.insert(lang as u8) {
+                return;
+            }
+        }
+        let ctx = state.ctx.clone();
+        wasm_bindgen_futures::spawn_local(async move {
+            match fetch_cat(lang).await {
+                Some(bytes) => {
+                    // Leak: install_exported wants `'static`, and a catalog lives
+                    // for the whole session anyway.
+                    let leaked: &'static [u8] = Box::leak(bytes.into_boxed_slice());
+                    ::i18n::install_exported(lang, leaked);
+                    ctx.request_repaint();
+                }
+                None => {
+                    // Allow a later retry if the fetch failed.
+                    if let Some(s) = STATE.get() {
+                        s.requested.lock().unwrap().remove(&(lang as u8));
+                    }
+                }
+            }
+        });
+    }
+
+    async fn fetch_cat(lang: Languages) -> Option<Vec<u8>> {
+        use wasm_bindgen::JsCast;
+        use wasm_bindgen_futures::JsFuture;
+
+        let window = web_sys::window()?;
+        let url = format!("wasm_assets/i18n/{}.cat?v=1", lang.bcp47());
+        let resp = JsFuture::from(window.fetch_with_str(&url)).await.ok()?;
+        let resp: web_sys::Response = resp.dyn_into().ok()?;
+        if !resp.ok() {
+            return None;
+        }
+        let buf = JsFuture::from(resp.array_buffer().ok()?).await.ok()?;
+        Some(js_sys::Uint8Array::new(&buf).to_vec())
     }
 }

@@ -1,3 +1,19 @@
+# Generate the per-language i18n catalog bundles before the wasm build. The
+# native demo binary is built with every language feature on and reaches every
+# `traductions!` enum, so linkme collects all catalogs (component + demo) into
+# `{bcp47}.cat` bundles under target/wasm_assets/i18n. The `copy-dir` link in
+# index.html then ships target/wasm_assets to dist/wasm_assets, so the wasm app
+# fetches `wasm_assets/i18n/{bcp47}.cat` on demand. Trunk runs hooks from this
+# directory, so `../target` is the workspace target dir.
+[[hooks]]
+stage = "pre_build"
+command = "cargo"
+command_arguments = [
+  "run", "--release", "--bin", "demo-native",
+  "--features", "lang-en,lang-pt",
+  "--", "--gen-i18n", "../target/wasm_assets/i18n",
+]
+
 [[hooks]]
 stage = "pre_build"
 command = "cargo"

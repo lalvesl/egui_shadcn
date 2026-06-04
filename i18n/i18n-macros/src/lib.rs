@@ -8,7 +8,7 @@
 //!   for handing straight to `ui.label(..)` in egui.
 
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use syn::{
     parse::{Parse, ParseStream},
@@ -47,7 +47,7 @@ fn fnv1a_16(name: &str) -> u16 {
 //   enum Calendar {
 //       January([En("January"), PtBr("Janeiro")]),
 //       Month([En("The month {month}"), PtBr("O mês {month}")]),
-//       Apples(plural {
+//       Apples(plural(n) {
 //           one:   [En("{n} apple"),  PtBr("{n} maçã")],
 //           other: [En("{n} apples"), PtBr("{n} maçãs")],
 //       }),
@@ -88,10 +88,14 @@ impl Parse for FormArray {
 }
 
 /// The body of one enum variant in the DSL: either a single form array, or a
-/// `plural { category: [..], .. }` block.
+/// `plural(driver) { category: [..], .. }` block. `driver` names the argument
+/// whose numeric value selects the plural form.
 enum VariantBody {
     Plain(FormArray),
-    Plural(Vec<(Ident, FormArray)>),
+    Plural {
+        driver: Ident,
+        forms: Vec<(Ident, FormArray)>,
+    },
 }
 
 /// A parsed DSL variant.
@@ -106,7 +110,7 @@ impl Parse for DslVariant {
         let content;
         syn::parenthesized!(content in input);
 
-        // Is it the `plural { .. }` form?
+        // Is it the `plural(driver) { .. }` form?
         if content.peek(Ident)
             && content
                 .fork()
@@ -115,6 +119,16 @@ impl Parse for DslVariant {
                 .unwrap_or(false)
         {
             let _plural: Ident = content.parse()?;
+            // The driver arg name is required: `plural(n) { .. }`. Its rank in
+            // the entry's sorted name set becomes the wire `plural_arg_index`.
+            if !content.peek(syn::token::Paren) {
+                return Err(content.error(
+                    "plural needs a driver argument name, e.g. `plural(n) { .. }`",
+                ));
+            }
+            let driver_inner;
+            syn::parenthesized!(driver_inner in content);
+            let driver: Ident = driver_inner.parse()?;
             let inner;
             syn::braced!(inner in content);
             let mut forms = Vec::new();
@@ -129,7 +143,7 @@ impl Parse for DslVariant {
             }
             Ok(DslVariant {
                 name,
-                body: VariantBody::Plural(forms),
+                body: VariantBody::Plural { driver, forms },
             })
         } else {
             let arr: FormArray = content.parse()?;
@@ -220,10 +234,15 @@ pub fn traductions(item: TokenStream) -> TokenStream {
             if forms.is_empty() {
                 continue; // this variant has no string for this language
             }
+            let plural_driver = match &var.body {
+                VariantBody::Plural { driver, .. } => Some(driver.to_string()),
+                VariantBody::Plain(_) => None,
+            };
             entries.push(i18n_format::EntrySpec {
                 app_id,
                 variant: idx as u8,
                 forms,
+                plural_driver,
             });
         }
 
@@ -294,7 +313,7 @@ fn collect_forms_for_lang(var: &DslVariant, lang_variant: &str) -> Vec<i18n_form
                 template: lv.value.value(),
             })
             .collect(),
-        VariantBody::Plural(forms) => {
+        VariantBody::Plural { forms, .. } => {
             let mut out = Vec::new();
             for (cat, arr) in forms {
                 for lv in &arr.values {
@@ -314,22 +333,26 @@ fn collect_forms_for_lang(var: &DslVariant, lang_variant: &str) -> Vec<i18n_form
 // ---------------------------------------------------------------------------
 // t! macro
 //
-//   t!(Calendar::January)                      -> Cow<'static, str>
-//   t!(Calendar::Month, month = m)             -> formatted
-//   t!(Calendar::Apples, count = n)            -> plural-selected
-//   t!(Calendar::Apples, count = n, fruit = f) -> plural + args
+//   t!(Calendar::January)                  -> Cow<'static, str>
+//   t!(Calendar::Month, month = m)         -> formatted
+//   t!(Calendar::Apples, n = k)            -> plural-selected (n is the driver)
+//   t!(Files, n = k, user = name)          -> plural + extra args
+//
+// Args are addressed *positionally* by the catalog: this macro sorts them by
+// name and emits the values in that order, so each value lands at the index the
+// catalog computed by sorting the same names. There is no `count` keyword — the
+// plural driver is an ordinary named arg (declared via `plural(name)` on the
+// definition side).
 // ---------------------------------------------------------------------------
 
 struct TInvocation {
-    item: Expr,          // e.g. `Calendar::January`
-    count: Option<Expr>, // from `count = ...`
+    item: Expr, // e.g. `Calendar::January`
     args: Vec<(Ident, Expr)>,
 }
 
 impl Parse for TInvocation {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let item: Expr = input.parse()?;
-        let mut count = None;
         let mut args = Vec::new();
         while input.peek(Token![,]) {
             input.parse::<Token![,]>()?;
@@ -339,41 +362,30 @@ impl Parse for TInvocation {
             let name: Ident = input.parse()?;
             input.parse::<Token![=]>()?;
             let val: Expr = input.parse()?;
-            if name == "count" {
-                count = Some(val);
-            } else {
-                args.push((name, val));
-            }
+            args.push((name, val));
         }
-        Ok(TInvocation { item, count, args })
+        Ok(TInvocation { item, args })
     }
 }
 
 #[proc_macro]
 pub fn t(input: TokenStream) -> TokenStream {
-    let TInvocation { item, count, args } = parse_macro_input!(input as TInvocation);
+    let TInvocation { item, mut args } = parse_macro_input!(input as TInvocation);
 
-    let arg_tokens = args.iter().map(|(name, val)| {
-        let lit = LitStr::new(&name.to_string(), Span::call_site());
-        quote! {
-            ::i18n::format::Arg::new(#lit, ::i18n::format::ArgValue::from(#val))
-        }
+    // Sort by name so positional indices match the catalog's sorted name set.
+    args.sort_by(|a, b| a.0.to_string().cmp(&b.0.to_string()));
+
+    let arg_tokens = args.iter().map(|(_name, val)| {
+        quote! { ::i18n::format::ArgValue::from(#val) }
     });
-
-    let count_tokens = match count {
-        Some(c) => quote! { ::core::option::Option::Some((#c) as i64) },
-        None => quote! { ::core::option::Option::None },
-    };
 
     let expanded = quote! {{
         // `item` must implement Translate; this also enforces it at the call site.
         let __item = #item;
-        let __args = [ #(#arg_tokens),* ];
         ::i18n::translate(
             <_ as ::i18n::Translate>::translation_id(__item),
             ::i18n::Translate::variant_index(__item),
-            #count_tokens,
-            &__args,
+            &[ #(#arg_tokens),* ],
         )
     }};
     expanded.into()
