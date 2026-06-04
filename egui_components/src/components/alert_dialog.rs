@@ -1,10 +1,9 @@
 use super::button::{Button, ButtonVariant};
+use super::dialog::Dialog;
 use super::spacing::Spacing;
 use super::typography::{heading4, muted_text};
-use crate::ShadcnTheme;
 use crate::i18n;
 use ::i18n::t;
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke};
 
 pub struct AlertDialog<'a> {
     title: &'a str,
@@ -50,49 +49,35 @@ impl<'a> AlertDialog<'a> {
     }
 
     pub fn show(self, ctx: &egui::Context, on_confirm: impl FnOnce()) -> bool {
-        if !*self.open {
-            return false;
-        }
+        let AlertDialog {
+            title,
+            description,
+            open,
+            cancel_label,
+            confirm_label,
+            destructive,
+            width,
+        } = self;
 
-        if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
-            *self.open = false;
-            return false;
-        }
-
-        let theme = ShadcnTheme::get(ctx);
-
-        let overlay_id = egui::Id::new("alert_dialog_overlay");
-        let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
-        let overlay_painter = ctx.layer_painter(overlay_layer);
-        overlay_painter.rect_filled(egui::Rect::EVERYTHING, 0.0, Color32::from_black_alpha(128));
-
-        let pointer_down = ctx.input(|i| i.pointer.primary_pressed());
-        let dialog_id = egui::Id::new("shadcn_alert_dialog").with(self.title);
-
+        // Local intents — `open` is borrowed by the Dialog shell (which owns
+        // escape / click-outside / fade-out), so buttons signal here and we
+        // apply after the shell returns.
+        let mut cancel = false;
         let mut confirmed = false;
 
-        let win_resp = egui::Window::new(self.title)
-            .id(dialog_id)
-            .collapsible(false)
-            .resizable(false)
-            .default_width(self.width)
-            .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
-            .frame(
-                Frame::new()
-                    .fill(theme.card)
-                    .corner_radius(CornerRadius::same(theme.radius as u8))
-                    .stroke(Stroke::new(1.0, theme.border))
-                    .inner_margin(Margin::same(24)),
-            )
-            .title_bar(false)
+        // Reuse Dialog as a headerless animated modal; render the alert body
+        // (heading + description + action row) as its content.
+        Dialog::new(title, &mut *open)
+            .width(width)
+            .header(false)
             .show(ctx, |ui| {
-                heading4(ui, self.title);
+                heading4(ui, title);
                 Spacing::Sm.show(ui);
-                muted_text(ui, self.description);
+                muted_text(ui, description);
                 Spacing::Xl.show(ui);
 
                 let cancel_owned;
-                let cancel_text: &str = match self.cancel_label {
+                let cancel_text: &str = match cancel_label {
                     Some(l) => l,
                     None => {
                         cancel_owned = t!(i18n::AlertDialog::Cancel);
@@ -100,7 +85,7 @@ impl<'a> AlertDialog<'a> {
                     }
                 };
                 let confirm_owned;
-                let confirm_text: &str = match self.confirm_label {
+                let confirm_text: &str = match confirm_label {
                     Some(l) => l,
                     None => {
                         confirm_owned = t!(i18n::AlertDialog::Confirm);
@@ -114,12 +99,12 @@ impl<'a> AlertDialog<'a> {
                         .show(ui)
                         .clicked()
                     {
-                        *self.open = false;
+                        cancel = true;
                     }
 
                     Spacing::Sm.show(ui);
 
-                    let confirm_variant = if self.destructive {
+                    let confirm_variant = if destructive {
                         ButtonVariant::Destructive
                     } else {
                         ButtonVariant::Default
@@ -131,20 +116,12 @@ impl<'a> AlertDialog<'a> {
                         .clicked()
                     {
                         confirmed = true;
-                        *self.open = false;
                     }
                 });
             });
 
-        if pointer_down {
-            let pointer_pos = ctx.input(|i| i.pointer.interact_pos());
-            let clicked_inside = match (win_resp.as_ref(), pointer_pos) {
-                (Some(r), Some(pos)) => r.response.rect.contains(pos),
-                _ => true,
-            };
-            if !clicked_inside {
-                *self.open = false;
-            }
+        if cancel || confirmed {
+            *open = false;
         }
 
         if confirmed {

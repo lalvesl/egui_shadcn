@@ -42,9 +42,25 @@ impl Boxed {
             .outer_margin(outer_margin)
             .show(ui, content);
 
+        // Rounded border in the default color, then overlay the straight bottom
+        // run (between the corner arcs) in the primary (main) color. The rounded
+        // corners stay default; the flat bottom edge is the accent.
+        // `response.rect` is the box bounds (content + inner padding, excluding
+        // outer margin), so its edges are the border.
         let rect = resp.response.rect;
-        ui.painter().line_segment(
-            [rect.left_bottom(), rect.right_bottom()],
+        let radius = theme.radius;
+        let painter = ui.painter();
+        painter.rect_stroke(
+            rect,
+            egui::CornerRadius::same(radius as u8),
+            Stroke::new(1.0, theme.border),
+            egui::StrokeKind::Middle,
+        );
+        painter.line_segment(
+            [
+                egui::pos2(rect.left() + radius, rect.bottom()),
+                egui::pos2(rect.right() - radius, rect.bottom()),
+            ],
             Stroke::new(1.0, theme.primary),
         );
 

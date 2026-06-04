@@ -1,11 +1,15 @@
 # Todo
 
-- The alert Dialog does not reuse Dialog component;
-- The Calendar range with twice calendar does not next to months, this button does not work;
+- The Calendar with custom values, need to increase size of each day, this create aspect of over text of each cell;
 
 # Process
 
+- In the @egui_components/src/components/boxed.rs component, change the bottom corner border to the main color;
+
 # Done
+
+- The Calendar range with twice calendar does not next to months, this button does not work;
+- The alert Dialog does not reuse Dialog component;
 
 ### Theme, Inputs & Disabled States
 

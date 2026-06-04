@@ -279,7 +279,7 @@ impl<'a> Calendar<'a> {
                             },
                         );
                         Spacing::Xl.show(ui);
-                        let (_, c1, h1) = draw_month(
+                        let (n_right, c1, h1) = draw_month(
                             ui,
                             &theme,
                             DrawConfig {
@@ -295,7 +295,10 @@ impl<'a> Calendar<'a> {
                                 cell_fn,
                             },
                         );
-                        (n, c0, c1, h0, h1)
+                        // Left month owns the prev arrow (emits -1), right month
+                        // owns the next arrow (emits +1) — pick whichever fired.
+                        let nav = if n != 0 { n } else { n_right };
+                        (nav, c0, c1, h0, h1)
                     })
                     .inner;
 
