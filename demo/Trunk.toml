@@ -17,4 +17,4 @@ command_arguments = [
 [[hooks]]
 stage = "pre_build"
 command = "cargo"
-command_arguments = ["build", "--release", "--target", "wasm32-unknown-unknown", "-p", "demo"]
+command_arguments = ["build", "--release", "--target", "wasm32-unknown-unknown", "-p", "demo", "--no-default-features", "--features", "lang-en-us"]
