@@ -1,5 +1,6 @@
 use super::spacing::Spacing;
-use egui::{Color32, Frame, InnerResponse, Margin, Ui};
+use crate::ShadcnTheme;
+use egui::{Color32, Frame, InnerResponse, Margin, Stroke, Ui};
 
 pub struct Boxed {
     padding: Spacing,
@@ -34,10 +35,19 @@ impl Boxed {
         let inner_margin = Margin::same(self.padding.px() as i8);
         let outer_margin = Margin::same(self.margin.map(|s| s.px() as i8).unwrap_or(0));
 
-        Frame::new()
+        let theme = ShadcnTheme::get(ui.ctx());
+        let resp = Frame::new()
             .fill(Color32::TRANSPARENT)
             .inner_margin(inner_margin)
             .outer_margin(outer_margin)
-            .show(ui, content)
+            .show(ui, content);
+
+        let rect = resp.response.rect;
+        ui.painter().line_segment(
+            [rect.left_bottom(), rect.right_bottom()],
+            Stroke::new(1.0, theme.primary),
+        );
+
+        resp
     }
 }
