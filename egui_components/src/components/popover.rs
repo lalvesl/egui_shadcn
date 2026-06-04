@@ -1,5 +1,6 @@
+use super::boxed::Boxed;
 use crate::ShadcnTheme;
-use egui::{CornerRadius, Frame, Margin, Response, Stroke, Ui};
+use egui::{Response, Ui};
 
 pub struct Popover {
     id: egui::Id,
@@ -47,11 +48,9 @@ impl Popover {
                 .fixed_pos(popup_pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Frame::new()
+                    Boxed::new()
                         .fill(theme.card)
-                        .corner_radius(CornerRadius::same(theme.radius as u8))
-                        .stroke(Stroke::new(1.0, theme.border))
-                        .inner_margin(Margin::same(16))
+                        .padding_px(16.0)
                         .show(ui, |ui| {
                             ui.set_min_width(width);
                             ui.set_max_width(width);

@@ -1,6 +1,7 @@
+use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::{ICON_CLOSE, ShadcnTheme};
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Vec2};
+use egui::{Color32, CornerRadius, Frame, Vec2};
 
 pub enum SheetSide {
     Left,
@@ -88,46 +89,42 @@ impl<'a> Sheet<'a> {
             .resizable(false)
             .fixed_size(Vec2::new(self.width, panel_height))
             .anchor(anchor, [0.0, 0.0])
-            .frame(
-                Frame::new()
-                    .fill(theme.card)
-                    .corner_radius(cr)
-                    .stroke(Stroke::new(1.0, theme.border))
-                    .inner_margin(Margin::same(24)),
-            )
+            .frame(Frame::new().fill(theme.card).corner_radius(cr))
             .title_bar(false)
             .show(ctx, |ui| {
-                // Title row with close button
-                ui.horizontal(|ui| {
-                    ui.label(
-                        egui::RichText::new(self.title)
-                            .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
-                            .color(theme.foreground)
-                            .strong(),
-                    );
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        let close_resp = ui.add(
-                            egui::Label::new(
-                                egui::RichText::new(ICON_CLOSE)
-                                    .font(crate::icon_font_id(18.0))
-                                    .color(theme.muted_foreground),
-                            )
-                            .sense(egui::Sense::click()),
+                Boxed::new().corner_radius(cr).padding(Spacing::Xl).show(ui, |ui| {
+                    // Title row with close button
+                    ui.horizontal(|ui| {
+                        ui.label(
+                            egui::RichText::new(self.title)
+                                .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
+                                .color(theme.foreground)
+                                .strong(),
                         );
-                        if close_resp.clicked() {
-                            *self.open = false;
-                        }
-                        if close_resp.hovered() {
-                            ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
-                        }
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            let close_resp = ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(ICON_CLOSE)
+                                        .font(crate::icon_font_id(18.0))
+                                        .color(theme.muted_foreground),
+                                )
+                                .sense(egui::Sense::click()),
+                            );
+                            if close_resp.clicked() {
+                                *self.open = false;
+                            }
+                            if close_resp.hovered() {
+                                ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                            }
+                        });
                     });
+
+                    Spacing::Sm.show(ui);
+                    ui.separator();
+                    Spacing::Md.show(ui);
+
+                    content(ui);
                 });
-
-                Spacing::Sm.show(ui);
-                ui.separator();
-                Spacing::Md.show(ui);
-
-                content(ui);
             });
 
         // Close if pointer pressed outside the sheet rect

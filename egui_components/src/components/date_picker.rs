@@ -1,7 +1,9 @@
+use super::boxed::Boxed;
+use super::spacing::Spacing;
 use crate::i18n;
 use crate::{CalDate, ICON_CALENDAR_TODAY, ShadcnTheme};
 use ::i18n::t;
-use egui::{CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use egui::{CornerRadius, Sense, Stroke, Ui, Vec2};
 
 pub struct DatePicker<'a> {
     id: &'a str,
@@ -110,11 +112,9 @@ impl<'a> DatePicker<'a> {
                 .fixed_pos(popup_pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Frame::new()
+                    Boxed::new()
                         .fill(theme.card)
-                        .corner_radius(CornerRadius::same(theme.radius as u8))
-                        .stroke(Stroke::new(1.0, theme.border))
-                        .inner_margin(Margin::same(12))
+                        .padding(Spacing::Md)
                         .show(ui, |ui| {
                             crate::Calendar::single(
                                 egui::Id::new("shadcn_date_picker_cal").with(self.id),

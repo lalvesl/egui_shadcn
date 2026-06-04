@@ -1,6 +1,7 @@
+use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::{Animations, ICON_CLOSE, ShadcnTheme};
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
+use egui::{Color32, CornerRadius, Frame, Ui};
 
 pub struct Dialog<'a> {
     title: &'a str,
@@ -79,9 +80,7 @@ impl<'a> Dialog<'a> {
             .frame(
                 Frame::new()
                     .fill(ShadcnTheme::with_alpha(theme.card, alpha))
-                    .corner_radius(CornerRadius::same(theme.radius as u8))
-                    .stroke(Stroke::new(1.0, ShadcnTheme::with_alpha(theme.border, alpha)))
-                    .inner_margin(Margin::same(24)),
+                    .corner_radius(CornerRadius::same(theme.radius as u8)),
             )
             .title_bar(false)
             .show(ctx, |ui| {
@@ -89,38 +88,45 @@ impl<'a> Dialog<'a> {
                 if closing {
                     ui.disable();
                 }
-                if self.header {
-                    ui.horizontal(|ui| {
-                        ui.label(
-                            egui::RichText::new(self.title)
-                                .font(egui::FontId::new(18.0, egui::FontFamily::Proportional))
-                                .color(theme.foreground)
-                                .strong(),
-                        );
-                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            let close_resp = ui.add(
-                                egui::Label::new(
-                                    egui::RichText::new(ICON_CLOSE)
-                                        .font(crate::icon_font_id(18.0))
-                                        .color(theme.muted_foreground),
-                                )
-                                .sense(egui::Sense::click()),
+                // Border + primary bottom accent + padding come from Boxed; it
+                // inherits the faded opacity above so it eases in/out with the card.
+                Boxed::new().padding(Spacing::Xl).show(ui, |ui| {
+                    if self.header {
+                        ui.horizontal(|ui| {
+                            ui.label(
+                                egui::RichText::new(self.title)
+                                    .font(egui::FontId::new(18.0, egui::FontFamily::Proportional))
+                                    .color(theme.foreground)
+                                    .strong(),
                             );
-                            if close_resp.clicked() {
-                                *self.open = false;
-                            }
-                            if close_resp.hovered() {
-                                ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                            }
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    let close_resp = ui.add(
+                                        egui::Label::new(
+                                            egui::RichText::new(ICON_CLOSE)
+                                                .font(crate::icon_font_id(18.0))
+                                                .color(theme.muted_foreground),
+                                        )
+                                        .sense(egui::Sense::click()),
+                                    );
+                                    if close_resp.clicked() {
+                                        *self.open = false;
+                                    }
+                                    if close_resp.hovered() {
+                                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                                    }
+                                },
+                            );
                         });
-                    });
 
-                    Spacing::Sm.show(ui);
-                    ui.separator();
-                    Spacing::Sm.show(ui);
-                }
+                        Spacing::Sm.show(ui);
+                        ui.separator();
+                        Spacing::Sm.show(ui);
+                    }
 
-                content(ui);
+                    content(ui);
+                });
             });
 
         // Close if pointer pressed outside the dialog rect

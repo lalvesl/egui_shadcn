@@ -1,6 +1,8 @@
+use super::boxed::Boxed;
 use super::size::Size;
+use super::spacing::Spacing;
 use crate::{ICON_EXPAND_MORE, ShadcnTheme};
-use egui::{Color32, CornerRadius, Frame, Margin, Sense, Stroke, Ui, Vec2};
+use egui::{Color32, CornerRadius, Sense, Stroke, Ui, Vec2};
 
 pub enum DropdownItem<'a> {
     Item { label: &'a str, disabled: bool },
@@ -99,11 +101,9 @@ impl<'a> DropdownMenu<'a> {
                 .fixed_pos(pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Frame::new()
+                    Boxed::new()
                         .fill(theme.card)
-                        .corner_radius(CornerRadius::same(theme.radius as u8))
-                        .stroke(Stroke::new(1.0, theme.border))
-                        .inner_margin(Margin::same(4))
+                        .padding(Spacing::Xs)
                         .show(ui, |ui| {
                             ui.set_min_width(popup_width);
                             ui.set_max_width(popup_width);

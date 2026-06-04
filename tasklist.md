@@ -41,6 +41,7 @@
 
 ### Components & Layout
 
+- **Boxed Surface Reuse**: Promoted `Boxed` into the shared box-surface primitive (added `fill`, `corner_radius`, `shadow`, `accent` toggle, `padding_px`) and routed every box-drawing component through it so they all share the rounded-border + primary-bottom-accent signature: `Card`, `Popover`, `HoverCard`, `Dialog` (+`AlertDialog` transitively), `Sheet`, `Drawer`, `Toast` (keeps its variant left-stripe), the calendar box in `DatePicker`, plus the popover-style popups of `Select`, `Combobox`, `DropdownMenu`, `ContextMenu`, and `Menubar`. Exceptions left untouched: `Alert` (multi-color), text inputs, and buttons.
 - **Boxed Component**: Created a `Boxed` component (named `Boxed` instead of `Box` to avoid conflict with Rust's built-in `Box` type) which provides standard padding and margins, and supports dynamic children.
 - **Space Component**: Created a `Space` component to standardize spacing using a default size enum. The enum supports rendering directly to the UI and implements conversion (`From`/`Into`) to `f32` and other numeric types.
 - **Space Component Integration**: Tracked down and replaced all occurrences of `add_space` with the new `Space` component.

@@ -1,7 +1,7 @@
 use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::{ICON_CLOSE, ShadcnTheme};
-use egui::{Color32, CornerRadius, Frame, Stroke, Vec2};
+use egui::{Color32, CornerRadius, Frame, Vec2};
 
 pub struct Drawer<'a> {
     title: &'a str,
@@ -72,15 +72,10 @@ impl<'a> Drawer<'a> {
             .resizable(false)
             .fixed_size(Vec2::new(panel_width, self.height))
             .anchor(egui::Align2::CENTER_BOTTOM, [0.0, 0.0])
-            .frame(
-                Frame::new()
-                    .fill(theme.card)
-                    .corner_radius(cr)
-                    .stroke(Stroke::new(1.0, theme.border)),
-            )
+            .frame(Frame::new().fill(theme.card).corner_radius(cr))
             .title_bar(false)
             .show(ctx, |ui| {
-                Boxed::new().padding(Spacing::Lg).show(ui, |ui| {
+                Boxed::new().corner_radius(cr).padding(Spacing::Lg).show(ui, |ui| {
                     // Drag handle
                     if show_handle {
                         ui.vertical_centered(|ui| {

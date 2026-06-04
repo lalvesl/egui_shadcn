@@ -1,6 +1,7 @@
+use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::ShadcnTheme;
-use egui::{Color32, CornerRadius, Frame, Margin, Stroke, Ui};
+use egui::{Color32, Frame, Margin, Ui};
 
 pub struct Card {
     padding: f32,
@@ -32,17 +33,12 @@ impl Card {
     pub fn show(self, ui: &mut Ui, content: impl FnOnce(&mut Ui)) {
         let theme = ShadcnTheme::get(ui.ctx());
 
-        let mut frame = Frame::new()
-            .fill(theme.card)
-            .corner_radius(CornerRadius::same(theme.radius as u8))
-            .stroke(Stroke::new(1.0, theme.border))
-            .inner_margin(Margin::same(self.padding as i8));
-
+        let mut boxed = Boxed::new().fill(theme.card).padding_px(self.padding);
         if let Some(shadow) = self.shadow {
-            frame = frame.shadow(shadow);
+            boxed = boxed.shadow(shadow);
         }
 
-        frame.show(ui, content);
+        boxed.show(ui, content);
     }
 }
 
