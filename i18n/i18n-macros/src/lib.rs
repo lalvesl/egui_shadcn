@@ -373,7 +373,7 @@ pub fn t(input: TokenStream) -> TokenStream {
     let TInvocation { item, mut args } = parse_macro_input!(input as TInvocation);
 
     // Sort by name so positional indices match the catalog's sorted name set.
-    args.sort_by(|a, b| a.0.to_string().cmp(&b.0.to_string()));
+    args.sort_by_key(|a| a.0.to_string());
 
     let arg_tokens = args.iter().map(|(_name, val)| {
         quote! { ::i18n::format::ArgValue::from(#val) }
