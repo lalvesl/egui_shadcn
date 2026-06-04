@@ -1,10 +1,9 @@
 # Todo
 
-_(No active tasks)_
+- The alert Dialog does not reuse Dialog component;
+- The Calendar range with twice calendar does not next to months, this button does not work;
 
 # Process
-
-_(No active tasks)_
 
 # Done
 
