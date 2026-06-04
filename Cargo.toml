@@ -1,5 +1,5 @@
 [workspace]
-members  = [
+members = [
   "egui_components",
   "egui_sc",
   "demo",
@@ -16,6 +16,19 @@ exclude = ["e2e"]
 resolver = "2"
 
 [workspace.dependencies]
-egui   = "0.34"
+egui = "0.34"
 epaint = "0.34"
 eframe = { version = "0.34", default-features = false }
+
+# Size-tuned release profile. Main target is the wasm32 demo (`nix build .#web`),
+# where `wasm-opt -Oz` then shrinks the output further. codegen-units=1 is the
+# dominant size lever here (~0.6 MB vs the default 16); opt-level=3 beats "z"/"s"
+# for this code because it inlines enough that wasm-opt can DCE more afterwards.
+# fat LTO trims a little more, panic="abort" drops unwinding tables, strip removes
+# symbol names. Measured smallest of opt∈{3,s,z}×lto∈{off,thin,fat} post-wasm-opt.
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
