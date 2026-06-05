@@ -64,6 +64,35 @@ pub fn start() -> Result<(), JsValue> {
     Ok(())
 }
 
+// ── Android entry point ─────────────────────────────────────────────────────
+// android-activity's NativeActivity glue (pulled in via eframe's
+// `android-native-activity` feature) resolves and calls this symbol from
+// `ANativeActivity_onCreate`. Packaged into an APK by `nix build .#demo2android`.
+// edition 2024 requires `unsafe(no_mangle)`; the param is named `android_app`
+// to avoid shadowing the crate's `app` module.
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+fn android_main(android_app: winit::platform::android::activity::AndroidApp) {
+    use crate::app::DemoApp;
+
+    android_logger::init_once(
+        android_logger::Config::default().with_max_level(log::LevelFilter::Info),
+    );
+
+    let options = eframe::NativeOptions {
+        android_app: Some(android_app),
+        ..Default::default()
+    };
+
+    if let Err(err) = eframe::run_native(
+        "egui-shadcn",
+        options,
+        Box::new(|cc| Ok(Box::new(DemoApp::new(cc)))),
+    ) {
+        log::error!("eframe::run_native failed: {err}");
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[cfg(all(target_arch = "wasm32", has_wasm_icons))]
