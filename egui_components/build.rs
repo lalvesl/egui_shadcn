@@ -8,7 +8,7 @@ const CODEPOINTS_URL: &str = "https://raw.githubusercontent.com/google/material-
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let resp = ureq::get(url).call()?;
     let mut bytes = Vec::new();
-    resp.into_reader().read_to_end(&mut bytes)?;
+    resp.into_body().into_reader().read_to_end(&mut bytes)?;
     Ok(bytes)
 }
 
