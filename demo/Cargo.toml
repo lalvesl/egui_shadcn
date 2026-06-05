@@ -22,8 +22,18 @@ egui_sc = { path = "../egui_sc" }
 egui    = { workspace = true }
 i18n    = { path = "../i18n/i18n" }
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Desktop (Linux/macOS): X11 + Wayland windowing via glow.
+[target.'cfg(all(not(target_arch = "wasm32"), not(target_os = "android")))'.dependencies]
 eframe = { workspace = true, features = ["default_fonts", "glow", "x11", "wayland"] }
+
+# Android: NativeActivity glue + glow (no X11/Wayland). Built by `nix build .#demo2android`.
+# winit is needed directly to name `AndroidApp` in the `android_main` entry point;
+# its android-native-activity feature is unified in from eframe.
+[target.'cfg(target_os = "android")'.dependencies]
+eframe         = { workspace = true, features = ["default_fonts", "glow", "android-native-activity"] }
+winit          = { version = "0.30", default-features = false }
+android_logger = "0.14"
+log            = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 eframe               = { workspace = true, features = ["default_fonts", "glow"] }
@@ -38,3 +48,17 @@ skrifa            = { version = "0.42", features = ["std", "autohint_shaping"] }
 
 [build-dependencies]
 ureq = { version = "3.3", features = ["rustls"] }
+
+# ── Android packaging (cargo-apk / `nix build .#demo2android`) ────────────────
+# version_name / version_code are derived from [package].version by cargo-apk
+# and must NOT be set here.
+[package.metadata.android]
+package = "com.egui_shadcn.demo"
+build_targets = ["aarch64-linux-android"]
+
+[package.metadata.android.sdk]
+min_sdk_version = 23
+target_sdk_version = 33
+
+[package.metadata.android.application]
+label = "egui-shadcn demo"
