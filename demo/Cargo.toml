@@ -34,7 +34,7 @@ js-sys               = "0.3"
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
-skrifa            = { version = "0.40", features = ["std", "autohint_shaping"] }
+skrifa            = { version = "0.42", features = ["std", "autohint_shaping"] }
 
 [build-dependencies]
 ureq = { version = "2", features = ["tls"] }
