@@ -211,6 +211,7 @@ impl DemoApp {
             Spacing::Md.show(ui);
             Calendar::single("demo_cal_prices", &mut self.cal_prices_selected)
                 .cell_height(52.0)
+                .cell_width(54.0)
                 .cell_content(|ui, date| {
                     let hash = (date.day as u32)
                         .wrapping_mul(7919)
