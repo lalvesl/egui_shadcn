@@ -148,6 +148,7 @@ type CellFn<'a> = dyn Fn(&mut Ui, CalDate) + 'a;
 /// // With custom cell content
 /// Calendar::single("cal", &mut date)
 ///     .cell_height(52.0)
+///     .cell_width(54.0)
 ///     .cell_content(|ui, d| { if has_event(d) { Badge::new("event").show(ui); } })
 ///     .show(ui);
 /// ```
@@ -157,6 +158,7 @@ pub struct Calendar<'a> {
     end: Option<&'a mut Option<CalDate>>,
     cell_fn: Option<Box<CellFn<'a>>>,
     cell_h: f32,
+    cell_w: f32,
     compact: bool,
 }
 
@@ -168,6 +170,7 @@ impl<'a> Calendar<'a> {
             end: None,
             cell_fn: None,
             cell_h: 32.0,
+            cell_w: 36.0,
             compact: false,
         }
     }
@@ -183,6 +186,7 @@ impl<'a> Calendar<'a> {
             end: Some(end),
             cell_fn: None,
             cell_h: 32.0,
+            cell_w: 36.0,
             compact: false,
         }
     }
@@ -196,6 +200,14 @@ impl<'a> Calendar<'a> {
     /// Height of each date cell. Default 32. Increase when using `cell_content`.
     pub fn cell_height(mut self, h: f32) -> Self {
         self.cell_h = h;
+        self
+    }
+
+    /// Width of each date cell. Default 36. Increase when `cell_content` renders
+    /// text/badges wider than the day number, so they don't spill past the cell.
+    /// The whole grid (header + weekday row) scales to `cell_width * 7`.
+    pub fn cell_width(mut self, w: f32) -> Self {
+        self.cell_w = w;
         self
     }
 
@@ -219,6 +231,7 @@ impl<'a> Calendar<'a> {
 
         let theme = ShadcnTheme::get(ui.ctx());
         let cell_h = self.cell_h;
+        let cell_w = self.cell_w;
         let cell_fn: Option<&CellFn<'_>> = self.cell_fn.as_deref();
 
         if let Some(end_ref) = self.end {
@@ -244,6 +257,7 @@ impl<'a> Calendar<'a> {
                         show_next: true,
                         today,
                         cell_h,
+                        cell_w,
                         cell_fn,
                     },
                 );
@@ -275,6 +289,7 @@ impl<'a> Calendar<'a> {
                                 show_next: false,
                                 today,
                                 cell_h,
+                                cell_w,
                                 cell_fn,
                             },
                         );
@@ -292,6 +307,7 @@ impl<'a> Calendar<'a> {
                                 show_next: true,
                                 today,
                                 cell_h,
+                                cell_w,
                                 cell_fn,
                             },
                         );
@@ -331,6 +347,7 @@ impl<'a> Calendar<'a> {
                     show_next: true,
                     today,
                     cell_h,
+                    cell_w,
                     cell_fn,
                 },
             );
@@ -390,6 +407,7 @@ struct DrawConfig<'f> {
     show_next: bool,
     today: CalDate,
     cell_h: f32,
+    cell_w: f32,
     cell_fn: Option<&'f CellFn<'f>>,
 }
 
@@ -399,7 +417,7 @@ fn draw_month<'f>(
     theme: &ShadcnTheme,
     cfg: DrawConfig<'f>,
 ) -> (i8, Option<CalDate>, Option<CalDate>) {
-    let cell_w: f32 = 36.0;
+    let cell_w: f32 = cfg.cell_w;
     let mut nav: i8 = 0;
     let mut clicked: Option<CalDate> = None;
     let mut hovered_day: Option<CalDate> = None;
@@ -511,7 +529,9 @@ fn draw_month<'f>(
                     } else {
                         rect.center()
                     };
-                    let r = (cell_w / 2.0 - 2.0).max(1.0);
+                    // Day-number highlight stays a tidy ~32 px disc even when the
+                    // cell is widened for custom content — cap at the default r.
+                    let r = (cell_w / 2.0 - 2.0).min(16.0).max(1.0);
 
                     if is_endpoint {
                         ui.painter().circle_filled(num_center, r, theme.primary);
