@@ -30,6 +30,12 @@ mod sections;
 
 const SECTION_COUNT: usize = t::SECTION_COUNT;
 
+/// Below this viewport width (logical px) the layout switches to its compact
+/// mobile form: the sidebar becomes a tap-to-open overlay drawer and margins
+/// tighten. Matches Tailwind's `sm` breakpoint, so narrow desktop windows and
+/// phones (Android / mobile web) get the same treatment.
+const MOBILE_MAX_WIDTH: f32 = 640.0;
+
 // ── App state ─────────────────────────────────────────────────────────────────
 
 pub struct DemoApp {
@@ -92,6 +98,9 @@ pub struct DemoApp {
     pub(super) scroll_to_section: Option<usize>,
     pub(super) locale_idx: Option<usize>,
     pub(super) sidebar_last_interaction: f64,
+    /// Last known "is the viewport narrow?" state. `None` until the first frame;
+    /// a change flips the sidebar to its default open state for the new size.
+    pub(super) prev_mobile: Option<bool>,
     pub(super) anim_enabled: bool,
     pub(super) anim_speed: f32,
 }
@@ -157,6 +166,7 @@ impl Default for DemoApp {
             scroll_to_section: None,
             locale_idx: Some(0),
             sidebar_last_interaction: 0.0,
+            prev_mobile: None,
             anim_enabled: true,
             anim_speed: 1.0,
         }
@@ -208,6 +218,12 @@ impl DemoApp {
         self
     }
 
+    /// Whether the sidebar is currently shown (inline on desktop, overlay on
+    /// mobile). Exposed for tests/embedders that drive the app headlessly.
+    pub fn sidebar_open(&self) -> bool {
+        self.sidebar_open
+    }
+
     fn apply_theme(&self, ctx: &egui::Context) {
         let theme = ShadcnTheme::build(self.dark, self.primary_hue);
         ShadcnTheme::set(ctx, theme.clone());
@@ -243,6 +259,17 @@ impl DemoApp {
         self.apply_theme(ui.ctx());
         let ctx = ui.ctx().clone();
 
+        // ── Responsive mode ──────────────────────────────────────────────────
+        // On a narrow viewport (Android / phones / small windows) the sidebar
+        // becomes a tap-to-open overlay and starts collapsed; on a wide viewport
+        // it's an inline left panel. Flip to the new size's default whenever we
+        // cross the breakpoint (initial launch, window resize, device rotation).
+        let mobile = ctx.viewport_rect().width() < MOBILE_MAX_WIDTH;
+        if self.prev_mobile != Some(mobile) {
+            self.sidebar_open = !mobile;
+            self.prev_mobile = Some(mobile);
+        }
+
         let theme = ShadcnTheme::get(&ctx);
 
         // ── Toolbar ─────────────────────────────────────────────────────────
@@ -250,15 +277,15 @@ impl DemoApp {
             .frame(
                 egui::Frame::new()
                     .fill(theme.background)
-                    .inner_margin(egui::Margin::symmetric(16, 10))
+                    .inner_margin(egui::Margin::symmetric(if mobile { 10 } else { 16 }, 10))
                     .stroke(egui::Stroke::new(1.0, theme.border)),
             )
             .show_inside(ui, |ui| {
-                self.show_toolbar(ui);
+                self.show_toolbar(ui, mobile);
             });
 
-        // ── Sidebar ─────────────────────────────────────────────────────────
-        if self.sidebar_open {
+        // ── Sidebar (inline, wide screens only) ──────────────────────────────
+        if self.sidebar_open && !mobile {
             let theme = ShadcnTheme::get(&ctx);
             egui::Panel::left("sidebar")
                 .exact_size(200.0)
@@ -275,19 +302,25 @@ impl DemoApp {
 
         // ── Content ─────────────────────────────────────────────────────────
         let theme = ShadcnTheme::get(&ctx);
+        let content_margin = if mobile { 12 } else { 24 };
         egui::Frame::new().fill(theme.background).show(ui, |ui| {
             egui::ScrollArea::vertical()
                 .id_salt("main_scroll")
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
                     egui::Frame::new()
-                        .inner_margin(egui::Margin::symmetric(24, 0))
+                        .inner_margin(egui::Margin::symmetric(content_margin, 0))
                         .show(ui, |ui| {
                             self.render_all_sections(ui);
                         });
                     Spacing::Xl3.show(ui);
                 });
         });
+
+        // ── Sidebar (overlay, narrow screens — drawn above content) ───────────
+        if self.sidebar_open && mobile {
+            self.show_sidebar_overlay(&ctx);
+        }
 
         // ── Dialog (floating) ────────────────────────────────────────────────
         self.render_dialog(&ctx);
@@ -298,7 +331,7 @@ impl DemoApp {
 // ── Toolbar & Sidebar ─────────────────────────────────────────────────────────
 
 impl DemoApp {
-    fn show_toolbar(&mut self, ui: &mut egui::Ui) {
+    fn show_toolbar(&mut self, ui: &mut egui::Ui, mobile: bool) {
         let theme = ShadcnTheme::get(ui.ctx());
 
         ui.horizontal(|ui| {
@@ -327,8 +360,12 @@ impl DemoApp {
 
             Spacing::Sm.show(ui);
             heading4(ui, tr!(t::Toolbar::AppName).as_ref());
-            Spacing::Sm.show(ui);
-            muted_text(ui, tr!(t::Toolbar::AppSubtitle).as_ref());
+            // Subtitle is the first thing to drop on a narrow toolbar so the name
+            // and the right-aligned controls keep their room.
+            if !mobile {
+                Spacing::Sm.show(ui);
+                muted_text(ui, tr!(t::Toolbar::AppSubtitle).as_ref());
+            }
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Dark/light toggle
@@ -489,7 +526,9 @@ impl DemoApp {
         });
     }
 
-    fn show_sidebar(&mut self, ui: &mut egui::Ui) {
+    /// Renders the section list. Returns `true` if the user picked a section this
+    /// frame — the mobile overlay uses that to auto-close after navigation.
+    fn show_sidebar(&mut self, ui: &mut egui::Ui) -> bool {
         let theme = ShadcnTheme::get(ui.ctx());
 
         // Idle period before sidebar auto-scrolls to track the active section.
@@ -521,6 +560,7 @@ impl DemoApp {
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.set_width(184.0);
+            let mut picked = false;
 
             for i in 0..SECTION_COUNT {
                 let section = t::section_name(i);
@@ -574,6 +614,7 @@ impl DemoApp {
                     self.scroll_to_section = Some(i);
                     self.sidebar_last_interaction = now;
                     resp.surrender_focus();
+                    picked = true;
                 }
 
                 if SEP_AFTER.contains(&i) {
@@ -584,7 +625,60 @@ impl DemoApp {
                     ui.add_space(2.0);
                 }
             }
-        });
+
+            picked
+        })
+        .inner
+    }
+
+    /// Mobile sidebar: a left-anchored drawer floating above the content with a
+    /// dim scrim. Tapping the scrim or choosing a section closes it.
+    fn show_sidebar_overlay(&mut self, ctx: &egui::Context) {
+        let theme = ShadcnTheme::get(ctx);
+
+        // Dim scrim. Order::Middle puts it above the content panels; the drawer
+        // window below uses Order::Foreground so it always sits above the scrim.
+        let scrim = egui::LayerId::new(egui::Order::Middle, egui::Id::new("sidebar_scrim"));
+        ctx.layer_painter(scrim).rect_filled(
+            egui::Rect::EVERYTHING,
+            0.0,
+            Color32::from_black_alpha(120),
+        );
+
+        let screen = ctx.viewport_rect();
+        let width = 260.0_f32.min(screen.width() * 0.85);
+
+        let win = egui::Window::new("sidebar_overlay")
+            .id(egui::Id::new("sidebar_overlay_win"))
+            .order(egui::Order::Foreground)
+            .title_bar(false)
+            .resizable(false)
+            .collapsible(false)
+            .fixed_size(egui::Vec2::new(width, screen.height()))
+            .anchor(egui::Align2::LEFT_TOP, [0.0, 0.0])
+            .frame(
+                egui::Frame::new()
+                    .fill(theme.card)
+                    .inner_margin(egui::Margin::symmetric(8, 12))
+                    .stroke(egui::Stroke::new(1.0, theme.border)),
+            )
+            .show(ctx, |ui| self.show_sidebar(ui));
+
+        let picked = win.as_ref().and_then(|r| r.inner).unwrap_or(false);
+
+        // Tap outside the drawer closes it.
+        if ctx.input(|i| i.pointer.primary_pressed()) {
+            let pos = ctx.input(|i| i.pointer.interact_pos());
+            let inside = matches!((win.as_ref(), pos), (Some(r), Some(p)) if r.response.rect.contains(p));
+            if !inside {
+                self.sidebar_open = false;
+            }
+        }
+
+        // Choosing a section also dismisses the drawer (standard mobile nav).
+        if picked {
+            self.sidebar_open = false;
+        }
     }
 }
 
