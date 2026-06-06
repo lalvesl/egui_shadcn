@@ -51,6 +51,12 @@ impl<'a> Dialog<'a> {
 
         let theme = ShadcnTheme::get(ctx);
 
+        // Never let the card spill past the viewport — clamp to the screen width
+        // (less a small inset) so the dialog fits on phones / narrow windows.
+        let width = self
+            .width
+            .min((ctx.viewport_rect().width() - 32.0).max(0.0));
+
         // Dim overlay — fades with the dialog; also the click-outside detector.
         let overlay_id = egui::Id::new("dialog_overlay");
         let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
@@ -75,7 +81,8 @@ impl<'a> Dialog<'a> {
             .id(dialog_window_id)
             .collapsible(false)
             .resizable(false)
-            .default_width(self.width)
+            .default_width(width)
+            .max_width(width)
             .anchor(egui::Align2::CENTER_CENTER, [0.0, y_offset])
             .frame(
                 Frame::new()

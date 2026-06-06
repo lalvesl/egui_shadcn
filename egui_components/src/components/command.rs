@@ -121,6 +121,9 @@ impl<'a> Command<'a> {
 
         // Dim overlay
         let screen = ctx.content_rect();
+
+        // Clamp the palette to the viewport so it fits narrow / mobile screens.
+        let width = self.width.min((screen.width() - 24.0).max(0.0));
         egui::Area::new(base_id.with("overlay"))
             .fixed_pos(screen.min)
             .order(egui::Order::Background)
@@ -139,7 +142,7 @@ impl<'a> Command<'a> {
 
         egui::Area::new(base_id.with("dialog"))
             .fixed_pos(Pos2::new(
-                screen.center().x - self.width / 2.0,
+                screen.center().x - width / 2.0,
                 screen.center().y - dialog_max_h / 2.0,
             ))
             .order(egui::Order::Foreground)
@@ -153,8 +156,8 @@ impl<'a> Command<'a> {
                         color: Color32::from_black_alpha(80),
                     })
                     .show(ui, |ui| {
-                        ui.set_min_width(self.width);
-                        ui.set_max_width(self.width);
+                        ui.set_min_width(width);
+                        ui.set_max_width(width);
 
                         // Search row
                         Spacing::Xs.show(ui);
@@ -171,7 +174,7 @@ impl<'a> Command<'a> {
                                 .icon_left(ICON_SEARCH)
                                 .placeholder(ph)
                                 .bordered(false)
-                                .width(self.width - 44.0)
+                                .width(width - 44.0)
                                 .show(ui)
                                 .request_focus();
 

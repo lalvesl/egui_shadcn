@@ -230,8 +230,21 @@ impl<'a> Calendar<'a> {
         });
 
         let theme = ShadcnTheme::get(ui.ctx());
-        let cell_h = self.cell_h;
-        let cell_w = self.cell_w;
+
+        // ── Responsive sizing ────────────────────────────────────────────────
+        // Shrink the cells and, for range pickers, collapse the side-by-side
+        // two-month layout into a single compact month whenever the host is too
+        // narrow (small windows, mobile / Android). Keeps the grid inside its
+        // container instead of overflowing off-screen.
+        let is_range = self.end.is_some();
+        let (cell_w, cell_h, compact) = fit_to_width(
+            ui.available_width(),
+            self.cell_w,
+            self.cell_h,
+            is_range,
+            self.compact,
+        );
+
         let cell_fn: Option<&CellFn<'_>> = self.cell_fn.as_deref();
 
         if let Some(end_ref) = self.end {
@@ -243,7 +256,7 @@ impl<'a> Calendar<'a> {
                 _ => None,
             };
 
-            if self.compact {
+            if compact {
                 let (nav, clicked, hov) = draw_month(
                     ui,
                     &theme,
@@ -367,6 +380,45 @@ impl<'a> Calendar<'a> {
 
         ui.ctx().data_mut(|d| d.insert_temp(id, state));
     }
+}
+
+/// Smallest a date cell may shrink to before we stop scaling — keeps day numbers
+/// legible and tap targets usable on touch screens.
+const MIN_CELL_W: f32 = 30.0;
+
+/// Choose a cell size + layout that fits `avail` logical px of width.
+///
+/// Returns `(cell_w, cell_h, compact)`. Width drives every decision; height is
+/// scaled by the same factor so custom-content cells keep their aspect ratio.
+fn fit_to_width(
+    avail: f32,
+    cell_w: f32,
+    cell_h: f32,
+    is_range: bool,
+    compact: bool,
+) -> (f32, f32, bool) {
+    if !avail.is_finite() || avail <= 0.0 {
+        return (cell_w, cell_h, compact);
+    }
+
+    // Collapse a two-month range to one month when both won't fit side by side.
+    let mut compact = compact;
+    if is_range && !compact {
+        let two_month = 2.0 * 7.0 * cell_w + f32::from(Spacing::Xl);
+        if two_month > avail {
+            compact = true;
+        }
+    }
+
+    // Scale a single month down so all seven columns fit the width.
+    let one_month = 7.0 * cell_w;
+    if one_month > avail {
+        let new_w = (avail / 7.0).max(MIN_CELL_W);
+        let new_h = cell_h * (new_w / cell_w);
+        return (new_w, new_h, compact);
+    }
+
+    (cell_w, cell_h, compact)
 }
 
 fn range_click(d: CalDate, start: &mut Option<CalDate>, end: &mut Option<CalDate>) {
@@ -579,4 +631,46 @@ fn draw_month<'f>(
     });
 
     (nav, clicked, hovered_day)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wide_range_keeps_two_months_at_full_size() {
+        let (w, h, compact) = fit_to_width(1000.0, 36.0, 32.0, true, false);
+        assert_eq!((w, h, compact), (36.0, 32.0, false));
+    }
+
+    #[test]
+    fn narrow_range_collapses_to_compact_month() {
+        // 360 px (a phone) can't fit two 252 px months side by side.
+        let (w, _h, compact) = fit_to_width(360.0, 36.0, 32.0, true, false);
+        assert!(compact, "range should fall back to a single compact month");
+        assert_eq!(w, 36.0, "a single month still fits, so cells keep full size");
+    }
+
+    #[test]
+    fn tight_width_scales_cells_down_keeping_aspect() {
+        // 7 * 36 = 252 > 220, so cells shrink to fit the width.
+        let (w, h, _compact) = fit_to_width(220.0, 36.0, 32.0, false, false);
+        assert!((w - 220.0 / 7.0).abs() < 1e-3);
+        assert!((h - 32.0 * (w / 36.0)).abs() < 1e-3, "height scales with width");
+    }
+
+    #[test]
+    fn cells_never_shrink_below_the_floor() {
+        let (w, _h, _) = fit_to_width(120.0, 36.0, 32.0, false, false);
+        assert_eq!(w, MIN_CELL_W);
+    }
+
+    #[test]
+    fn non_finite_width_is_a_no_op() {
+        assert_eq!(
+            fit_to_width(f32::INFINITY, 54.0, 52.0, false, true),
+            (54.0, 52.0, true)
+        );
+        assert_eq!(fit_to_width(0.0, 54.0, 52.0, true, false), (54.0, 52.0, false));
+    }
 }
