@@ -5,6 +5,8 @@ use egui::{Color32, CornerRadius, Response, Sense, Stroke, Ui, Vec2};
 pub enum ButtonVariant {
     #[default]
     Default,
+    Success,
+    Warning,
     Destructive,
     Outline,
     Secondary,
@@ -164,6 +166,8 @@ impl<'a> Button<'a> {
     fn colors(&self, t: &ShadcnTheme) -> (Color32, Color32, Stroke) {
         match self.variant {
             ButtonVariant::Default => (t.primary, t.primary_foreground, Stroke::NONE),
+            ButtonVariant::Success => (t.success, t.success_foreground, Stroke::NONE),
+            ButtonVariant::Warning => (t.warning, t.warning_foreground, Stroke::NONE),
             ButtonVariant::Destructive => (t.destructive, t.destructive_foreground, Stroke::NONE),
             ButtonVariant::Outline => (
                 Color32::TRANSPARENT,
