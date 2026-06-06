@@ -9,12 +9,28 @@
 stage = "pre_build"
 command = "cargo"
 command_arguments = [
-  "run", "--release", "--bin", "demo-native",
-  "--features", "lang-en,lang-pt",
-  "--", "--gen-i18n", "../target/wasm_assets/i18n",
+  "run",
+  "--release",
+  "--bin",
+  "demo-native",
+  "--features",
+  "lang-en,lang-pt",
+  "--",
+  "--gen-i18n",
+  "../target/wasm_assets/i18n",
 ]
 
 [[hooks]]
 stage = "pre_build"
 command = "cargo"
-command_arguments = ["build", "--release", "--target", "wasm32-unknown-unknown", "-p", "demo", "--no-default-features", "--features", "lang-en-us"]
+command_arguments = [
+  "build",
+  "--release",
+  "--target",
+  "wasm32-unknown-unknown",
+  "-p",
+  "demo",
+  "--no-default-features",
+  "--features",
+  "lang-en-us",
+]

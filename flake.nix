@@ -12,13 +12,12 @@
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-      rust-overlay,
-      crane,
-      ...
+    { self
+    , nixpkgs
+    , flake-utils
+    , rust-overlay
+    , crane
+    , ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -191,13 +190,18 @@
             e2eChromium # headless browser for `cargo run -p e2e`
           ];
 
-          buildInputs = nativeLibs ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
-            darwin.apple_sdk.frameworks.SystemConfiguration
-            darwin.apple_sdk.frameworks.CoreFoundation
-            darwin.apple_sdk.frameworks.Security
-            darwin.apple_sdk.frameworks.AppKit
-            darwin.apple_sdk.frameworks.OpenGL
-          ]);
+          buildInputs =
+            nativeLibs
+            ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (
+              with pkgs;
+              [
+                darwin.apple_sdk.frameworks.SystemConfiguration
+                darwin.apple_sdk.frameworks.CoreFoundation
+                darwin.apple_sdk.frameworks.Security
+                darwin.apple_sdk.frameworks.AppKit
+                darwin.apple_sdk.frameworks.OpenGL
+              ]
+            );
 
           shellHook = ''
             export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}:$LD_LIBRARY_PATH"
@@ -230,18 +234,20 @@
             CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
             EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
             buildPhaseCargoCommand = "cargo build --release --target wasm32-unknown-unknown -p demo --lib";
-            nativeBuildInputs = [ wasmBindgenCli pkgs.binaryen pkgs.python3 ];
+            nativeBuildInputs = [
+              wasmBindgenCli
+              pkgs.binaryen
+              pkgs.python3
+            ];
             doInstallCargoArtifacts = false;
             installPhase = ''
               mkdir -p "$out/wasm_assets"
-
               # Generate JS bindings
               wasm-bindgen \
                 --out-dir "$out" \
                 --target web \
                 --no-typescript \
                 target/wasm32-unknown-unknown/release/demo.wasm
-
               # Optimize WASM: shrink size, strip debug/producer metadata
               wasm-opt -Oz \
                 --enable-bulk-memory \
@@ -254,18 +260,17 @@
                 --optimize-instructions \
                 --output "$out/demo_bg.wasm" \
                 "$out/demo_bg.wasm"
-
               # Strip GPOS/GSUB from font so skrifa doesn't crash on wasm32,
               # then serve it from wasm_assets/ (fetched by the app at runtime).
               python3 -c "
-data = bytearray(open('${materialIconsFont}', 'rb').read())
-n = (data[4] << 8) | data[5]
-for i in range(n):
-    b = 12 + i * 16
-    if b + 4 > len(data): break
-    if bytes(data[b:b+4]) in (b'GPOS', b'GSUB'): data[b] = ord('X')
-open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
-"
+              data = bytearray(open('${materialIconsFont}', 'rb').read())
+              n = (data[4] << 8) | data[5]
+              for i in range(n):
+                  b = 12 + i * 16
+                  if b + 4 > len(data): break
+                  if bytes(data[b:b+4]) in (b'GPOS', b'GSUB'): data[b] = ord('X')
+              open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
+              "
 
               # i18n catalog bundles — the WASM app fetches wasm_assets/i18n/
               # {bcp47}.cat at runtime (linkme cannot embed them on wasm32).
@@ -274,28 +279,28 @@ open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
 
               # Minimal HTML — no trunk directives, loads WASM as ES module
               cat > "$out/index.html" <<'HTML'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>egui-shadcn demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="data:," />
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                <meta charset="utf-8" />
+                <title>egui-shadcn demo</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="data:," />
 
-  <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #09090b; }
-    canvas { display: block; width: 100% !important; height: 100% !important; }
-  </style>
-</head>
-<body>
-  <canvas id="egui_canvas"></canvas>
-  <script type="module">
-    import init from './demo.js';
-    init();
-  </script>
-</body>
-</html>
-HTML
+                <style>
+                  html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #09090b; }
+                  canvas { display: block; width: 100% !important; height: 100% !important; }
+                </style>
+              </head>
+              <body>
+                <canvas id="egui_canvas"></canvas>
+                <script type="module">
+                  import init from './demo.js';
+                  init();
+                </script>
+              </body>
+              </html>
+              HTML
             '';
             doCheck = false;
           };
@@ -463,6 +468,31 @@ HTML
               '';
             in
             "${script}";
+        };
+        apps.fmt = {
+          type = "app";
+          program = "${
+            pkgs.writeShellApplication {
+              name = "fmt";
+              runtimeInputs = with pkgs; [
+                rustToolchain
+                nixpkgs-fmt
+                taplo
+                prettier
+                jq
+              ];
+              text = ''
+                cargo fmt --all
+                nixpkgs-fmt .
+                taplo fmt
+                prettier --write "**/*.md"
+                while IFS= read -r -d "" f; do
+                  tmp="$(mktemp)"
+                  jq . "$f" > "$tmp" && mv "$tmp" "$f"
+                done < <(find . -name "*.jsonl" -not -path "./.git/*" -not -path "./target/*" -print0)
+              '';
+            }
+          }/bin/fmt";
         };
       }
     );
