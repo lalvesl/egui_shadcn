@@ -115,14 +115,20 @@ fn demo_runs_narrow_mobile_layout() {
     for _ in 0..2 {
         let _ = ctx.run_ui(narrow(), |ui| app.show(ui));
     }
-    assert!(app.sidebar_open(), "tapping the hamburger opens the overlay drawer");
+    assert!(
+        app.sidebar_open(),
+        "tapping the hamburger opens the overlay drawer"
+    );
 
     // Tap far from the drawer (right edge) to close it via the scrim.
     let _ = ctx.run_ui(click_at(egui::pos2(345.0, 400.0)), |ui| app.show(ui));
     for _ in 0..2 {
         let _ = ctx.run_ui(narrow(), |ui| app.show(ui));
     }
-    assert!(!app.sidebar_open(), "tapping the scrim dismisses the drawer");
+    assert!(
+        !app.sidebar_open(),
+        "tapping the scrim dismisses the drawer"
+    );
 }
 
 #[test]
@@ -134,7 +140,10 @@ fn sidebar_defaults_open_on_wide_viewport() {
     for _ in 0..2 {
         let _ = ctx.run_ui(screen(), |ui| app.show(ui));
     }
-    assert!(app.sidebar_open(), "sidebar is an inline panel, open by default on desktop");
+    assert!(
+        app.sidebar_open(),
+        "sidebar is an inline panel, open by default on desktop"
+    );
 }
 
 #[test]

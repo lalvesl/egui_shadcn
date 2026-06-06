@@ -558,77 +558,78 @@ impl DemoApp {
         // Separator after letter groups (A→4, B→9, C→18, D→23, H–L→27, M–P→32, R–S→42)
         const SEP_AFTER: &[usize] = &[0, 4, 9, 18, 23, 27, 32, 42];
 
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            ui.set_width(184.0);
-            let mut picked = false;
+        egui::ScrollArea::vertical()
+            .show(ui, |ui| {
+                ui.set_width(184.0);
+                let mut picked = false;
 
-            for i in 0..SECTION_COUNT {
-                let section = t::section_name(i);
-                let is_active = self.current_section == i;
-                let bg = if is_active {
-                    theme.accent
-                } else {
-                    Color32::TRANSPARENT
-                };
-                let fg = if is_active {
-                    theme.accent_foreground
-                } else {
-                    theme.foreground
-                };
+                for i in 0..SECTION_COUNT {
+                    let section = t::section_name(i);
+                    let is_active = self.current_section == i;
+                    let bg = if is_active {
+                        theme.accent
+                    } else {
+                        Color32::TRANSPARENT
+                    };
+                    let fg = if is_active {
+                        theme.accent_foreground
+                    } else {
+                        theme.foreground
+                    };
 
-                let (rect, resp) =
-                    ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
+                    let (rect, resp) =
+                        ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
 
-                if resp.hovered() && !is_active {
-                    ui.painter().rect_filled(
-                        rect,
-                        egui::CornerRadius::same(theme.radius as u8),
-                        ShadcnTheme::with_alpha(theme.accent, 80),
+                    if resp.hovered() && !is_active {
+                        ui.painter().rect_filled(
+                            rect,
+                            egui::CornerRadius::same(theme.radius as u8),
+                            ShadcnTheme::with_alpha(theme.accent, 80),
+                        );
+                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                    } else {
+                        ui.painter().rect_filled(
+                            rect,
+                            egui::CornerRadius::same(theme.radius as u8),
+                            bg,
+                        );
+                    }
+
+                    ui.painter().text(
+                        egui::Pos2::new(rect.left() + 12.0, rect.center().y),
+                        egui::Align2::LEFT_CENTER,
+                        section.as_ref(),
+                        egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                        fg,
                     );
-                    ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
-                } else {
-                    ui.painter().rect_filled(
-                        rect,
-                        egui::CornerRadius::same(theme.radius as u8),
-                        bg,
-                    );
-                }
 
-                ui.painter().text(
-                    egui::Pos2::new(rect.left() + 12.0, rect.center().y),
-                    egui::Align2::LEFT_CENTER,
-                    section.as_ref(),
-                    egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                    fg,
-                );
+                    if is_active && can_auto_scroll {
+                        let visible = ui.clip_rect();
+                        if !visible.contains(rect.center()) {
+                            resp.scroll_to_me(Some(egui::Align::Center));
+                        }
+                    }
 
-                if is_active && can_auto_scroll {
-                    let visible = ui.clip_rect();
-                    if !visible.contains(rect.center()) {
-                        resp.scroll_to_me(Some(egui::Align::Center));
+                    if resp.clicked() {
+                        self.current_section = i;
+                        self.scroll_to_section = Some(i);
+                        self.sidebar_last_interaction = now;
+                        resp.surrender_focus();
+                        picked = true;
+                    }
+
+                    if SEP_AFTER.contains(&i) {
+                        Spacing::Xs.show(ui);
+                        Separator::horizontal().show(ui);
+                        Spacing::Xs.show(ui);
+                    } else {
+                        ui.add_space(2.0);
                     }
                 }
 
-                if resp.clicked() {
-                    self.current_section = i;
-                    self.scroll_to_section = Some(i);
-                    self.sidebar_last_interaction = now;
-                    resp.surrender_focus();
-                    picked = true;
-                }
-
-                if SEP_AFTER.contains(&i) {
-                    Spacing::Xs.show(ui);
-                    Separator::horizontal().show(ui);
-                    Spacing::Xs.show(ui);
-                } else {
-                    ui.add_space(2.0);
-                }
-            }
-
-            picked
-        })
-        .inner
+                picked
+            })
+            .inner
     }
 
     /// Mobile sidebar: a left-anchored drawer floating above the content with a
@@ -669,7 +670,8 @@ impl DemoApp {
         // Tap outside the drawer closes it.
         if ctx.input(|i| i.pointer.primary_pressed()) {
             let pos = ctx.input(|i| i.pointer.interact_pos());
-            let inside = matches!((win.as_ref(), pos), (Some(r), Some(p)) if r.response.rect.contains(p));
+            let inside =
+                matches!((win.as_ref(), pos), (Some(r), Some(p)) if r.response.rect.contains(p));
             if !inside {
                 self.sidebar_open = false;
             }

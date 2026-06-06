@@ -49,7 +49,9 @@ impl<'a> Collapsible<'a> {
         // Slide the body open/closed by clipping it to an animated height; the
         // natural height is measured each frame and reused on the next.
         let body_dur = Animations::duration(ui.ctx(), 0.2);
-        let openness = ui.ctx().animate_bool_with_time(self.id, *self.open, body_dur);
+        let openness = ui
+            .ctx()
+            .animate_bool_with_time(self.id, *self.open, body_dur);
         if openness > 0.0 {
             let h_id = self.id.with("body_h");
             let full_h = ui.ctx().data(|d| d.get_temp::<f32>(h_id).unwrap_or(0.0));

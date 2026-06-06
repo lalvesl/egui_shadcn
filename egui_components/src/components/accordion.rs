@@ -52,7 +52,9 @@ impl<'a> Accordion<'a> {
             ICON_EXPAND_MORE
         };
         let icon_dur = Animations::duration(ui.ctx(), 0.15);
-        let _ = ui.ctx().animate_bool_with_time(self.id, *self.open, icon_dur);
+        let _ = ui
+            .ctx()
+            .animate_bool_with_time(self.id, *self.open, icon_dur);
         ui.painter().text(
             egui::Pos2::new(header_rect.right() - 20.0, header_rect.center().y),
             egui::Align2::CENTER_CENTER,

@@ -22,9 +22,7 @@ use std::sync::OnceLock;
 // Re-exports so the generated code (and users) have a single import root.
 pub use i18n_format as format;
 pub use i18n_format::Languages;
-pub use i18n_format::{
-    composite_key, ArgValue, Catalog, LanguagesWithValue, Plural, Translate,
-};
+pub use i18n_format::{composite_key, ArgValue, Catalog, LanguagesWithValue, Plural, Translate};
 pub use i18n_macros::{t, traductions};
 #[doc(hidden)]
 pub use linkme;
@@ -188,8 +186,8 @@ pub fn install_exported(lang: Languages, bytes: &'static [u8]) -> usize {
         if cur + 4 > bytes.len() {
             break;
         }
-        let len =
-            u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]) as usize;
+        let len = u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]])
+            as usize;
         cur += 4;
         if cur + len > bytes.len() {
             break;

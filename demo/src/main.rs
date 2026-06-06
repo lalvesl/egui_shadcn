@@ -13,7 +13,9 @@ fn gen_i18n_dir() -> Option<std::path::PathBuf> {
             return args.next().map(std::path::PathBuf::from);
         }
     }
-    std::env::var("GEN_I18N_DIR").ok().map(std::path::PathBuf::from)
+    std::env::var("GEN_I18N_DIR")
+        .ok()
+        .map(std::path::PathBuf::from)
 }
 
 #[cfg(not(target_arch = "wasm32"))]

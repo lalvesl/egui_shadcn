@@ -23,6 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Enable Pages (source = GitHub Actions) if it isn't already, so the
+      # deploy job has a target. Without this the first run fails when the repo
+      # has never had Pages turned on. Needs the `pages: write` permission below.
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 

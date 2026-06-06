@@ -95,7 +95,12 @@ impl Boxed {
         // outer margin), so its edges are the border.
         let rect = resp.response.rect;
         let painter = ui.painter();
-        painter.rect_stroke(rect, cr, Stroke::new(1.0, theme.border), egui::StrokeKind::Middle);
+        painter.rect_stroke(
+            rect,
+            cr,
+            Stroke::new(1.0, theme.border),
+            egui::StrokeKind::Middle,
+        );
         if self.accent {
             // Inset each end by its own bottom-corner radius so the line spans
             // exactly the flat run, whether the corners are rounded or square.

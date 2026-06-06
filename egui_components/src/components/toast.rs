@@ -128,89 +128,101 @@ impl Toaster {
                         // Card surface (fill + border + primary bottom accent) via
                         // the shared Boxed primitive; the variant left-stripe and
                         // contents are painted on top.
-                        Boxed::new().fill(theme.card).padding_px(0.0).show(ui, |ui| {
-                            let (toast_rect, _) = ui.allocate_exact_size(
-                                Vec2::new(toast_width, item_height),
-                                egui::Sense::hover(),
-                            );
+                        Boxed::new()
+                            .fill(theme.card)
+                            .padding_px(0.0)
+                            .show(ui, |ui| {
+                                let (toast_rect, _) = ui.allocate_exact_size(
+                                    Vec2::new(toast_width, item_height),
+                                    egui::Sense::hover(),
+                                );
 
-                            // Colored left border stripe
-                            let stripe_rect = egui::Rect::from_min_size(
-                                toast_rect.min,
-                                Vec2::new(4.0, item_height),
-                            );
-                            ui.painter().rect_filled(
-                                stripe_rect,
-                                CornerRadius {
-                                    nw: theme.radius as u8,
-                                    ne: 0,
-                                    sw: theme.radius as u8,
-                                    se: 0,
-                                },
-                                accent_color,
-                            );
+                                // Colored left border stripe
+                                let stripe_rect = egui::Rect::from_min_size(
+                                    toast_rect.min,
+                                    Vec2::new(4.0, item_height),
+                                );
+                                ui.painter().rect_filled(
+                                    stripe_rect,
+                                    CornerRadius {
+                                        nw: theme.radius as u8,
+                                        ne: 0,
+                                        sw: theme.radius as u8,
+                                        se: 0,
+                                    },
+                                    accent_color,
+                                );
 
-                            // Icon
-                            ui.painter().text(
-                                egui::Pos2::new(toast_rect.left() + 20.0, toast_rect.top() + 18.0),
-                                egui::Align2::CENTER_CENTER,
-                                icon,
-                                crate::icon_font_id(16.0),
-                                accent_color,
-                            );
+                                // Icon
+                                ui.painter().text(
+                                    egui::Pos2::new(
+                                        toast_rect.left() + 20.0,
+                                        toast_rect.top() + 18.0,
+                                    ),
+                                    egui::Align2::CENTER_CENTER,
+                                    icon,
+                                    crate::icon_font_id(16.0),
+                                    accent_color,
+                                );
 
-                            // Title
-                            ui.painter().text(
-                                egui::Pos2::new(toast_rect.left() + 36.0, toast_rect.top() + 18.0),
-                                egui::Align2::LEFT_CENTER,
-                                &toast.title,
-                                egui::FontId::new(14.0, egui::FontFamily::Proportional),
-                                theme.foreground,
-                            );
-
-                            // Description
-                            if let Some(desc) = &toast.description {
+                                // Title
                                 ui.painter().text(
                                     egui::Pos2::new(
                                         toast_rect.left() + 36.0,
-                                        toast_rect.top() + 36.0,
+                                        toast_rect.top() + 18.0,
                                     ),
                                     egui::Align2::LEFT_CENTER,
-                                    desc,
-                                    egui::FontId::new(12.0, egui::FontFamily::Proportional),
-                                    theme.muted_foreground,
+                                    &toast.title,
+                                    egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                                    theme.foreground,
                                 );
-                            }
 
-                            // Close button
-                            let close_size = 20.0;
-                            let close_rect = egui::Rect::from_center_size(
-                                egui::Pos2::new(toast_rect.right() - 14.0, toast_rect.top() + 14.0),
-                                Vec2::splat(close_size),
-                            );
-                            let close_resp = ui.interact(
-                                close_rect,
-                                egui::Id::new("toast_close").with(toast_id),
-                                egui::Sense::click(),
-                            );
-                            if close_resp.hovered() {
-                                ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
-                            }
-                            ui.painter().text(
-                                close_rect.center(),
-                                egui::Align2::CENTER_CENTER,
-                                ICON_CLOSE,
-                                crate::icon_font_id(14.0),
+                                // Description
+                                if let Some(desc) = &toast.description {
+                                    ui.painter().text(
+                                        egui::Pos2::new(
+                                            toast_rect.left() + 36.0,
+                                            toast_rect.top() + 36.0,
+                                        ),
+                                        egui::Align2::LEFT_CENTER,
+                                        desc,
+                                        egui::FontId::new(12.0, egui::FontFamily::Proportional),
+                                        theme.muted_foreground,
+                                    );
+                                }
+
+                                // Close button
+                                let close_size = 20.0;
+                                let close_rect = egui::Rect::from_center_size(
+                                    egui::Pos2::new(
+                                        toast_rect.right() - 14.0,
+                                        toast_rect.top() + 14.0,
+                                    ),
+                                    Vec2::splat(close_size),
+                                );
+                                let close_resp = ui.interact(
+                                    close_rect,
+                                    egui::Id::new("toast_close").with(toast_id),
+                                    egui::Sense::click(),
+                                );
                                 if close_resp.hovered() {
-                                    theme.foreground
-                                } else {
-                                    theme.muted_foreground
-                                },
-                            );
-                            if close_resp.clicked() {
-                                ids_to_remove.push(toast_id);
-                            }
-                        });
+                                    ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                                }
+                                ui.painter().text(
+                                    close_rect.center(),
+                                    egui::Align2::CENTER_CENTER,
+                                    ICON_CLOSE,
+                                    crate::icon_font_id(14.0),
+                                    if close_resp.hovered() {
+                                        theme.foreground
+                                    } else {
+                                        theme.muted_foreground
+                                    },
+                                );
+                                if close_resp.clicked() {
+                                    ids_to_remove.push(toast_id);
+                                }
+                            });
 
                         Spacing::Sm.show(ui);
                     }

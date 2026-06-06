@@ -648,7 +648,10 @@ mod tests {
         // 360 px (a phone) can't fit two 252 px months side by side.
         let (w, _h, compact) = fit_to_width(360.0, 36.0, 32.0, true, false);
         assert!(compact, "range should fall back to a single compact month");
-        assert_eq!(w, 36.0, "a single month still fits, so cells keep full size");
+        assert_eq!(
+            w, 36.0,
+            "a single month still fits, so cells keep full size"
+        );
     }
 
     #[test]
@@ -656,7 +659,10 @@ mod tests {
         // 7 * 36 = 252 > 220, so cells shrink to fit the width.
         let (w, h, _compact) = fit_to_width(220.0, 36.0, 32.0, false, false);
         assert!((w - 220.0 / 7.0).abs() < 1e-3);
-        assert!((h - 32.0 * (w / 36.0)).abs() < 1e-3, "height scales with width");
+        assert!(
+            (h - 32.0 * (w / 36.0)).abs() < 1e-3,
+            "height scales with width"
+        );
     }
 
     #[test]
@@ -671,6 +677,9 @@ mod tests {
             fit_to_width(f32::INFINITY, 54.0, 52.0, false, true),
             (54.0, 52.0, true)
         );
-        assert_eq!(fit_to_width(0.0, 54.0, 52.0, true, false), (54.0, 52.0, false));
+        assert_eq!(
+            fit_to_width(0.0, 54.0, 52.0, true, false),
+            (54.0, 52.0, false)
+        );
     }
 }

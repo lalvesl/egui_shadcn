@@ -280,6 +280,8 @@ open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
   <meta charset="utf-8" />
   <title>egui-shadcn demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
+
   <style>
     html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #09090b; }
     canvas { display: block; width: 100% !important; height: 100% !important; }

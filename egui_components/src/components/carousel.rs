@@ -203,7 +203,11 @@ impl Carousel {
                 current -= 1;
             }
             if current != from {
-                anim = Some(CarAnim { from, start: now, dir: -1.0 }); // enters from left
+                anim = Some(CarAnim {
+                    from,
+                    start: now,
+                    dir: -1.0,
+                }); // enters from left
                 ui.ctx().request_repaint();
             }
         }
@@ -217,7 +221,11 @@ impl Carousel {
                 current += 1;
             }
             if current != from {
-                anim = Some(CarAnim { from, start: now, dir: 1.0 }); // enters from right
+                anim = Some(CarAnim {
+                    from,
+                    start: now,
+                    dir: 1.0,
+                }); // enters from right
                 ui.ctx().request_repaint();
             }
         }

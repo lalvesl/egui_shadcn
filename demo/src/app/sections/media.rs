@@ -123,7 +123,11 @@ impl DemoApp {
             let chart = egui_charts::Chart::new()
                 .x_axis(Axis::category(months))
                 .y_axis(Axis::value())
-                .series(Series::line(desktop_lbl.as_ref()).data(desktop).smooth(true));
+                .series(
+                    Series::line(desktop_lbl.as_ref())
+                        .data(desktop)
+                        .smooth(true),
+                );
             let w = ui.available_width();
             ChartWidget::new(&chart)
                 .id("demo_line_chart")

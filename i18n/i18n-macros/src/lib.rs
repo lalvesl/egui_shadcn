@@ -122,9 +122,9 @@ impl Parse for DslVariant {
             // The driver arg name is required: `plural(n) { .. }`. Its rank in
             // the entry's sorted name set becomes the wire `plural_arg_index`.
             if !content.peek(syn::token::Paren) {
-                return Err(content.error(
-                    "plural needs a driver argument name, e.g. `plural(n) { .. }`",
-                ));
+                return Err(
+                    content.error("plural needs a driver argument name, e.g. `plural(n) { .. }`")
+                );
             }
             let driver_inner;
             syn::parenthesized!(driver_inner in content);

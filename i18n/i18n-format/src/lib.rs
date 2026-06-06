@@ -807,7 +807,10 @@ mod tests {
     fn multi_arg_sorted_indices() {
         // "current" < "total" alphabetically -> current=0, total=1. Caller must
         // pass args in that same sorted order.
-        let bytes = encode_catalog(Languages::En, vec![plain(1, 0, "Page {current} of {total}")]);
+        let bytes = encode_catalog(
+            Languages::En,
+            vec![plain(1, 0, "Page {current} of {total}")],
+        );
         let cat = Catalog::new(&bytes).unwrap();
         let e = cat.lookup(1, 0).unwrap();
         let out = e.render(Languages::En, &[3i32.into(), 10i32.into()]);
