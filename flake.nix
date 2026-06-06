@@ -34,7 +34,10 @@
             "rust-analyzer"
             "clippy"
           ];
-          targets = [ "wasm32-unknown-unknown" ];
+          targets = [
+            "wasm32-unknown-unknown"
+            "aarch64-linux-android"
+          ];
         };
 
         nativeLibs = with pkgs; [
@@ -97,6 +100,22 @@
         # Headless browser for the Rust e2e harness (chromiumoxide drives it
         # over the DevTools Protocol — no WebDriver, no Playwright, no Python).
         e2eChromium = pkgs.chromium;
+
+        # ── Android build tooling (cargo-apk + SDK/NDK) ────────────────────────
+        # Unfree Android components need a license-accepting nixpkgs instance.
+        androidPkgs = import nixpkgs {
+          inherit system overlays;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
+        };
+        androidComposition = androidPkgs.androidenv.composeAndroidPackages {
+          platformVersions = [ "33" ];
+          buildToolsVersions = [ "34.0.0" ];
+          includeNDK = true;
+          ndkVersions = [ "26.1.10909125" ];
+        };
+        androidSdkRoot = "${androidComposition.androidsdk}/libexec/android-sdk";
+        androidNdkRoot = "${androidSdkRoot}/ndk/26.1.10909125";
       in
       {
         # ── Native dev shell ───────────────────────────────────────────────────
@@ -208,6 +227,67 @@ open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
 HTML
             '';
             doCheck = false;
+          };
+
+        # ── nix build .#demo2android — release APK of the demo crate ──────────
+        # crane vendors all deps offline, then cargo-apk cross-compiles the
+        # `demo` cdylib for aarch64-linux-android under the NDK toolchain and
+        # packages + signs an APK. The android entry point is `android_main`
+        # in demo/src/lib.rs; android config lives in [package.metadata.android]
+        # of demo/Cargo.toml.
+        packages.demo2android =
+          let
+            src = craneLib.cleanCargoSource ./.;
+          in
+          craneLib.mkCargoDerivation {
+            pname = "egui-shadcn-demo-android";
+            version = "0.1.0";
+            inherit src;
+            cargoArtifacts = null;
+            strictDeps = true;
+            doCheck = false;
+            doInstallCargoArtifacts = false;
+
+            # egui_components/build.rs embeds the icon font on native targets
+            # (android is native): hand it the pre-fetched assets so it stays offline.
+            EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+            EGUI_SHADCN_FONT_PATH = "${materialIconsFont}";
+
+            # ndk-build / cargo-apk toolchain discovery.
+            ANDROID_SDK_ROOT = androidSdkRoot;
+            ANDROID_NDK_ROOT = androidNdkRoot;
+            JAVA_HOME = "${pkgs.jdk17_headless}";
+
+            nativeBuildInputs = [
+              pkgs.cargo-apk
+              pkgs.jdk17_headless
+            ];
+
+            buildPhaseCargoCommand = ''
+              # ndk-build needs a writable $HOME for its ~/.android lookup.
+              export HOME=$(mktemp -d)
+
+              # cargo-apk requires a signing key for the release profile (debug
+              # auto-keys are only generated for the dev profile). Mint a throwaway
+              # self-signed keystore and point the release-keystore env vars at it.
+              export CARGO_APK_RELEASE_KEYSTORE="$HOME/release.keystore"
+              export CARGO_APK_RELEASE_KEYSTORE_PASSWORD=android
+              keytool -genkeypair -v \
+                -keystore "$CARGO_APK_RELEASE_KEYSTORE" \
+                -alias demo -keyalg RSA -keysize 2048 -validity 10000 \
+                -storepass android -keypass android \
+                -dname "CN=egui-shadcn demo, O=egui-shadcn, C=US"
+
+              # --lib builds only the cdylib (libdemo.so), skipping the demo-native bin.
+              ( cd demo && cargo apk build --release --lib )
+            '';
+
+            installPhaseCommand = ''
+              mkdir -p "$out"
+              apk=$(find target -name '*.apk' ! -name '*-unaligned.apk' | head -1)
+              echo "Packaged APK: $apk"
+              cp "$apk" "$out/demo.apk"
+            '';
           };
 
         # ── nix run .#web — trunk serve (dev) ─────────────────────────────────
