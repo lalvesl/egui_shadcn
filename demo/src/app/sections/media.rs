@@ -65,6 +65,8 @@ impl DemoApp {
             Distribution::Even,
         );
         ct.background = egui::Color32::TRANSPARENT;
+        // Drop the alternating split-area bands — keep only the grid lines.
+        ct.split_area = [egui::Color32::TRANSPARENT; 2];
         ct.text = theme.foreground;
         ct.text_dim = theme.muted_foreground;
         ct.axis_line = theme.border;

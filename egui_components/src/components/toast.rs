@@ -1,7 +1,7 @@
 use super::boxed::Boxed;
 use super::spacing::Spacing;
 use crate::{ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING, ShadcnTheme};
-use egui::{Color32, CornerRadius, Vec2};
+use egui::{CornerRadius, Vec2};
 
 #[derive(Clone, PartialEq)]
 pub enum ToastVariant {
@@ -113,10 +113,8 @@ impl Toaster {
                     for toast in toasts.iter().rev() {
                         let (accent_color, icon) = match toast.variant {
                             ToastVariant::Default => (theme.primary, ICON_CHECK_CIRCLE),
-                            ToastVariant::Success => {
-                                (Color32::from_rgb(34, 197, 94), ICON_CHECK_CIRCLE)
-                            }
-                            ToastVariant::Warning => (Color32::from_rgb(234, 179, 8), ICON_WARNING),
+                            ToastVariant::Success => (theme.success, ICON_CHECK_CIRCLE),
+                            ToastVariant::Warning => (theme.warning, ICON_WARNING),
                             ToastVariant::Destructive => (theme.destructive, ICON_ERROR),
                         };
 

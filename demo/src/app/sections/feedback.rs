@@ -204,6 +204,7 @@ impl DemoApp {
                     );
                 }
                 if Button::new(tr!(t::ToastSec::SuccessBtn).as_ref())
+                    .variant(ButtonVariant::Success)
                     .show(ui)
                     .clicked()
                 {
@@ -217,6 +218,7 @@ impl DemoApp {
                     );
                 }
                 if Button::new(tr!(t::ToastSec::WarningBtn).as_ref())
+                    .variant(ButtonVariant::Warning)
                     .show(ui)
                     .clicked()
                 {
