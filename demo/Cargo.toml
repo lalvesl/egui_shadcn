@@ -1,5 +1,5 @@
 [package]
-name    = "demo"
+name = "demo"
 version = "0.1.0"
 edition = "2024"
 
@@ -11,43 +11,57 @@ name = "demo-native"
 path = "src/main.rs"
 
 [features]
-default    = ["lang-en-us", "lang-pt-br"]
-lang-en    = ["i18n/lang-en", "egui_sc/lang-en"]
+default = ["lang-en-us", "lang-pt-br"]
+lang-en = ["i18n/lang-en", "egui_sc/lang-en"]
 lang-en-us = ["i18n/lang-en-us", "egui_sc/lang-en-us"]
-lang-pt    = ["i18n/lang-pt", "egui_sc/lang-pt"]
+lang-pt = ["i18n/lang-pt", "egui_sc/lang-pt"]
 lang-pt-br = ["i18n/lang-pt-br", "egui_sc/lang-pt-br"]
 
 [dependencies]
 egui_sc = { path = "../egui_sc" }
-egui    = { workspace = true }
-i18n    = { path = "../i18n/i18n" }
+egui = { workspace = true }
+i18n = { path = "../i18n/i18n" }
 
 # Desktop (Linux/macOS): X11 + Wayland windowing via glow.
 [target.'cfg(all(not(target_arch = "wasm32"), not(target_os = "android")))'.dependencies]
-eframe = { workspace = true, features = ["default_fonts", "glow", "x11", "wayland"] }
+eframe = { workspace = true, features = [
+  "default_fonts",
+  "glow",
+  "x11",
+  "wayland",
+] }
 
 # Android: NativeActivity glue + glow (no X11/Wayland). Built by `nix build .#demo2android`.
 # winit is needed directly to name `AndroidApp` in the `android_main` entry point;
 # its android-native-activity feature is unified in from eframe.
 [target.'cfg(target_os = "android")'.dependencies]
-eframe         = { workspace = true, features = ["default_fonts", "glow", "android-native-activity"] }
-winit          = { version = "0.30", default-features = false }
+eframe = { workspace = true, features = [
+  "default_fonts",
+  "glow",
+  "android-native-activity",
+] }
+winit = { version = "0.30", default-features = false }
 android_logger = "0.14"
-log            = "0.4"
+log = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-eframe               = { workspace = true, features = ["default_fonts", "glow"] }
-wasm-bindgen         = "0.2"
+eframe = { workspace = true, features = ["default_fonts", "glow"] }
+wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys              = { version = "0.3", features = ["Document", "HtmlCanvasElement", "Window", "Response"] }
-js-sys               = "0.3"
+web-sys = { version = "0.3", features = [
+  "Document",
+  "HtmlCanvasElement",
+  "Window",
+  "Response",
+] }
+js-sys = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
-skrifa            = { version = "0.42", features = ["std", "autohint_shaping"] }
+skrifa = { workspace = true }
 
 [build-dependencies]
-ureq = { version = "3.3", features = ["rustls"] }
+ureq = { workspace = true }
 
 # ── Android packaging (cargo-apk / `nix build .#demo2android`) ────────────────
 # version_name / version_code are derived from [package].version by cargo-apk

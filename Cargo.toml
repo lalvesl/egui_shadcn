@@ -20,6 +20,10 @@ egui = "0.34"
 epaint = "0.34"
 eframe = { version = "0.34", default-features = false }
 
+ureq = { version = "3.3", features = ["rustls"] }
+skrifa = { version = "0.42", features = ["std", "autohint_shaping"] }
+js-sys = "0.3"
+
 # Size-tuned release profile. Main target is the wasm32 demo (`nix build .#web`),
 # where `wasm-opt -Oz` then shrinks the output further. codegen-units=1 is the
 # dominant size lever here (~0.6 MB vs the default 16); opt-level=3 beats "z"/"s"
