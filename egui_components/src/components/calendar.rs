@@ -531,7 +531,7 @@ fn draw_month<'f>(
                     };
                     // Day-number highlight stays a tidy ~32 px disc even when the
                     // cell is widened for custom content — cap at the default r.
-                    let r = (cell_w / 2.0 - 2.0).min(16.0).max(1.0);
+                    let r = (cell_w / 2.0 - 2.0).clamp(1.0, 16.0);
 
                     if is_endpoint {
                         ui.painter().circle_filled(num_center, r, theme.primary);

@@ -278,8 +278,9 @@ HTML
                 -storepass android -keypass android \
                 -dname "CN=egui-shadcn demo, O=egui-shadcn, C=US"
 
-              # --lib builds only the cdylib (libdemo.so), skipping the demo-native bin.
-              ( cd demo && cargo apk build --release --lib )
+              # -p demo: cargo-subcommand sees the [workspace] and needs an explicit
+              # package. --lib builds only the cdylib (libdemo.so), skipping the bin.
+              cargo apk build --release --lib -p demo
             '';
 
             installPhaseCommand = ''
