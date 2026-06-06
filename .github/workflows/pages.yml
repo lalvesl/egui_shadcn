@@ -1,0 +1,67 @@
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GITHUB_TOKEN scopes the deploy-pages action needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; let an in-flight deploy finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build WASM demo (nix build .#web)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache /nix/store
+        uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-web-${{ runner.os }}-${{ hashFiles('flake.lock', '**/Cargo.lock') }}
+          restore-prefixes-first-match: nix-web-${{ runner.os }}-
+          gc-max-store-size-linux: 6G
+
+      # Reproducible, offline WASM build: optimized wasm-opt output + the
+      # MaterialIcons font and i18n catalog bundles in wasm_assets/. All runtime
+      # fetches use relative paths, so the demo works unchanged under the
+      # /<repo>/ project-pages subpath.
+      - name: Build
+        run: nix build .#web -L
+
+      - name: Assemble Pages artifact
+        run: |
+          mkdir -p site
+          cp -rL result/. site/
+          # Disable Jekyll (don't let it strip files) and add an SPA fallback.
+          touch site/.nojekyll
+          cp site/index.html site/404.html
+          echo "Artifact contents:" && find site -maxdepth 2 -type f | sort
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

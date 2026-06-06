@@ -1,6 +1,11 @@
 # egui-shadcn
 
+[![CI](https://github.com/lalvesl/egui_shadcn/actions/workflows/ci.yml/badge.svg)](https://github.com/lalvesl/egui_shadcn/actions/workflows/ci.yml)
+[![Pages](https://github.com/lalvesl/egui_shadcn/actions/workflows/pages.yml/badge.svg)](https://github.com/lalvesl/egui_shadcn/actions/workflows/pages.yml)
+
 Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https://ui.shadcn.com/) components. Not pixel-perfect, aesthetically faithful.
+
+**🌐 Live demo:** <https://lalvesl.github.io/egui_shadcn/>
 
 ## Components
 
@@ -104,6 +109,35 @@ Three layers:
 The browser harness self-serves `demo/dist` and talks CDP directly, so it needs
 only a Chromium binary (provided by the flake; override with `E2E_CHROME`). It
 replaces the former `e2e/test.py` Playwright script.
+
+## CI & deployment
+
+Everything CI does is a thin wrapper over the flake — the same derivations run
+locally and on GitHub Actions, so "green on my machine" means green in CI.
+
+| Workflow | Trigger | What runs |
+| -------- | ------- | --------- |
+| [`ci.yml`](.github/workflows/ci.yml) | push / PR | **Gate:** `nix build .#checks.<sys>.{clippy,test,web}` — clippy `-D warnings`, workspace tests, and the optimized WASM build. Plus two non-blocking jobs: `rustfmt --check` (informational) and the full `nix run .#e2e` headless-browser run. |
+| [`pages.yml`](.github/workflows/pages.yml) | push to `main` | `nix build .#web` → publish to GitHub Pages. |
+
+Reproduce the gate locally:
+
+```sh
+nix build .#checks.x86_64-linux.clippy .#checks.x86_64-linux.test .#checks.x86_64-linux.web -L
+```
+
+### GitHub Pages build
+
+`nix build .#web` produces a fully self-contained, offline, size-optimized
+bundle (`wasm-opt -Oz`): the JS glue, the WASM binary, the stripped MaterialIcons
+font, **and the per-language i18n catalog bundles** under `wasm_assets/i18n/`
+(generated from the native binary — `linkme` has no wasm backend, so the catalogs
+*must* ship as assets or every string renders blank). All runtime fetches use
+relative paths, so it works unchanged under the `/egui_shadcn/` project-pages
+subpath.
+
+> **One-time setup:** in the repo, **Settings → Pages → Build and deployment →
+> Source: GitHub Actions**. After that, every push to `main` redeploys.
 
 ## Workspace structure
 

@@ -116,6 +116,70 @@
         };
         androidSdkRoot = "${androidComposition.androidsdk}/libexec/android-sdk";
         androidNdkRoot = "${androidSdkRoot}/ndk/26.1.10909125";
+
+        # ── Native build (offline) shared args ──────────────────────────────────
+        # Used by the i18n catalog generator and the flake `checks`. The Nix
+        # sandbox has no network, so build scripts read the pre-fetched font +
+        # codepoints via env. demo/build.rs's optional Roboto/NerdFont downloads
+        # fail gracefully (not needed for tests or catalog generation).
+        nativeCommonArgs = {
+          src = craneLib.cleanCargoSource ./.;
+          strictDeps = true;
+          nativeBuildInputs = [ pkgs.pkg-config ];
+          buildInputs = nativeLibs;
+          EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+          EGUI_SHADCN_FONT_PATH = "${materialIconsFont}";
+          # eframe (glow/x11/wayland) is dynamically linked; resolve at run time
+          # for the headless tests and the catalog-generator binary.
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath nativeLibs;
+          # Dev profile, not crane's default release: the root [profile.release]
+          # sets panic="abort", which is illegal for the unwinding test harness,
+          # so a release `cargo test` forks every dep into two incompatible
+          # builds (E0308 "expected egui::Context, found egui::Context"). Dev is
+          # also what `cargo test` / `nix run .#test` use locally. One dev deps
+          # closure is then shared by the catalog gen + clippy + test.
+          CARGO_PROFILE = "dev";
+        };
+
+        # Native dependency artifacts, shared by every native derivation below so
+        # deps compile once and are reused (and cached in CI).
+        nativeCargoArtifacts = craneLib.buildDepsOnly (
+          nativeCommonArgs
+          // {
+            pname = "egui-shadcn-native";
+            version = "0.1.0";
+          }
+        );
+
+        # The native demo binary, built with every language feature so linkme
+        # collects all catalogs. `--gen-i18n <dir>` exports them and exits before
+        # opening a window.
+        demoNative = craneLib.buildPackage (
+          nativeCommonArgs
+          // {
+            pname = "demo-native";
+            version = "0.1.0";
+            cargoArtifacts = nativeCargoArtifacts;
+            cargoExtraArgs = "-p demo --bin demo-native --features lang-en,lang-pt";
+            doCheck = false;
+          }
+        );
+
+        # The per-language i18n catalog bundles the WASM app fetches at runtime
+        # from wasm_assets/i18n/{bcp47}.cat. linkme has no wasm backend, so these
+        # MUST be generated from the native binary and shipped as static assets —
+        # otherwise the deployed demo loads with every string missing.
+        i18nCatalogs =
+          pkgs.runCommand "egui-shadcn-i18n-catalogs"
+            {
+              buildInputs = nativeLibs;
+            }
+            ''
+              mkdir -p "$out/i18n"
+              export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
+              "${demoNative}/bin/demo-native" --gen-i18n "$out/i18n"
+              echo "[i18n] generated catalogs:" && ls -l "$out/i18n"
+            '';
       in
       {
         # ── Native dev shell ───────────────────────────────────────────────────
@@ -202,6 +266,11 @@ for i in range(n):
     if bytes(data[b:b+4]) in (b'GPOS', b'GSUB'): data[b] = ord('X')
 open('$out/wasm_assets/MaterialIcons-Regular.ttf', 'wb').write(bytes(data))
 "
+
+              # i18n catalog bundles — the WASM app fetches wasm_assets/i18n/
+              # {bcp47}.cat at runtime (linkme cannot embed them on wasm32).
+              mkdir -p "$out/wasm_assets/i18n"
+              cp ${i18nCatalogs}/i18n/*.cat "$out/wasm_assets/i18n/"
 
               # Minimal HTML — no trunk directives, loads WASM as ES module
               cat > "$out/index.html" <<'HTML'
@@ -290,6 +359,39 @@ HTML
               cp "$apk" "$out/demo.apk"
             '';
           };
+
+        packages.default = self.packages.${system}.web;
+        packages.i18n-catalogs = i18nCatalogs;
+
+        # ── nix flake check — clippy (-D warnings) + workspace tests + web build ─
+        # fmt is intentionally NOT a gate: CI runs `cargo fmt --check` as a
+        # non-blocking informational step so hand-tuned formatting isn't forced.
+        checks = {
+          web = self.packages.${system}.web;
+
+          clippy = craneLib.cargoClippy (
+            nativeCommonArgs
+            // {
+              pname = "egui-shadcn-clippy";
+              version = "0.1.0";
+              cargoArtifacts = nativeCargoArtifacts;
+              cargoClippyExtraArgs = "--workspace --all-targets -- -D warnings";
+            }
+          );
+
+          # Hand-rolled (not craneLib.cargoTest) to guarantee a plain dev-profile
+          # `cargo test` with no injected --release — see CARGO_PROFILE note above.
+          test = craneLib.mkCargoDerivation (
+            nativeCommonArgs
+            // {
+              pname = "egui-shadcn-test";
+              version = "0.1.0";
+              cargoArtifacts = nativeCargoArtifacts;
+              doInstallCargoArtifacts = false;
+              buildPhaseCargoCommand = "cargo test --workspace";
+            }
+          );
+        };
 
         # ── nix run .#web — trunk serve (dev) ─────────────────────────────────
         apps.web = {
