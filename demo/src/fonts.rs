@@ -1,4 +1,7 @@
-#[cfg(not(target_arch = "wasm32"))]
+// Only used by the optional bundled-font blocks below, which compile in only
+// when build.rs managed to fetch them (has_*_font). Gate the import to match,
+// or an offline build (no fonts fetched) trips `unused_imports`.
+#[cfg(all(not(target_arch = "wasm32"), any(has_fallback_font, has_nerd_font)))]
 use std::sync::Arc;
 
 pub fn register_demo_fonts(ctx: &egui::Context) {

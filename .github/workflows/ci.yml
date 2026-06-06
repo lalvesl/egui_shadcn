@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Supersede in-flight runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Hard gate: clippy (-D warnings) + workspace tests + WASM web build ───────
+  # Built straight from the flake's `checks` so local `nix flake check` and CI
+  # validate the exact same derivations. We build the three checks explicitly
+  # (not `nix flake check`) to avoid pulling the heavy `demo2android` package.
+  check:
+    name: clippy · tests · web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache /nix/store
+        uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-check-${{ runner.os }}-${{ hashFiles('flake.lock', '**/Cargo.lock') }}
+          restore-prefixes-first-match: nix-check-${{ runner.os }}-
+          gc-max-store-size-linux: 6G
+
+      - name: Build flake checks (clippy, test, web)
+        run: |
+          nix build -L \
+            '.#checks.x86_64-linux.clippy' \
+            '.#checks.x86_64-linux.test' \
+            '.#checks.x86_64-linux.web'
+
+  # ── Informational: rustfmt drift. Non-blocking by request (the tree is
+  # hand-formatted; this reports drift without failing the pipeline). ──────────
+  fmt:
+    name: rustfmt (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache /nix/store
+        uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-fmt-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-fmt-${{ runner.os }}-
+
+      - name: cargo fmt --check
+        run: nix develop --command cargo fmt --all -- --check
+
+  # ── Non-blocking: full headless-browser end-to-end run (nix run .#e2e):
+  # workspace tests → i18n example → trunk WASM build → chromiumoxide screenshot.
+  # Allowed to fail so a flaky headless canvas never blocks merges. ────────────
+  e2e:
+    name: e2e (headless browser, non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache /nix/store
+        uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-e2e-${{ runner.os }}-${{ hashFiles('flake.lock', '**/Cargo.lock', 'e2e/Cargo.lock') }}
+          restore-prefixes-first-match: nix-e2e-${{ runner.os }}-
+
+      - name: nix run .#e2e
+        run: nix run .#e2e
