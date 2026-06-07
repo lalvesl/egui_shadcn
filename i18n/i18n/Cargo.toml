@@ -1,20 +1,20 @@
 [package]
-name        = "i18n"
-version     = "0.1.0"
-edition     = "2021"
+name = "i18n"
+version = "0.1.0"
+edition = "2021"
 description = "Runtime facade: language registry, current-language state, async Source fallback, and t! lookup dispatcher."
 
 [lib]
 path = "src/lib.rs"
 
 [features]
-default      = []
-lang-en      = []
-lang-en-us   = []
-lang-pt      = []
-lang-pt-br   = []
+default = []
+lang-en = []
+lang-en-us = []
+lang-pt = []
+lang-pt-br = []
 
 [dependencies]
-i18n-format  = { path = "../i18n-format" }
-i18n-macros  = { path = "../i18n-macros" }
-linkme       = "0.3"
+i18n-format = { path = "../i18n-format" }
+i18n-macros = { path = "../i18n-macros" }
+linkme = "0.3"

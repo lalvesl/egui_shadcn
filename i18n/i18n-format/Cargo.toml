@@ -1,7 +1,7 @@
 [package]
-name        = "i18n-format"
-version     = "0.1.0"
-edition     = "2021"
+name = "i18n-format"
+version = "0.1.0"
+edition = "2021"
 description = "Dependency-free core: types + binary catalog encoder/decoder for i18n."
 
 [lib]

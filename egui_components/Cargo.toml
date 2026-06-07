@@ -1,14 +1,14 @@
 [package]
-name    = "egui_components"
+name = "egui_components"
 version = "0.1.0"
 edition = "2024"
-build   = "build.rs"
+build = "build.rs"
 
 [features]
-default    = ["lang-en-us", "lang-pt-br"]
-lang-en    = ["i18n/lang-en"]
+default = ["lang-en-us", "lang-pt-br"]
+lang-en = ["i18n/lang-en"]
 lang-en-us = ["i18n/lang-en-us"]
-lang-pt    = ["i18n/lang-pt"]
+lang-pt = ["i18n/lang-pt"]
 lang-pt-br = ["i18n/lang-pt-br"]
 
 [dependencies]
@@ -16,10 +16,10 @@ egui = { workspace = true }
 i18n = { path = "../i18n/i18n" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-js-sys = "0.3"
+js-sys = { workspace = true }
 
 [dev-dependencies]
-skrifa = { version = "0.40", features = ["std", "autohint_shaping"] }
+skrifa = { workspace = true }
 
 [build-dependencies]
-ureq = { version = "3.3", features = ["rustls"] }
+ureq = { workspace = true }

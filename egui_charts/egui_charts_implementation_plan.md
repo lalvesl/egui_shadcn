@@ -9,6 +9,7 @@ A Rust workspace that delivers a charting crate built on **egui / epaint**, aimi
 ## 1. Goals & non-goals
 
 **Goals**
+
 - Idiomatic egui widget API: `ChartWidget::new(option).show(ui)` and a builder for assembling charts in Rust.
 - Cover **every chart type ECharts ships** (full catalog in §3), grouped by the coordinate system each needs.
 - A **theming layer** with light/dark token sets derived from a single **primary color**, including a **color-wheel harmony** palette generator (complementary, analogous, triadic, etc.) and evenly-distributed categorical palettes for N series.
@@ -16,6 +17,7 @@ A Rust workspace that delivers a charting crate built on **egui / epaint**, aimi
 - A **gallery app** (eframe) that renders every chart and exposes live theme controls (dark toggle, primary-color picker, harmony scheme, series count).
 
 **Non-goals (initially)**
+
 - Pixel-identical reproduction of ECharts styling.
 - Full GL/3D parity in v1 (3D is a later, optional phase — see §3 and §8).
 - Server-side rendering.
@@ -78,63 +80,71 @@ egui_charts/                      # workspace root
 Every ECharts `series.type` (plus components that behave like charts), grouped by the **coordinate system** the implementation needs. **Everything renders on `epaint` directly — there is no `egui_plot` dependency** (see §4.4). This grouping drives the engine design and the roadmap (§8).
 
 ### 3.1 Cartesian / grid coordinate (rectangular)
-| Chart | ECharts `type` | Variants | Render path |
-|---|---|---|---|
-| Line | `line` | area, stacked, step, smooth | custom (epaint paths/area) |
-| Bar | `bar` | stacked, horizontal, polar bar | custom (epaint rects) |
-| Scatter / bubble | `scatter` | size-encoded (bubble) | custom (epaint symbols) |
-| Effect scatter | `effectScatter` | ripple animation | custom (animated symbols) |
-| Candlestick / K-line | `candlestick` | — | custom (OHLC rects + wicks) |
-| Box plot | `boxplot` | — | custom (whisker + box) |
-| Heatmap (grid) | `heatmap` | — | custom (cell grid + visualMap) |
-| Pictorial bar | `pictorialBar` | repeat / clip symbols | custom |
-| ThemeRiver (streamgraph) | `themeRiver` | — | custom on **single-axis** |
-| Lines (edges/paths) | `lines` | on cartesian or geo | custom (poly/bezier) |
-| Custom render | `custom` | user `render_item` callback | custom (callback) |
+
+| Chart                    | ECharts `type`  | Variants                       | Render path                    |
+| ------------------------ | --------------- | ------------------------------ | ------------------------------ |
+| Line                     | `line`          | area, stacked, step, smooth    | custom (epaint paths/area)     |
+| Bar                      | `bar`           | stacked, horizontal, polar bar | custom (epaint rects)          |
+| Scatter / bubble         | `scatter`       | size-encoded (bubble)          | custom (epaint symbols)        |
+| Effect scatter           | `effectScatter` | ripple animation               | custom (animated symbols)      |
+| Candlestick / K-line     | `candlestick`   | —                              | custom (OHLC rects + wicks)    |
+| Box plot                 | `boxplot`       | —                              | custom (whisker + box)         |
+| Heatmap (grid)           | `heatmap`       | —                              | custom (cell grid + visualMap) |
+| Pictorial bar            | `pictorialBar`  | repeat / clip symbols          | custom                         |
+| ThemeRiver (streamgraph) | `themeRiver`    | —                              | custom on **single-axis**      |
+| Lines (edges/paths)      | `lines`         | on cartesian or geo            | custom (poly/bezier)           |
+| Custom render            | `custom`        | user `render_item` callback    | custom (callback)              |
 
 ### 3.2 Polar / angular
-| Chart | `type` | Variants | Coord |
-|---|---|---|---|
-| Pie / doughnut | `pie` | rose / nightingale | polar |
-| Radar | `radar` | — | radar |
-| Gauge | `gauge` | progress, grade, multi-pointer | polar |
-| Bar / line on polar | `bar`/`line` | — | polar |
+
+| Chart               | `type`       | Variants                       | Coord |
+| ------------------- | ------------ | ------------------------------ | ----- |
+| Pie / doughnut      | `pie`        | rose / nightingale             | polar |
+| Radar               | `radar`      | —                              | radar |
+| Gauge               | `gauge`      | progress, grade, multi-pointer | polar |
+| Bar / line on polar | `bar`/`line` | —                              | polar |
 
 ### 3.3 Hierarchical
-| Chart | `type` | Coord |
-|---|---|---|
-| Tree | `tree` | none (laid out) |
-| Treemap | `treemap` | none (squarified) |
-| Sunburst | `sunburst` | polar (radial) |
+
+| Chart    | `type`     | Coord             |
+| -------- | ---------- | ----------------- |
+| Tree     | `tree`     | none (laid out)   |
+| Treemap  | `treemap`  | none (squarified) |
+| Sunburst | `sunburst` | polar (radial)    |
 
 ### 3.4 Relational / flow
-| Chart | `type` | Notes |
-|---|---|---|
-| Graph (node-link) | `graph` | force / circular / fixed layout |
-| Sankey | `sankey` | layered ribbons |
-| Chord | `graph` (chord layout) | circular relationships |
+
+| Chart             | `type`                 | Notes                           |
+| ----------------- | ---------------------- | ------------------------------- |
+| Graph (node-link) | `graph`                | force / circular / fixed layout |
+| Sankey            | `sankey`               | layered ribbons                 |
+| Chord             | `graph` (chord layout) | circular relationships          |
 
 ### 3.5 Statistical / specialized
-| Chart | `type` | Coord |
-|---|---|---|
-| Parallel coordinates | `parallel` | parallel |
-| Funnel | `funnel` | none (stacked trapezoids) |
-| Calendar heatmap | `heatmap`/`scatter` on calendar | calendar |
-| (Boxplot, candlestick, heatmap — see §3.1) | | |
+
+| Chart                                      | `type`                          | Coord                     |
+| ------------------------------------------ | ------------------------------- | ------------------------- |
+| Parallel coordinates                       | `parallel`                      | parallel                  |
+| Funnel                                     | `funnel`                        | none (stacked trapezoids) |
+| Calendar heatmap                           | `heatmap`/`scatter` on calendar | calendar                  |
+| (Boxplot, candlestick, heatmap — see §3.1) |                                 |                           |
 
 ### 3.6 Geographic
-| Chart | `type` | Notes |
-|---|---|---|
-| Map (choropleth) | `map` | GeoJSON polygons + visualMap |
-| Lines on geo | `lines` | migration / flight paths |
-| Scatter / effectScatter on geo | `scatter`/`effectScatter` | points on a projection |
-| Basemap overlays | `bmap`/`gmap` | external tiles (extension, optional) |
+
+| Chart                          | `type`                    | Notes                                |
+| ------------------------------ | ------------------------- | ------------------------------------ |
+| Map (choropleth)               | `map`                     | GeoJSON polygons + visualMap         |
+| Lines on geo                   | `lines`                   | migration / flight paths             |
+| Scatter / effectScatter on geo | `scatter`/`effectScatter` | points on a projection               |
+| Basemap overlays               | `bmap`/`gmap`             | external tiles (extension, optional) |
 
 ### 3.7 3D / WebGL (ECharts GL) — **optional later phase**
+
 egui is a 2D library, so these require a **wgpu paint callback** (`egui_wgpu`) or the **`three-d`** crate embedded via a paint callback.
 `bar3D`, `line3D`, `scatter3D`, `surface` (3D surface), `map3D`, `lines3D`, `graphGL` (large force graph), `flowGL` (vector field), `scatterGL` (massive scatter), `globe` (3D earth component).
 
 ### 3.8 Community extensions (parity for completeness)
+
 `wordCloud` (echarts-wordcloud) and `liquidFill` (echarts-liquidfill) — implement as native series so the catalog is complete.
 
 A single `ChartKind` enum will enumerate all of the above; the gallery's registry and the docs are generated from it so nothing silently falls out of sync.
@@ -144,6 +154,7 @@ A single `ChartKind` enum will enumerate all of the above; the gallery's registr
 ## 4. Core architecture
 
 ### 4.1 Two-layer API
+
 1. **Option / data model** (`option.rs`) — an ECharts-shaped, strongly-typed, `serde`-(de)serializable description: `title`, `legend`, `tooltip`, `grid`, `xAxis`/`yAxis`, `polar`/`radiusAxis`/`angleAxis`, `radar`, `visualMap`, `series: Vec<Series>`. A Rust builder wraps it ergonomically. Optional JSON ingestion lets users paste a (supported subset of) ECharts config.
 2. **Widget** (`widget.rs`) — `ChartWidget` implements `egui::Widget` and offers `show(&self, ui) -> Response`. It resolves the active `ChartTheme`, computes the `CoordLayout` from the available rect, dispatches each series to its renderer, then runs interaction (legend, tooltip, datazoom).
 
@@ -162,7 +173,8 @@ egui::CentralPanel::default().show(ctx, |ui| {
 ```
 
 ### 4.2 Coordinate systems
-ECharts' power comes from separating *coordinate systems* from *series*. Mirror that. A `CoordKind` selects the layout engine; a `CoordLayout` exposes `data_to_screen(point) -> Pos2` (and inverse for hit-testing).
+
+ECharts' power comes from separating _coordinate systems_ from _series_. Mirror that. A `CoordKind` selects the layout engine; a `CoordLayout` exposes `data_to_screen(point) -> Pos2` (and inverse for hit-testing).
 
 ```rust
 pub enum CoordKind { Cartesian2D, Polar, Radar, Single, Calendar, Parallel, Geo, None, ThreeD }
@@ -179,6 +191,7 @@ pub struct CoordLayout {
 ```
 
 ### 4.3 Series trait
+
 Each chart type implements one trait. Rendering goes through `ChartPainter`, never raw screen math, so theming and coordinate transforms stay centralized.
 
 ```rust
@@ -192,15 +205,18 @@ pub trait ChartType {
 ```
 
 ### 4.4 Render backend — single custom engine on `epaint`
+
 **No `egui_plot`.** The library is built from zero on **`epaint`** (egui's 2D paint layer: paths, convex polygons, bezier, text, images), so every chart — cartesian and non-cartesian alike — shares one coordinate, render, and interaction engine with a consistent look. This is more upfront work but avoids two mismatched coordinate/interaction models and a later migration.
 
 Because nothing is inherited from `egui_plot`, the cartesian engine must implement the pieces it would otherwise have provided for free. Build these once in `coord/cartesian.rs` + `render/`, then every cartesian chart reuses them:
+
 - **Data→screen transform** and its inverse (for hit-testing), with linear/log/category/time scales.
 - **Axis layout & tick generation** — a "nice numbers" algorithm (e.g. Wilkinson / 1-2-5 step selection) picking human-friendly ticks for the visible range; category and time-axis tick strategies.
 - **Axis & gridline rendering** — axis lines, major/minor ticks, tick labels (with rotation + ellipsis), split lines and split areas, all theme-styled.
 - **Pan / zoom / box-zoom** plumbed through egui's `Response` (drag to pan, scroll/pinch to zoom), feeding back into the transform.
 
 `render/shapes.rs` provides the primitives most ECharts charts reduce to:
+
 - **Sectors / annular sectors** (pie, doughnut, rose, gauge, sunburst) — fan of triangles between two radii/angles, rounded-corner option.
 - **Smooth paths** (smooth line, area boundaries) — Catmull-Rom → cubic bezier.
 - **Ribbons** (sankey, chord) — two bezier edges filled.
@@ -208,6 +224,7 @@ Because nothing is inherited from `egui_plot`, the cartesian engine must impleme
 - **Concave polygon fill** (geo, treemap with holes) — triangulate via `lyon` or `earcutr` before feeding epaint (which only fills convex shapes natively).
 
 ### 4.5 Interaction
+
 - **Tooltip:** per-frame hit test of the hovered series item; floating panel drawn in a top layer; theme-styled surface.
 - **Legend:** toggles series visibility; entries pull color from the theme palette by series index.
 - **DataZoom / brush:** pan & zoom for cartesian; box-zoom; range slider component.
@@ -221,6 +238,7 @@ Because nothing is inherited from `egui_plot`, the cartesian engine must impleme
 This is the headline feature. One **primary color** + a **harmony scheme** + a **mode** (light/dark) produces a complete, balanced token set and an N-color categorical palette distributed around the color wheel.
 
 ### 5.1 Why OKLCH, not HSL
+
 Hue rotation in HSL produces uneven perceived brightness (yellow looks far lighter than blue at the same `L`). Generating palettes in **OKLCH** (the cylindrical form of OKLab) keeps lightness and chroma perceptually constant as hue rotates, so categorical colors look equally weighted and sequential ramps look smooth. Use the **`palette`** crate for the conversions rather than hand-rolling matrices.
 
 ```rust
@@ -239,6 +257,7 @@ pub fn from_oklch(c: Oklch) -> Color32 {
 ```
 
 ### 5.2 Color-wheel harmony schemes
+
 Hue offsets (in degrees) applied to the primary's hue. These are the classic color-wheel relationships.
 
 ```rust
@@ -273,6 +292,7 @@ pub fn harmony_palette(primary: Color32, scheme: Harmony) -> Vec<Color32> {
 ```
 
 ### 5.3 Categorical palette for N series (even color-wheel distribution)
+
 The harmony schemes give 1–4 anchor hues; charts often need more. Distribute `n` series evenly around the wheel from the primary hue, holding lightness/chroma constant (tuned per mode so colors read on the active background).
 
 ```rust
@@ -287,9 +307,11 @@ pub fn categorical(primary: Color32, n: usize, dark: bool) -> Vec<Color32> {
     }).collect()
 }
 ```
+
 For very large `n`, swap even spacing for the **golden angle (~137.5°)** to maximize separation between consecutive series. Expose both via a `Distribution { Even, GoldenAngle }` option.
 
 ### 5.4 Sequential & diverging scales (heatmap / visualMap / choropleth)
+
 Interpolate in OKLab for smooth, banding-free ramps.
 
 ```rust
@@ -306,6 +328,7 @@ pub fn diverging(primary: Color32, steps: usize) -> Vec<Color32> { /* lerp two r
 ```
 
 ### 5.5 Theme tokens (light + dark)
+
 A `ChartTheme` carries everything the renderer needs; building it from a primary color produces both the chrome (background, grid, axis, text, tooltip surface) and the data palettes.
 
 ```rust
@@ -378,12 +401,13 @@ An **eframe** app that doubles as living documentation and as the manual test su
 ## 7. Dependencies & Cargo setup
 
 Core crate:
+
 - `egui`, `epaint` — UI + 2D painting (track latest; e.g. egui `0.32`). **The only rendering dependency** — no `egui_plot`.
 - `palette` — OKLab/OKLCH color math.
-- `serde`, `serde_json` *(feature `serde`)* — option model (de)serialization.
-- `lyon` **or** `earcutr` *(feature `geo`/`maps`)* — concave polygon tessellation for geo/treemap.
-- `geo`, `geojson` *(feature `maps`)* — map ingestion & projection.
-- `three-d` or raw `egui_wgpu` paint callbacks *(feature `gl3d`, optional)* — 3D/GL charts.
+- `serde`, `serde_json` _(feature `serde`)_ — option model (de)serialization.
+- `lyon` **or** `earcutr` _(feature `geo`/`maps`)_ — concave polygon tessellation for geo/treemap.
+- `geo`, `geojson` _(feature `maps`)_ — map ingestion & projection.
+- `three-d` or raw `egui_wgpu` paint callbacks _(feature `gl3d`, optional)_ — 3D/GL charts.
 
 Examples crate: `eframe`, the core crate, plus sample-data helpers.
 
@@ -394,6 +418,7 @@ Feature flags keep the dependency surface small by default: `default = ["serde"]
 ## 8. Phased roadmap (every chart mapped to a milestone)
 
 **Phase 0 — Foundations: engine + theming + first charts**
+
 - Workspace, `ChartKind` enum, `option.rs` + builder, `ChartWidget` skeleton.
 - **The `epaint` engine itself:** cartesian coordinate system (scales, data↔screen transform), nice-number tick generation, axis/gridline/label rendering, and pan/zoom plumbed through egui's `Response` (the work `egui_plot` would otherwise have done — see §4.4).
 - `render/` primitives: paths, area fills, rects, symbols, text with rotation/ellipsis.
@@ -402,21 +427,26 @@ Feature flags keep the dependency surface small by default: `default = ["serde"]
 - Charts: **line (incl. area/stacked/step/smooth), bar (incl. stacked/horizontal), scatter**. ✅ Shippable, fully themeable demo on a self-owned engine.
 
 **Phase 1 — Polar family**
+
 - Polar/radar coordinate systems; sector & annular-sector primitives; legend + tooltip.
 - Charts: **pie / doughnut / rose, radar, gauge, funnel**.
 
 **Phase 2 — Hierarchical & relational**
+
 - Layout algorithms (squarified treemap, tidy-tree, force/circular graph, sankey layering).
 - Charts: **tree, treemap, sunburst, graph, sankey, chord**.
 
 **Phase 3 — Statistical & specialized**
+
 - Charts: **boxplot, candlestick, heatmap, calendar heatmap, parallel, themeRiver, pictorialBar, effectScatter, custom**.
 
 **Phase 4 — Geographic**
+
 - GeoJSON loading + projection, polygon tessellation, visualMap binding.
 - Charts: **map (choropleth), lines on geo, scatter/effectScatter on geo**.
 
 **Phase 5 — Extensions & 3D (optional)**
+
 - Native **wordCloud, liquidFill**.
 - **GL/3D** via wgpu/`three-d`: **bar3D, line3D, scatter3D, surface, map3D, lines3D, graphGL, flowGL, scatterGL, globe**.
 
@@ -440,6 +470,6 @@ Feature flags keep the dependency surface small by default: `default = ["serde"]
 - **Building cartesian from scratch.** Skipping `egui_plot` means the axis/tick/gridline + pan-zoom layer is on us (Phase 0). The highest-risk piece is robust **nice-number tick generation** and **log/time scales**; budget time there and lock it down with snapshot tests before building charts on top. The payoff is one consistent engine and zero migration debt.
 - **Concave fills.** epaint fills convex shapes only — geo and some treemap/funnel cases need tessellation (`lyon`/`earcutr`); budget for it in Phase 4.
 - **Text layout parity.** ECharts label placement (rotation, ellipsis, rich text) is intricate; `render/text.rs` should be built once and reused everywhere.
-- **ECharts-JSON compatibility** is a *subset* promise — document exactly which `option` fields are honored to avoid surprising users.
+- **ECharts-JSON compatibility** is a _subset_ promise — document exactly which `option` fields are honored to avoid surprising users.
 - **Naming/trademark** (see header) before any crates.io publish.
 - **Open questions to confirm with you:** Is interactive pan/zoom/tooltip in-scope for v1 or can v1 be static (this matters more now that we own the interaction layer)? Is the GL/3D phase actually wanted, or is the 2D catalog sufficient? Should theming ship as its own crate from the start?

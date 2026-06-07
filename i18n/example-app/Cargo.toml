@@ -1,5 +1,5 @@
 [package]
-name    = "example-app"
+name = "example-app"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,10 +8,10 @@ name = "example-app"
 path = "src/main.rs"
 
 [features]
-default    = ["lang-en", "lang-pt-br"]
-lang-en    = ["i18n/lang-en"]
+default = ["lang-en", "lang-pt-br"]
+lang-en = ["i18n/lang-en"]
 lang-en-us = ["i18n/lang-en-us"]
-lang-pt    = ["i18n/lang-pt"]
+lang-pt = ["i18n/lang-pt"]
 lang-pt-br = ["i18n/lang-pt-br"]
 
 [dependencies]
