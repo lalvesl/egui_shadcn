@@ -7,7 +7,13 @@ use crate::render::painter::ChartPainter;
 use egui::{Color32, Pos2, Stroke, StrokeKind, Vec2, vec2};
 
 /// Draw a symbol centered at `pos`.
-pub fn symbol(p: &ChartPainter, kind: SymbolKind, pos: Pos2, size: f32, color: Color32) {
+pub fn symbol(
+    p: &ChartPainter,
+    kind: SymbolKind,
+    pos: Pos2,
+    size: f32,
+    color: Color32,
+) {
     let half = size * 0.5;
     match kind {
         SymbolKind::Circle => p.circle_filled(pos, half, color),
@@ -155,7 +161,12 @@ pub fn step_polyline(pts: &[Pos2]) -> Vec<Pos2> {
 }
 
 /// Fill an area under a polyline down to a baseline y.
-pub fn fill_under(p: &ChartPainter, line: &[Pos2], baseline_y: f32, fill: Color32) {
+pub fn fill_under(
+    p: &ChartPainter,
+    line: &[Pos2],
+    baseline_y: f32,
+    fill: Color32,
+) {
     if line.len() < 2 {
         return;
     }
@@ -172,14 +183,20 @@ pub fn fill_under(p: &ChartPainter, line: &[Pos2], baseline_y: f32, fill: Color3
         for w in line.windows(2) {
             let a = w[0];
             let b = w[1];
-            let poly = vec![a, b, Pos2::new(b.x, baseline_y), Pos2::new(a.x, baseline_y)];
+            let poly = vec![
+                a,
+                b,
+                Pos2::new(b.x, baseline_y),
+                Pos2::new(a.x, baseline_y),
+            ];
             p.poly(poly, fill, Stroke::NONE);
         }
     }
 }
 
 fn is_monotone_y_above_baseline(line: &[Pos2], baseline_y: f32) -> bool {
-    line.iter().all(|p| p.y <= baseline_y) || line.iter().all(|p| p.y >= baseline_y)
+    line.iter().all(|p| p.y <= baseline_y)
+        || line.iter().all(|p| p.y >= baseline_y)
 }
 
 /// Annular sector (donut slice). Used by pie/doughnut/sunburst.

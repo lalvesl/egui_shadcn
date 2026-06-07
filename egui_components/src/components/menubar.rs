@@ -36,12 +36,15 @@ impl<'a> Menubar<'a> {
         let trigger_height = 32.0;
         let h_padding = 12.0;
         let v_padding = 4.0;
-        let label_font = egui::FontId::new(14.0, egui::FontFamily::Proportional);
-        let shortcut_font = egui::FontId::new(12.0, egui::FontFamily::Proportional);
+        let label_font =
+            egui::FontId::new(14.0, egui::FontFamily::Proportional);
+        let shortcut_font =
+            egui::FontId::new(12.0, egui::FontFamily::Proportional);
 
         let mut result: Option<(usize, usize)> = None;
         // We'll collect the trigger rects for each menu to position dropdowns
-        let mut trigger_rects: Vec<egui::Rect> = Vec::with_capacity(self.menus.len());
+        let mut trigger_rects: Vec<egui::Rect> =
+            Vec::with_capacity(self.menus.len());
 
         // Draw the horizontal trigger row
         ui.horizontal(|ui| {
@@ -58,8 +61,10 @@ impl<'a> Menubar<'a> {
                 );
                 let trigger_width = galley.rect.width() + h_padding * 2.0;
 
-                let (trig_rect, trig_resp) = ui
-                    .allocate_exact_size(Vec2::new(trigger_width, trigger_height), Sense::click());
+                let (trig_rect, trig_resp) = ui.allocate_exact_size(
+                    Vec2::new(trigger_width, trigger_height),
+                    Sense::click(),
+                );
 
                 trigger_rects.push(trig_rect);
 
@@ -74,8 +79,11 @@ impl<'a> Menubar<'a> {
                     theme.foreground
                 };
 
-                ui.painter()
-                    .rect_filled(trig_rect, CornerRadius::same(theme.radius as u8), bg);
+                ui.painter().rect_filled(
+                    trig_rect,
+                    CornerRadius::same(theme.radius as u8),
+                    bg,
+                );
                 ui.painter().text(
                     egui::Pos2::new(trig_rect.center().x, trig_rect.center().y),
                     egui::Align2::CENTER_CENTER,
@@ -102,7 +110,8 @@ impl<'a> Menubar<'a> {
             let menu = &self.menus[open_menu_idx];
             let trig_rect = trigger_rects[open_menu_idx];
 
-            let popup_id = egui::Id::new("shadcn_menubar_popup").with(open_menu_idx);
+            let popup_id =
+                egui::Id::new("shadcn_menubar_popup").with(open_menu_idx);
             let pos = trig_rect.left_bottom() + egui::Vec2::new(0.0, v_padding);
 
             // Calculate popup width: max of trigger width, item label widths, etc.
@@ -115,20 +124,23 @@ impl<'a> Menubar<'a> {
                 .fixed_pos(pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding(Spacing::Xs)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding(Spacing::Xs).show(
+                        ui,
+                        |ui| {
                             ui.set_min_width(dropdown_width);
                             ui.set_max_width(dropdown_width);
 
                             for menu_item in menu.items.iter() {
                                 match menu_item {
                                     MenubarMenuItem::Separator => {
-                                        let (sep_rect, _) = ui.allocate_exact_size(
-                                            Vec2::new(dropdown_width - 8.0, 1.0),
-                                            Sense::hover(),
-                                        );
+                                        let (sep_rect, _) = ui
+                                            .allocate_exact_size(
+                                                Vec2::new(
+                                                    dropdown_width - 8.0,
+                                                    1.0,
+                                                ),
+                                                Sense::hover(),
+                                            );
                                         ui.add_space(3.0);
                                         ui.painter().hline(
                                             sep_rect.x_range(),
@@ -151,12 +163,18 @@ impl<'a> Menubar<'a> {
                                             Sense::click()
                                         };
 
-                                        let (item_rect, item_resp) = ui.allocate_exact_size(
-                                            Vec2::new(dropdown_width - 8.0, item_height),
-                                            sense,
-                                        );
+                                        let (item_rect, item_resp) = ui
+                                            .allocate_exact_size(
+                                                Vec2::new(
+                                                    dropdown_width - 8.0,
+                                                    item_height,
+                                                ),
+                                                sense,
+                                            );
 
-                                        let bg = if !disabled && item_resp.hovered() {
+                                        let bg = if !disabled
+                                            && item_resp.hovered()
+                                        {
                                             theme.accent
                                         } else {
                                             Color32::TRANSPARENT
@@ -202,15 +220,19 @@ impl<'a> Menubar<'a> {
                                         }
 
                                         if item_resp.clicked() {
-                                            result = Some((open_menu_idx, item_idx));
+                                            result =
+                                                Some((open_menu_idx, item_idx));
                                             ui.ctx().data_mut(|d| {
-                                                d.insert_temp::<Option<usize>>(open_key, None)
+                                                d.insert_temp::<Option<usize>>(
+                                                    open_key, None,
+                                                )
                                             });
                                         }
                                     }
                                 }
                             }
-                        });
+                        },
+                    );
                 });
 
             // Close on click outside
@@ -219,7 +241,8 @@ impl<'a> Menubar<'a> {
                     .ctx()
                     .input(|i| i.pointer.hover_pos().unwrap_or_default());
 
-                let clicked_on_trigger = trigger_rects.iter().any(|r| r.contains(hover_pos));
+                let clicked_on_trigger =
+                    trigger_rects.iter().any(|r| r.contains(hover_pos));
                 let popup_approx = egui::Rect::from_min_size(
                     pos,
                     Vec2::new(
@@ -230,8 +253,9 @@ impl<'a> Menubar<'a> {
                 let clicked_in_popup = popup_approx.contains(hover_pos);
 
                 if !clicked_on_trigger && !clicked_in_popup {
-                    ui.ctx()
-                        .data_mut(|d| d.insert_temp::<Option<usize>>(open_key, None));
+                    ui.ctx().data_mut(|d| {
+                        d.insert_temp::<Option<usize>>(open_key, None)
+                    });
                 }
             }
         }

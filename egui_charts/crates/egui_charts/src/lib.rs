@@ -34,17 +34,20 @@ pub use coord::geo::GeoBbox;
 pub use coord::three_d::{Camera3D, ThreeDLayout, Vec3};
 pub use coord::{CoordKind, CoordLayout, DataPoint};
 pub use option::{
-    Axis, AxisKind, Bar3DSeries, BarSeries, BoxDatum, BoxPlotSeries, CalendarHeatmapSeries, Candle,
-    CandlestickSeries, Chart, ChartKind, ChordSeries, CustomRenderFn, CustomSeries,
-    EffectScatterSeries, FunnelSeries, GaugeSeries, GeoLine, GeoPath, GeoPoint, GlobeSeries,
-    GraphLayout, GraphLink, GraphNode, GraphSeries, HeatmapSeries, Legend, LegendPosition,
-    Line3DSeries, LineSegment, LineSeries, LineStyle, Lines3DSeries, LinesCartesianSeries,
-    LinesGeoSeries, LiquidFillSeries, Map3DSeries, MapRegion, MapSeries, ParallelAxis,
-    ParallelLine, ParallelSeries, PictorialBarSeries, PieDatum, PieSeries, PolarBarDatum,
-    PolarBarSeries, RadarDataset, RadarIndicator, RadarSeries, SankeyLink, SankeyNode,
-    SankeySeries, Scatter3DSeries, ScatterGeoSeries, ScatterSeries, Series, SeriesCoord,
-    SunburstNode, SunburstSeries, Surface3DSeries, SymbolKind, ThemeRiverBand, ThemeRiverSeries,
-    Title, TreeNode, TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
+    Axis, AxisKind, Bar3DSeries, BarSeries, BoxDatum, BoxPlotSeries,
+    CalendarHeatmapSeries, Candle, CandlestickSeries, Chart, ChartKind,
+    ChordSeries, CustomRenderFn, CustomSeries, EffectScatterSeries,
+    FunnelSeries, GaugeSeries, GeoLine, GeoPath, GeoPoint, GlobeSeries,
+    GraphLayout, GraphLink, GraphNode, GraphSeries, HeatmapSeries, Legend,
+    LegendPosition, Line3DSeries, LineSegment, LineSeries, LineStyle,
+    Lines3DSeries, LinesCartesianSeries, LinesGeoSeries, LiquidFillSeries,
+    Map3DSeries, MapRegion, MapSeries, ParallelAxis, ParallelLine,
+    ParallelSeries, PictorialBarSeries, PieDatum, PieSeries, PolarBarDatum,
+    PolarBarSeries, RadarDataset, RadarIndicator, RadarSeries, SankeyLink,
+    SankeyNode, SankeySeries, Scatter3DSeries, ScatterGeoSeries, ScatterSeries,
+    Series, SeriesCoord, SunburstNode, SunburstSeries, Surface3DSeries,
+    SymbolKind, ThemeRiverBand, ThemeRiverSeries, Title, TreeNode,
+    TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
 };
 pub use theme::{ChartTheme, Distribution, Harmony, ThemeMode};
 pub use widget::ChartWidget;

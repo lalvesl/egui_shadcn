@@ -4,7 +4,9 @@ use crate::coord::{CoordLayout, DataPoint};
 use crate::interaction::tooltip::TooltipDatum;
 use crate::option::{LineSeries, LineStyle};
 use crate::render::ChartPainter;
-use crate::render::shapes::{fill_under, smooth_polyline, step_polyline, symbol};
+use crate::render::shapes::{
+    fill_under, smooth_polyline, step_polyline, symbol,
+};
 use crate::theme::ChartTheme;
 use egui::{Color32, Pos2, Stroke};
 use std::collections::HashMap;
@@ -61,7 +63,12 @@ pub fn render(
             .to_screen(DataPoint { x: 0.0, y: 0.0 })
             .y
             .clamp(layout.plot_rect.min.y, layout.plot_rect.max.y);
-        let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), s.area_alpha);
+        let fill = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            s.area_alpha,
+        );
         fill_under(p, &render_pts, baseline_y, fill);
     }
 

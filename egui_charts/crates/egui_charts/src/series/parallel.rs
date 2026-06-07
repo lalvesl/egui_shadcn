@@ -23,7 +23,9 @@ pub fn render(
     let inner = rect.shrink2(egui::vec2(32.0, 24.0));
     let n_axes = s.axes.len();
     let axis_x: Vec<f32> = (0..n_axes)
-        .map(|i| inner.min.x + (inner.width()) * (i as f32 / (n_axes - 1) as f32))
+        .map(|i| {
+            inner.min.x + (inner.width()) * (i as f32 / (n_axes - 1) as f32)
+        })
         .collect();
 
     let top = inner.min.y + 8.0;
@@ -78,7 +80,12 @@ pub fn render(
             continue;
         }
         let alpha: u8 = if hover_pos.is_some() { 200 } else { 230 };
-        let stroke_color = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), alpha);
+        let stroke_color = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            alpha,
+        );
         p.path(pts.clone(), Stroke::new(1.4, stroke_color));
 
         if let Some(h) = hover_pos {

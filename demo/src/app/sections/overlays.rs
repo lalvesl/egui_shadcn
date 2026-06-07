@@ -70,8 +70,11 @@ impl DemoApp {
                     egui::Sense::click(),
                 );
                 let theme = ShadcnTheme::get(ui.ctx());
-                ui.painter()
-                    .rect_filled(rect, egui::CornerRadius::same(6), theme.muted);
+                ui.painter().rect_filled(
+                    rect,
+                    egui::CornerRadius::same(6),
+                    theme.muted,
+                );
                 ui.painter().text(
                     rect.center(),
                     egui::Align2::CENTER_CENTER,
@@ -93,7 +96,10 @@ impl DemoApp {
             }
             if let Some(ref last) = self.context_last {
                 Spacing::Xs.show(ui);
-                muted_text(ui, tr!(t::ContextMenuSec::Clicked, item = last).as_ref());
+                muted_text(
+                    ui,
+                    tr!(t::ContextMenuSec::Clicked, item = last).as_ref(),
+                );
             }
         });
     }
@@ -115,17 +121,20 @@ impl DemoApp {
 
         let ctx = ui.ctx().clone();
         let drawer_title = tr!(t::DrawerSec::Title);
-        Drawer::new(drawer_title.as_ref(), &mut self.drawer_open).show(&ctx, |ui| {
-            muted_text(ui, tr!(t::DrawerSec::Body).as_ref());
-            Spacing::Lg.show(ui);
-            let mut goal = String::from("350");
-            Input::new(&mut goal).show(ui);
-            Spacing::Lg.show(ui);
-            if Button::new(tr!(t::DrawerSec::Submit).as_ref())
-                .show(ui)
-                .clicked()
-            {}
-        });
+        Drawer::new(drawer_title.as_ref(), &mut self.drawer_open).show(
+            &ctx,
+            |ui| {
+                muted_text(ui, tr!(t::DrawerSec::Body).as_ref());
+                Spacing::Lg.show(ui);
+                let mut goal = String::from("350");
+                Input::new(&mut goal).show(ui);
+                Spacing::Lg.show(ui);
+                if Button::new(tr!(t::DrawerSec::Submit).as_ref())
+                    .show(ui)
+                    .clicked()
+                {}
+            },
+        );
     }
 
     pub(in crate::app) fn section_dropdown_menu(&mut self, ui: &mut egui::Ui) {
@@ -162,7 +171,8 @@ impl DemoApp {
             card_header(ui, tr!(t::DropdownSec::HAccount).as_ref(), None);
             let my_account = tr!(t::DropdownSec::MyAccount);
             if let Some(i) =
-                DropdownMenu::new("demo_dropdown", my_account.as_ref(), &items).show(ui)
+                DropdownMenu::new("demo_dropdown", my_account.as_ref(), &items)
+                    .show(ui)
             {
                 let label = match i {
                     0 => prof.as_ref(),
@@ -174,7 +184,10 @@ impl DemoApp {
             }
             if let Some(ref last) = self.dropdown_last {
                 Spacing::Xs.show(ui);
-                muted_text(ui, tr!(t::DropdownSec::Clicked, item = last).as_ref());
+                muted_text(
+                    ui,
+                    tr!(t::DropdownSec::Clicked, item = last).as_ref(),
+                );
             }
         });
     }
@@ -267,20 +280,23 @@ impl DemoApp {
 
         let ctx = ui.ctx().clone();
         let sheet_title = tr!(t::SheetSec::Title);
-        Sheet::new(sheet_title.as_ref(), &mut self.sheet_open).show(&ctx, |ui| {
-            muted_text(ui, tr!(t::SheetSec::Body).as_ref());
-            Spacing::Lg.show(ui);
-            let mut name = String::from("Pedro Duarte");
-            Input::new(&mut name).show(ui);
-            Spacing::Sm.show(ui);
-            let mut username = String::from("@peduarte");
-            Input::new(&mut username).show(ui);
-            Spacing::Lg.show(ui);
-            if Button::new(tr!(t::SheetSec::Save).as_ref())
-                .show(ui)
-                .clicked()
-            {}
-        });
+        Sheet::new(sheet_title.as_ref(), &mut self.sheet_open).show(
+            &ctx,
+            |ui| {
+                muted_text(ui, tr!(t::SheetSec::Body).as_ref());
+                Spacing::Lg.show(ui);
+                let mut name = String::from("Pedro Duarte");
+                Input::new(&mut name).show(ui);
+                Spacing::Sm.show(ui);
+                let mut username = String::from("@peduarte");
+                Input::new(&mut username).show(ui);
+                Spacing::Lg.show(ui);
+                if Button::new(tr!(t::SheetSec::Save).as_ref())
+                    .show(ui)
+                    .clicked()
+                {}
+            },
+        );
     }
 
     pub(in crate::app) fn section_tooltip(&mut self, ui: &mut egui::Ui) {

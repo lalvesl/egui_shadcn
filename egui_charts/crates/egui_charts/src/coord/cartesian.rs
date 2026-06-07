@@ -291,12 +291,15 @@ fn series_value_extent(chart: &Chart) -> (f64, f64) {
                 }
             }
             Series::ThemeRiver(tr) => {
-                let n_slots = tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0);
+                let n_slots =
+                    tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0);
                 for slot in 0..n_slots {
                     let total: f64 = tr
                         .bands
                         .iter()
-                        .map(|b| b.data.get(slot).copied().unwrap_or(0.0).max(0.0))
+                        .map(|b| {
+                            b.data.get(slot).copied().unwrap_or(0.0).max(0.0)
+                        })
                         .sum();
                     any = true;
                     min = min.min(-total * 0.5);
@@ -381,7 +384,9 @@ fn max_series_len(chart: &Chart) -> usize {
                 .max()
                 .map(|m| m + 1)
                 .unwrap_or(0),
-            Series::ThemeRiver(tr) => tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0),
+            Series::ThemeRiver(tr) => {
+                tr.bands.iter().map(|b| b.data.len()).max().unwrap_or(0)
+            }
             _ => 0,
         })
         .max()
@@ -390,7 +395,12 @@ fn max_series_len(chart: &Chart) -> usize {
 
 // ── Build a Scale from an Axis spec + data ──────────────────────────────────
 
-pub fn build_scale(axis: &Axis, data_min: f64, data_max: f64, default_categories: usize) -> Scale {
+pub fn build_scale(
+    axis: &Axis,
+    data_min: f64,
+    data_max: f64,
+    default_categories: usize,
+) -> Scale {
     match axis.kind {
         AxisKind::Category => Scale::Category {
             count: if axis.categories.is_empty() {
@@ -429,7 +439,9 @@ impl<'a> CartesianCoord<'a> {
         let x_axis = if let Some(a) = self.chart.x_axis.as_ref() {
             a
         } else {
-            default_x_axis = Axis::category((0..max_series_len(self.chart)).map(|i| i.to_string()));
+            default_x_axis = Axis::category(
+                (0..max_series_len(self.chart)).map(|i| i.to_string()),
+            );
             &default_x_axis
         };
         let y_axis = if let Some(a) = self.chart.y_axis.as_ref() {
@@ -483,8 +495,12 @@ impl<'a> CartesianCoord<'a> {
         let x_scale_c2 = x_scale.clone();
         let y_scale_c2 = y_scale.clone();
         let to_data = Box::new(move |pos: Pos2| {
-            let mut tx = ((pos.x - plot_min.x) / (plot_max.x - plot_min.x).max(1e-6)) as f64;
-            let mut ty = ((pos.y - plot_min.y) / (plot_max.y - plot_min.y).max(1e-6)) as f64;
+            let mut tx = ((pos.x - plot_min.x)
+                / (plot_max.x - plot_min.x).max(1e-6))
+                as f64;
+            let mut ty = ((pos.y - plot_min.y)
+                / (plot_max.y - plot_min.y).max(1e-6))
+                as f64;
             if x_inv {
                 tx = 1.0 - tx;
             }
@@ -539,7 +555,13 @@ impl<'a> CartesianCoord<'a> {
             name: y_axis.name.clone(),
         });
 
-        CoordLayout::new(CoordKind::Cartesian2D, plot_rect, axes, to_screen, to_data)
+        CoordLayout::new(
+            CoordKind::Cartesian2D,
+            plot_rect,
+            axes,
+            to_screen,
+            to_data,
+        )
     }
 }
 
@@ -549,7 +571,12 @@ struct RawTick {
     label: String,
 }
 
-fn build_ticks(scale: &Scale, axis: &Axis, axis_pixels: f32, _is_x: bool) -> Vec<RawTick> {
+fn build_ticks(
+    scale: &Scale,
+    axis: &Axis,
+    axis_pixels: f32,
+    _is_x: bool,
+) -> Vec<RawTick> {
     if !axis.show_tick_labels && !axis.show_grid {
         return Vec::new();
     }

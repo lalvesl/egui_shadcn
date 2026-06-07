@@ -154,7 +154,12 @@ impl GalleryApp {
                     let open = expanded.entry(cat.to_string()).or_insert(true);
                     Accordion::new(cat, cat, open).show(ui, |ui| {
                         for k in kinds {
-                            if sidebar_item(ui, k.label(), *selected == k, k.is_implemented()) {
+                            if sidebar_item(
+                                ui,
+                                k.label(),
+                                *selected == k,
+                                k.is_implemented(),
+                            ) {
                                 *selected = k;
                             }
                         }
@@ -188,7 +193,10 @@ impl GalleryApp {
                 let avail = ui.available_size();
                 ChartWidget::new(&chart)
                     .theme(chart_theme)
-                    .min_size(egui::vec2(avail.x.max(360.0), (avail.y - 4.0).max(320.0)))
+                    .min_size(egui::vec2(
+                        avail.x.max(360.0),
+                        (avail.y - 4.0).max(320.0),
+                    ))
                     .show(ui);
             });
         } else {
@@ -221,17 +229,26 @@ fn grouped_kinds() -> Vec<(&'static str, Vec<ChartKind>)> {
 }
 
 /// A single clickable chart-kind row. Returns `true` when clicked.
-fn sidebar_item(ui: &mut egui::Ui, label: &str, selected: bool, implemented: bool) -> bool {
+fn sidebar_item(
+    ui: &mut egui::Ui,
+    label: &str,
+    selected: bool,
+    implemented: bool,
+) -> bool {
     let theme = ShadcnTheme::get(ui.ctx());
     let width = ui.available_width();
-    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 30.0), egui::Sense::click());
+    let (rect, resp) =
+        ui.allocate_exact_size(egui::vec2(width, 30.0), egui::Sense::click());
     let cr = egui::CornerRadius::same(theme.radius as u8);
 
     if selected {
         ui.painter().rect_filled(rect, cr, theme.accent);
     } else if resp.hovered() {
-        ui.painter()
-            .rect_filled(rect, cr, ShadcnTheme::with_alpha(theme.accent, 90));
+        ui.painter().rect_filled(
+            rect,
+            cr,
+            ShadcnTheme::with_alpha(theme.accent, 90),
+        );
         ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
     }
 

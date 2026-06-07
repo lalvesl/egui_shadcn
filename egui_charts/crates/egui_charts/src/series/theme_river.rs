@@ -72,14 +72,20 @@ pub fn render(
         let bot_smooth = smooth_polyline(&bot_pts, 12);
 
         // Build closed band polygon (top forward + bottom reversed).
-        let mut shape: Vec<Pos2> = Vec::with_capacity(top_smooth.len() + bot_smooth.len());
+        let mut shape: Vec<Pos2> =
+            Vec::with_capacity(top_smooth.len() + bot_smooth.len());
         shape.extend(top_smooth.iter().copied());
         shape.extend(bot_smooth.iter().rev().copied());
 
-        let fill =
-            Color32::from_rgba_unmultiplied(band_color.r(), band_color.g(), band_color.b(), 200);
+        let fill = Color32::from_rgba_unmultiplied(
+            band_color.r(),
+            band_color.g(),
+            band_color.b(),
+            200,
+        );
         // Decompose into trapezoids — band may be concave around y = 0.
-        let trapezoid_count = top_smooth.len().min(bot_smooth.len()).saturating_sub(1);
+        let trapezoid_count =
+            top_smooth.len().min(bot_smooth.len()).saturating_sub(1);
         for i in 0..trapezoid_count {
             let poly = vec![
                 top_smooth[i],
@@ -96,7 +102,10 @@ pub fn render(
                 let mid_x = top_pts[i].x;
                 let band_top = top_pts[i].y.min(bot_pts[i].y);
                 let band_bot = top_pts[i].y.max(bot_pts[i].y);
-                if (h.x - mid_x).abs() < 12.0 && h.y >= band_top && h.y <= band_bot {
+                if (h.x - mid_x).abs() < 12.0
+                    && h.y >= band_top
+                    && h.y <= band_bot
+                {
                     let d = (h.x - mid_x).abs();
                     if d < best_dist {
                         best_dist = d;

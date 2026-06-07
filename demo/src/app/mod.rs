@@ -3,7 +3,8 @@ use ::i18n::t as tr;
 use egui::Color32;
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
-    Animations, ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE, ShadcnTheme,
+    Animations, ICON_BRIGHTNESS_4, ICON_BRIGHTNESS_7, ICON_MENU, ICON_PALETTE,
+    ShadcnTheme,
     button::{Button, ButtonVariant},
     calendar::CalDate,
     dialog::Dialog,
@@ -18,7 +19,8 @@ use egui_sc::egui_components::{
     typography::{body_text, heading2, heading4, muted_text, small_text},
 };
 
-const LOCALES: &[(Languages, &str)] = &[(Languages::EnUs, "EN"), (Languages::PtBr, "PT")];
+const LOCALES: &[(Languages, &str)] =
+    &[(Languages::EnUs, "EN"), (Languages::PtBr, "PT")];
 
 fn locale_idx_to_lang(idx: usize) -> Languages {
     LOCALES.get(idx).map(|(l, _)| *l).unwrap_or(Languages::EnUs)
@@ -277,7 +279,10 @@ impl DemoApp {
             .frame(
                 egui::Frame::new()
                     .fill(theme.background)
-                    .inner_margin(egui::Margin::symmetric(if mobile { 10 } else { 16 }, 10))
+                    .inner_margin(egui::Margin::symmetric(
+                        if mobile { 10 } else { 16 },
+                        10,
+                    ))
                     .stroke(egui::Stroke::new(1.0, theme.border)),
             )
             .show_inside(ui, |ui| {
@@ -309,7 +314,10 @@ impl DemoApp {
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
                     egui::Frame::new()
-                        .inner_margin(egui::Margin::symmetric(content_margin, 0))
+                        .inner_margin(egui::Margin::symmetric(
+                            content_margin,
+                            0,
+                        ))
                         .show(ui, |ui| {
                             self.render_all_sections(ui);
                         });
@@ -577,8 +585,10 @@ impl DemoApp {
                         theme.foreground
                     };
 
-                    let (rect, resp) =
-                        ui.allocate_exact_size(egui::Vec2::new(184.0, 32.0), egui::Sense::click());
+                    let (rect, resp) = ui.allocate_exact_size(
+                        egui::Vec2::new(184.0, 32.0),
+                        egui::Sense::click(),
+                    );
 
                     if resp.hovered() && !is_active {
                         ui.painter().rect_filled(
@@ -586,7 +596,8 @@ impl DemoApp {
                             egui::CornerRadius::same(theme.radius as u8),
                             ShadcnTheme::with_alpha(theme.accent, 80),
                         );
-                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                        ui.ctx()
+                            .set_cursor_icon(egui::CursorIcon::PointingHand);
                     } else {
                         ui.painter().rect_filled(
                             rect,
@@ -639,7 +650,10 @@ impl DemoApp {
 
         // Dim scrim. Order::Middle puts it above the content panels; the drawer
         // window below uses Order::Foreground so it always sits above the scrim.
-        let scrim = egui::LayerId::new(egui::Order::Middle, egui::Id::new("sidebar_scrim"));
+        let scrim = egui::LayerId::new(
+            egui::Order::Middle,
+            egui::Id::new("sidebar_scrim"),
+        );
         ctx.layer_painter(scrim).rect_filled(
             egui::Rect::EVERYTHING,
             0.0,
@@ -670,8 +684,7 @@ impl DemoApp {
         // Tap outside the drawer closes it.
         if ctx.input(|i| i.pointer.primary_pressed()) {
             let pos = ctx.input(|i| i.pointer.interact_pos());
-            let inside =
-                matches!((win.as_ref(), pos), (Some(r), Some(p)) if r.response.rect.contains(p));
+            let inside = matches!((win.as_ref(), pos), (Some(r), Some(p)) if r.response.rect.contains(p));
             if !inside {
                 self.sidebar_open = false;
             }
@@ -758,7 +771,8 @@ impl DemoApp {
             }
 
             // Scroll-to anchor
-            let (_, anchor) = ui.allocate_exact_size(egui::Vec2::ZERO, egui::Sense::hover());
+            let (_, anchor) =
+                ui.allocate_exact_size(egui::Vec2::ZERO, egui::Sense::hover());
             if self.scroll_to_section == Some(i) {
                 anchor.scroll_to_me(Some(egui::Align::TOP));
                 self.scroll_to_section = None;
@@ -773,7 +787,12 @@ impl DemoApp {
         }
     }
 
-    pub(super) fn section_title(&self, ui: &mut egui::Ui, title: &str, subtitle: &str) {
+    pub(super) fn section_title(
+        &self,
+        ui: &mut egui::Ui,
+        title: &str,
+        subtitle: &str,
+    ) {
         heading2(ui, title);
         Spacing::Xs.show(ui);
         muted_text(ui, subtitle);

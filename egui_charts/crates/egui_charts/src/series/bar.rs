@@ -91,8 +91,14 @@ pub fn render(
             )
         } else {
             Rect::from_min_max(
-                egui::Pos2::new(center.x - bar_w * 0.5 + offset_x, p0.y.min(p1.y)),
-                egui::Pos2::new(center.x + bar_w * 0.5 + offset_x, p0.y.max(p1.y)),
+                egui::Pos2::new(
+                    center.x - bar_w * 0.5 + offset_x,
+                    p0.y.min(p1.y),
+                ),
+                egui::Pos2::new(
+                    center.x + bar_w * 0.5 + offset_x,
+                    p0.y.max(p1.y),
+                ),
             )
         };
 
@@ -110,8 +116,12 @@ pub fn render(
         p.rect_filled(rect, fill);
 
         if is_hovered {
-            p.painter
-                .rect_stroke(rect, 0.0, Stroke::new(1.5, color), StrokeKind::Inside);
+            p.painter.rect_stroke(
+                rect,
+                0.0,
+                Stroke::new(1.5, color),
+                StrokeKind::Inside,
+            );
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: s.name.clone(),

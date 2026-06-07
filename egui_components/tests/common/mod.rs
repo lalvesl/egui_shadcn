@@ -41,13 +41,20 @@ pub fn base_input() -> RawInput {
 }
 
 /// Run one frame with the given input, building UI into the root `Ui`.
-pub fn frame(ctx: &egui::Context, input: RawInput, mut build: impl FnMut(&mut egui::Ui)) {
+pub fn frame(
+    ctx: &egui::Context,
+    input: RawInput,
+    mut build: impl FnMut(&mut egui::Ui),
+) {
     let _ = ctx.run_ui(input, |ui| build(ui));
 }
 
 /// Render one default frame, returning whatever the closure extracts (e.g. a
 /// `Response` or a widget `Rect`).
-pub fn render<R>(ctx: &egui::Context, mut build: impl FnMut(&mut egui::Ui) -> R) -> R {
+pub fn render<R>(
+    ctx: &egui::Context,
+    mut build: impl FnMut(&mut egui::Ui) -> R,
+) -> R {
     let mut out: Option<R> = None;
     let _ = ctx.run_ui(base_input(), |ui| out = Some(build(ui)));
     out.expect("run_ui ran the closure at least once")
@@ -105,7 +112,11 @@ pub fn assert_rect_sane(r: Rect) {
 
 /// Two-phase click: press at `pos` on one frame, release on the next, rebuilding
 /// the same UI both times. More faithful to real input than a single-frame click.
-pub fn click_two_phase(ctx: &egui::Context, pos: Pos2, mut build: impl FnMut(&mut egui::Ui)) {
+pub fn click_two_phase(
+    ctx: &egui::Context,
+    pos: Pos2,
+    mut build: impl FnMut(&mut egui::Ui),
+) {
     frame(ctx, press_at(pos), &mut build);
     let mut release = base_input();
     release.events = vec![Event::PointerButton {

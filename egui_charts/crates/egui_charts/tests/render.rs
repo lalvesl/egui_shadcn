@@ -5,7 +5,10 @@
 //! that panics — divide-by-zero on empty data, an out-of-range palette index,
 //! a bad axis transform — fails here instead of in a demo.
 
-use egui_charts::{Axis, Chart, ChartTheme, ChartWidget, Distribution, Harmony, Series, ThemeMode};
+use egui_charts::{
+    Axis, Chart, ChartTheme, ChartWidget, Distribution, Harmony, Series,
+    ThemeMode,
+};
 
 /// Run one offscreen frame and hand the chart a real `Ui`. Returns the widget's
 /// response rect so callers can assert the geometry is sane.
@@ -92,7 +95,11 @@ fn scatter_renders() {
         Chart::new()
             .x_axis(Axis::value())
             .y_axis(Axis::value())
-            .series(Series::scatter("pts").data([(1.0, 2.0), (3.0, 4.0), (5.0, 1.0)]))
+            .series(Series::scatter("pts").data([
+                (1.0, 2.0),
+                (3.0, 4.0),
+                (5.0, 1.0),
+            ]))
     });
     assert_sane(r);
 }
@@ -101,13 +108,20 @@ fn scatter_renders() {
 fn non_cartesian_kinds_render() {
     // Pie / radar / gauge / funnel take no x/y axes.
     assert_sane(render_chart(true, || {
-        Chart::new().series(Series::pie("share").data([("A", 30.0), ("B", 50.0), ("C", 20.0)]))
+        Chart::new().series(Series::pie("share").data([
+            ("A", 30.0),
+            ("B", 50.0),
+            ("C", 20.0),
+        ]))
     }));
     assert_sane(render_chart(false, || {
-        Chart::new().series(Series::gauge("speed").range(0.0, 100.0).value(72.0))
+        Chart::new()
+            .series(Series::gauge("speed").range(0.0, 100.0).value(72.0))
     }));
     assert_sane(render_chart(true, || {
-        Chart::new().series(Series::funnel("stages").data([("Visit", 100.0), ("Buy", 20.0)]))
+        Chart::new().series(
+            Series::funnel("stages").data([("Visit", 100.0), ("Buy", 20.0)]),
+        )
     }));
 }
 

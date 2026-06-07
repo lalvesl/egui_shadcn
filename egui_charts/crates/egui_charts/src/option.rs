@@ -122,10 +122,18 @@ impl ChartKind {
             | ChartKind::Radar
             | ChartKind::Gauge
             | ChartKind::PolarBar => "Polar",
-            ChartKind::Tree | ChartKind::Treemap | ChartKind::Sunburst => "Hierarchical",
-            ChartKind::Graph | ChartKind::Sankey | ChartKind::Chord => "Relational",
-            ChartKind::Parallel | ChartKind::Funnel | ChartKind::CalendarHeatmap => "Statistical",
-            ChartKind::Map | ChartKind::LinesGeo | ChartKind::ScatterGeo => "Geographic",
+            ChartKind::Tree | ChartKind::Treemap | ChartKind::Sunburst => {
+                "Hierarchical"
+            }
+            ChartKind::Graph | ChartKind::Sankey | ChartKind::Chord => {
+                "Relational"
+            }
+            ChartKind::Parallel
+            | ChartKind::Funnel
+            | ChartKind::CalendarHeatmap => "Statistical",
+            ChartKind::Map | ChartKind::LinesGeo | ChartKind::ScatterGeo => {
+                "Geographic"
+            }
             ChartKind::Bar3D
             | ChartKind::Line3D
             | ChartKind::Scatter3D
@@ -505,7 +513,10 @@ impl ScatterSeries {
     }
 
     /// Bubble form — each datum carries its own size override.
-    pub fn bubbles<I: IntoIterator<Item = (f64, f64, f32)>>(mut self, pts: I) -> Self {
+    pub fn bubbles<I: IntoIterator<Item = (f64, f64, f32)>>(
+        mut self,
+        pts: I,
+    ) -> Self {
         self.data = pts.into_iter().map(|(x, y, s)| (x, y, Some(s))).collect();
         self
     }
@@ -828,7 +839,10 @@ impl HeatmapSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = (usize, usize, f64)>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = (usize, usize, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.data = items.into_iter().collect();
         self
     }
@@ -969,7 +983,10 @@ impl EffectScatterSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = (f64, f64)>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = (f64, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.data = items.into_iter().map(|(x, y)| (x, y, None)).collect();
         self
     }
@@ -1012,7 +1029,10 @@ impl LinesCartesianSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = LineSegment>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = LineSegment>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.segments = items.into_iter().collect();
         self
     }
@@ -1161,7 +1181,10 @@ impl SunburstNode {
         }
     }
 
-    pub fn parent(name: impl Into<String>, children: Vec<SunburstNode>) -> Self {
+    pub fn parent(
+        name: impl Into<String>,
+        children: Vec<SunburstNode>,
+    ) -> Self {
         let value = children.iter().map(|c| c.subtree_value()).sum();
         Self {
             name: name.into(),
@@ -1551,7 +1574,10 @@ impl ParallelSeries {
         }
     }
 
-    pub fn axes<I: IntoIterator<Item = ParallelAxis>>(mut self, axes: I) -> Self {
+    pub fn axes<I: IntoIterator<Item = ParallelAxis>>(
+        mut self,
+        axes: I,
+    ) -> Self {
         self.axes = axes.into_iter().collect();
         self
     }
@@ -1601,7 +1627,10 @@ impl CalendarHeatmapSeries {
         self
     }
 
-    pub fn data<I: IntoIterator<Item = (u32, f64)>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = (u32, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.data = items.into_iter().collect();
         self
     }
@@ -1746,7 +1775,13 @@ impl MapSeries {
         self
     }
 
-    pub fn bbox(mut self, min_lon: f64, max_lon: f64, min_lat: f64, max_lat: f64) -> Self {
+    pub fn bbox(
+        mut self,
+        min_lon: f64,
+        max_lon: f64,
+        min_lat: f64,
+        max_lat: f64,
+    ) -> Self {
         self.bbox = Some((min_lon, max_lon, min_lat, max_lat));
         self
     }
@@ -1764,7 +1799,12 @@ pub struct GeoLine {
 }
 
 impl GeoLine {
-    pub fn arc(name: impl Into<String>, from: (f64, f64), to: (f64, f64), value: f64) -> Self {
+    pub fn arc(
+        name: impl Into<String>,
+        from: (f64, f64),
+        to: (f64, f64),
+        value: f64,
+    ) -> Self {
         Self {
             name: name.into(),
             points: vec![from, to],
@@ -1809,7 +1849,12 @@ pub struct GeoPoint {
 }
 
 impl GeoPoint {
-    pub fn new(name: impl Into<String>, lon: f64, lat: f64, value: f64) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        lon: f64,
+        lat: f64,
+        value: f64,
+    ) -> Self {
         Self {
             name: name.into(),
             lon,
@@ -1866,7 +1911,10 @@ impl Bar3DSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = (usize, usize, f64)>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = (usize, usize, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.data = items.into_iter().collect();
         self
     }
@@ -1888,7 +1936,10 @@ impl Line3DSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = (f64, f64, f64)>>(mut self, items: I) -> Self {
+    pub fn data<I: IntoIterator<Item = (f64, f64, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
         self.data = items.into_iter().collect();
         self
     }
@@ -1912,8 +1963,12 @@ impl Scatter3DSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = (f64, f64, f64)>>(mut self, items: I) -> Self {
-        self.data = items.into_iter().map(|(x, y, z)| (x, y, z, None)).collect();
+    pub fn data<I: IntoIterator<Item = (f64, f64, f64)>>(
+        mut self,
+        items: I,
+    ) -> Self {
+        self.data =
+            items.into_iter().map(|(x, y, z)| (x, y, z, None)).collect();
         self
     }
 }
@@ -1964,7 +2019,9 @@ impl Lines3DSeries {
         }
     }
 
-    pub fn data<I: IntoIterator<Item = ((f64, f64, f64), (f64, f64, f64), f64)>>(
+    pub fn data<
+        I: IntoIterator<Item = ((f64, f64, f64), (f64, f64, f64), f64)>,
+    >(
         mut self,
         items: I,
     ) -> Self {

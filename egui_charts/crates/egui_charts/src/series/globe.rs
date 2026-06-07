@@ -69,7 +69,11 @@ pub fn render(
         220,
     );
     p.circle_filled(proj.center, proj.radius, disc_color);
-    p.circle_stroke(proj.center, proj.radius, Stroke::new(1.0, theme.axis_line));
+    p.circle_stroke(
+        proj.center,
+        proj.radius,
+        Stroke::new(1.0, theme.axis_line),
+    );
 
     let grid_color = Color32::from_rgba_unmultiplied(
         theme.text_dim.r(),
@@ -140,7 +144,8 @@ pub fn render(
         }
         let mut polys: Vec<Vec<Pos2>> = vec![Vec::new()];
         for (lo, la) in &ring {
-            let (pt, depth) = proj.project((*lo as f32).to_radians(), (*la as f32).to_radians());
+            let (pt, depth) = proj
+                .project((*lo as f32).to_radians(), (*la as f32).to_radians());
             if depth > 0.0 {
                 polys.last_mut().unwrap().push(pt);
             } else if !polys.last().unwrap().is_empty() {
@@ -149,7 +154,8 @@ pub fn render(
         }
         for poly in polys {
             if poly.len() >= 3 {
-                let centroid = poly.iter().fold(Pos2::ZERO, |a, b| a + b.to_vec2());
+                let centroid =
+                    poly.iter().fold(Pos2::ZERO, |a, b| a + b.to_vec2());
                 let centroid = Pos2::new(
                     centroid.x / poly.len() as f32,
                     centroid.y / poly.len() as f32,
@@ -185,7 +191,10 @@ pub fn render(
     let vrange = (vmax - vmin).max(1e-12);
 
     for (i, (lon_d, lat_d, value, name)) in s.points.iter().enumerate() {
-        let (pt, depth) = proj.project((*lon_d as f32).to_radians(), (*lat_d as f32).to_radians());
+        let (pt, depth) = proj.project(
+            (*lon_d as f32).to_radians(),
+            (*lat_d as f32).to_radians(),
+        );
         if depth < 0.0 {
             continue;
         }
@@ -195,7 +204,12 @@ pub fn render(
         p.circle_filled(
             pt,
             size + 4.0,
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 50),
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                50,
+            ),
         );
         p.circle_filled(pt, size, color);
         p.text(

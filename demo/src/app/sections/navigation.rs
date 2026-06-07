@@ -23,17 +23,20 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::AccordionSec::HFaq).as_ref(), None);
             let q1 = tr!(t::AccordionSec::Q1);
-            Accordion::new("acc_0", q1.as_ref(), &mut self.accordion_open[0]).show(ui, |ui| {
-                muted_text(ui, tr!(t::AccordionSec::A1).as_ref());
-            });
+            Accordion::new("acc_0", q1.as_ref(), &mut self.accordion_open[0])
+                .show(ui, |ui| {
+                    muted_text(ui, tr!(t::AccordionSec::A1).as_ref());
+                });
             let q2 = tr!(t::AccordionSec::Q2);
-            Accordion::new("acc_1", q2.as_ref(), &mut self.accordion_open[1]).show(ui, |ui| {
-                muted_text(ui, tr!(t::AccordionSec::A2).as_ref());
-            });
+            Accordion::new("acc_1", q2.as_ref(), &mut self.accordion_open[1])
+                .show(ui, |ui| {
+                    muted_text(ui, tr!(t::AccordionSec::A2).as_ref());
+                });
             let q3 = tr!(t::AccordionSec::Q3);
-            Accordion::new("acc_2", q3.as_ref(), &mut self.accordion_open[2]).show(ui, |ui| {
-                muted_text(ui, tr!(t::AccordionSec::A3).as_ref());
-            });
+            Accordion::new("acc_2", q3.as_ref(), &mut self.accordion_open[2])
+                .show(ui, |ui| {
+                    muted_text(ui, tr!(t::AccordionSec::A3).as_ref());
+                });
         });
     }
 
@@ -64,7 +67,8 @@ impl DemoApp {
             let comps = tr!(t::BreadcrumbSec::Components);
             let bc = tr!(t::BreadcrumbSec::Breadcrumb);
             let items = [docs.as_ref(), comps.as_ref(), bc.as_ref()];
-            if let Some(idx) = Breadcrumb::new(&items).separator("›").show(ui) {
+            if let Some(idx) = Breadcrumb::new(&items).separator("›").show(ui)
+            {
                 self.breadcrumb_custom_nav = Some(items[idx].to_string());
             }
             if let Some(nav) = &self.breadcrumb_custom_nav {
@@ -178,7 +182,10 @@ impl DemoApp {
         });
     }
 
-    pub(in crate::app) fn section_navigation_menu(&mut self, ui: &mut egui::Ui) {
+    pub(in crate::app) fn section_navigation_menu(
+        &mut self,
+        ui: &mut egui::Ui,
+    ) {
         let title = t::section_name(29);
         let subtitle = tr!(t::NavMenuSec::Subtitle);
         self.section_title(ui, title.as_ref(), subtitle.as_ref());
@@ -212,7 +219,9 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::NavMenuSec::HHoriz).as_ref(), None);
-            if let Some(i) = NavigationMenu::new(&items, self.nav_active).show(ui) {
+            if let Some(i) =
+                NavigationMenu::new(&items, self.nav_active).show(ui)
+            {
                 self.nav_active = i;
             }
         });
@@ -236,7 +245,8 @@ impl DemoApp {
             let page1 = self.pagination_page;
             muted_text(ui, tr!(t::PaginationSec::Page10, n = page1).as_ref());
             Spacing::Md.show(ui);
-            if let Some(p) = Pagination::new(self.pagination_page, 10).show(ui) {
+            if let Some(p) = Pagination::new(self.pagination_page, 10).show(ui)
+            {
                 self.pagination_page = p;
             }
         });
@@ -267,15 +277,26 @@ impl DemoApp {
             let password = tr!(t::TabsSec::Password);
             let notifs = tr!(t::TabsSec::Notifications);
             let tabs = [account.as_ref(), password.as_ref(), notifs.as_ref()];
-            Tabs::new("demo_tabs", &tabs, &mut self.tab_index).show(ui, |ui, tab| {
-                Spacing::Sm.show(ui);
-                match tab {
-                    0 => body_text(ui, tr!(t::TabsSec::BodyAccount).as_ref()),
-                    1 => body_text(ui, tr!(t::TabsSec::BodyPassword).as_ref()),
-                    2 => body_text(ui, tr!(t::TabsSec::BodyNotifications).as_ref()),
-                    _ => {}
-                }
-            });
+            Tabs::new("demo_tabs", &tabs, &mut self.tab_index).show(
+                ui,
+                |ui, tab| {
+                    Spacing::Sm.show(ui);
+                    match tab {
+                        0 => {
+                            body_text(ui, tr!(t::TabsSec::BodyAccount).as_ref())
+                        }
+                        1 => body_text(
+                            ui,
+                            tr!(t::TabsSec::BodyPassword).as_ref(),
+                        ),
+                        2 => body_text(
+                            ui,
+                            tr!(t::TabsSec::BodyNotifications).as_ref(),
+                        ),
+                        _ => {}
+                    }
+                },
+            );
         });
     }
 }

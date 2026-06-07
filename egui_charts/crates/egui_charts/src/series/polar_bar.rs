@@ -50,7 +50,8 @@ pub fn render(
         let mid = slot * i as f32;
         let start_chart = mid - slot * 0.5 + pad * 0.5;
         let end_chart = mid + slot * 0.5 - pad * 0.5;
-        let bar_outer = inner + (outer - inner) * ((v / max_v) as f32).clamp(0.0, 1.0);
+        let bar_outer =
+            inner + (outer - inner) * ((v / max_v) as f32).clamp(0.0, 1.0);
         let a0 = chart_to_screen(start_chart);
         let a1 = chart_to_screen(end_chart);
 

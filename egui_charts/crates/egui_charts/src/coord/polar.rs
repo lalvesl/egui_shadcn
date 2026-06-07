@@ -60,7 +60,11 @@ pub struct RadarSpoke {
 
 impl RadarLayout {
     /// Build a radar layout: `n` evenly-spaced spokes starting at 12 o'clock.
-    pub fn fit(rect: Rect, indicators: &[(String, f64)], outer_ratio: f32) -> Self {
+    pub fn fit(
+        rect: Rect,
+        indicators: &[(String, f64)],
+        outer_ratio: f32,
+    ) -> Self {
         let polar = PolarLayout::fit(rect, outer_ratio);
         let n = indicators.len();
         let spokes = indicators

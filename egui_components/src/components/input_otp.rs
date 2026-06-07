@@ -36,8 +36,8 @@ impl<'a> InputOtp<'a> {
 
         let hidden_id = egui::Id::new("shadcn_otp_hidden").with(ui.id());
 
-        let (group_rect, group_resp) =
-            ui.allocate_exact_size(Vec2::new(total_width, box_h), Sense::click());
+        let (group_rect, group_resp) = ui
+            .allocate_exact_size(Vec2::new(total_width, box_h), Sense::click());
 
         if group_resp.clicked() {
             ui.ctx().memory_mut(|m| m.request_focus(hidden_id));
@@ -94,11 +94,12 @@ impl<'a> InputOtp<'a> {
                 Vec2::new(box_w, box_h),
             );
 
-            let border_color = if has_focus && i == cursor_pos.min(self.digits - 1) {
-                theme.ring
-            } else {
-                theme.border
-            };
+            let border_color =
+                if has_focus && i == cursor_pos.min(self.digits - 1) {
+                    theme.ring
+                } else {
+                    theme.border
+                };
 
             ui.painter().rect_filled(box_rect, cr, theme.background);
             ui.painter().rect_stroke(

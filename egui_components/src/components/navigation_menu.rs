@@ -39,8 +39,10 @@ impl<'a> NavigationMenu<'a> {
         let item_height = 36.0;
         let h_padding = 12.0;
         let icon_font = crate::icon_font_id(16.0);
-        let label_font = egui::FontId::new(14.0, egui::FontFamily::Proportional);
-        let badge_font = egui::FontId::new(11.0, egui::FontFamily::Proportional);
+        let label_font =
+            egui::FontId::new(14.0, egui::FontFamily::Proportional);
+        let badge_font =
+            egui::FontId::new(11.0, egui::FontFamily::Proportional);
 
         let draw_item = |ui: &mut Ui,
                          idx: usize,
@@ -65,8 +67,10 @@ impl<'a> NavigationMenu<'a> {
             }
             item_width = item_width.max(60.0);
 
-            let (item_rect, resp) =
-                ui.allocate_exact_size(Vec2::new(item_width, item_height), Sense::click());
+            let (item_rect, resp) = ui.allocate_exact_size(
+                Vec2::new(item_width, item_height),
+                Sense::click(),
+            );
 
             let bg = if is_active {
                 theme.accent
@@ -110,10 +114,17 @@ impl<'a> NavigationMenu<'a> {
             // Optional badge
             if let Some(badge_text) = item.badge {
                 let badge_x = item_rect.right() - h_padding - 10.0;
-                let badge_center = egui::Pos2::new(badge_x, item_rect.center().y);
-                let badge_rect = egui::Rect::from_center_size(badge_center, Vec2::new(20.0, 16.0));
-                ui.painter()
-                    .rect_filled(badge_rect, CornerRadius::same(8), theme.primary);
+                let badge_center =
+                    egui::Pos2::new(badge_x, item_rect.center().y);
+                let badge_rect = egui::Rect::from_center_size(
+                    badge_center,
+                    Vec2::new(20.0, 16.0),
+                );
+                ui.painter().rect_filled(
+                    badge_rect,
+                    CornerRadius::same(8),
+                    theme.primary,
+                );
                 ui.painter().text(
                     badge_center,
                     egui::Align2::CENTER_CENTER,
@@ -136,7 +147,14 @@ impl<'a> NavigationMenu<'a> {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 4.0;
                     for (idx, item) in self.items.iter().enumerate() {
-                        draw_item(ui, idx, item, self.active, &theme, &mut clicked);
+                        draw_item(
+                            ui,
+                            idx,
+                            item,
+                            self.active,
+                            &theme,
+                            &mut clicked,
+                        );
                     }
                 });
             }
@@ -144,7 +162,14 @@ impl<'a> NavigationMenu<'a> {
                 ui.vertical(|ui| {
                     ui.spacing_mut().item_spacing.y = 2.0;
                     for (idx, item) in self.items.iter().enumerate() {
-                        draw_item(ui, idx, item, self.active, &theme, &mut clicked);
+                        draw_item(
+                            ui,
+                            idx,
+                            item,
+                            self.active,
+                            &theme,
+                            &mut clicked,
+                        );
                     }
                 });
             }

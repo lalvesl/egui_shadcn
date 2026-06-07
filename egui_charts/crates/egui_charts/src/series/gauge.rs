@@ -75,7 +75,8 @@ pub fn render(
     // Pointer needle.
     let needle_angle = prog_end;
     let needle_len = inner * 0.92;
-    let needle_tip = center + egui::vec2(needle_angle.cos(), needle_angle.sin()) * needle_len;
+    let needle_tip = center
+        + egui::vec2(needle_angle.cos(), needle_angle.sin()) * needle_len;
     let perp = needle_angle + PI * 0.5;
     let base_half = (outer * 0.04).max(2.0);
     let base_a = center + egui::vec2(perp.cos(), perp.sin()) * base_half;
@@ -116,7 +117,8 @@ pub fn render(
         let p1 = center + egui::vec2(ta.cos(), ta.sin()) * outer;
         let p2 = center + egui::vec2(ta.cos(), ta.sin()) * (outer + 5.0);
         p.line(p1, p2, Stroke::new(1.0, theme.axis_line));
-        let label_pos = center + egui::vec2(ta.cos(), ta.sin()) * (outer + 14.0);
+        let label_pos =
+            center + egui::vec2(ta.cos(), ta.sin()) * (outer + 14.0);
         p.text(
             label_pos,
             Align2::CENTER_CENTER,

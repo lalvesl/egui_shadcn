@@ -107,7 +107,8 @@ impl<'a> Toggle<'a> {
 
             let mut cx = rect.left() + h_pad;
             if let Some(g) = icon_g {
-                let pos = egui::Pos2::new(cx, rect.center().y - g.size().y / 2.0);
+                let pos =
+                    egui::Pos2::new(cx, rect.center().y - g.size().y / 2.0);
                 ui.painter().galley(pos, g, fg);
                 cx += icon_w;
             }

@@ -64,8 +64,12 @@ pub fn render(
 
         let is_hovered = hover_xy == Some((x as i64, y as i64));
         if is_hovered {
-            p.painter
-                .rect_stroke(inner, 0.0, Stroke::new(2.0, theme.text), StrokeKind::Inside);
+            p.painter.rect_stroke(
+                inner,
+                0.0,
+                Stroke::new(2.0, theme.text),
+                StrokeKind::Inside,
+            );
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: format!("{} @ ({}, {})", s.name, x, y),

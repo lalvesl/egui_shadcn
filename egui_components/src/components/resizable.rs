@@ -80,7 +80,8 @@ impl Resizable {
                 let handle_left = avail.left() + first_w;
 
                 // First panel
-                let first_rect = Rect::from_min_size(avail.min, Vec2::new(first_w, total_h));
+                let first_rect =
+                    Rect::from_min_size(avail.min, Vec2::new(first_w, total_h));
                 let mut first_child = ui.new_child(
                     egui::UiBuilder::new()
                         .max_rect(first_rect)
@@ -93,7 +94,11 @@ impl Resizable {
                     egui::Pos2::new(handle_left, avail.top()),
                     Vec2::new(HANDLE_HIT, total_h),
                 );
-                let handle_resp = ui.interact(handle_rect, self.id.with("handle"), Sense::drag());
+                let handle_resp = ui.interact(
+                    handle_rect,
+                    self.id.with("handle"),
+                    Sense::drag(),
+                );
                 let active = handle_resp.hovered() || handle_resp.dragged();
 
                 // Separator line (1px, centered in hit area)
@@ -129,7 +134,8 @@ impl Resizable {
 
                 if handle_resp.dragged() {
                     let delta = handle_resp.drag_delta().x;
-                    split = ((split * total_w + delta) / total_w).clamp(min_frac, max_frac);
+                    split = ((split * total_w + delta) / total_w)
+                        .clamp(min_frac, max_frac);
                     ui.ctx().data_mut(|d| d.insert_persisted(split_id, split));
                 }
 
@@ -145,7 +151,10 @@ impl Resizable {
                 );
                 second_fn(&mut second_child);
 
-                ui.allocate_exact_size(Vec2::new(total_w, total_h), Sense::hover());
+                ui.allocate_exact_size(
+                    Vec2::new(total_w, total_h),
+                    Sense::hover(),
+                );
             }
             ResizeDir::Vertical => {
                 let total_w = avail.width();
@@ -160,7 +169,8 @@ impl Resizable {
                 let handle_top = avail.top() + first_h;
 
                 // First panel
-                let first_rect = Rect::from_min_size(avail.min, Vec2::new(total_w, first_h));
+                let first_rect =
+                    Rect::from_min_size(avail.min, Vec2::new(total_w, first_h));
                 let mut first_child = ui.new_child(
                     egui::UiBuilder::new()
                         .max_rect(first_rect)
@@ -173,7 +183,11 @@ impl Resizable {
                     egui::Pos2::new(avail.left(), handle_top),
                     Vec2::new(total_w, HANDLE_HIT),
                 );
-                let handle_resp = ui.interact(handle_rect, self.id.with("handle"), Sense::drag());
+                let handle_resp = ui.interact(
+                    handle_rect,
+                    self.id.with("handle"),
+                    Sense::drag(),
+                );
                 let active = handle_resp.hovered() || handle_resp.dragged();
 
                 // Separator line (1px, centered in hit area)
@@ -209,7 +223,8 @@ impl Resizable {
 
                 if handle_resp.dragged() {
                     let delta = handle_resp.drag_delta().y;
-                    split = ((split * total_h + delta) / total_h).clamp(min_frac, max_frac);
+                    split = ((split * total_h + delta) / total_h)
+                        .clamp(min_frac, max_frac);
                     ui.ctx().data_mut(|d| d.insert_persisted(split_id, split));
                 }
 
@@ -225,7 +240,10 @@ impl Resizable {
                 );
                 second_fn(&mut second_child);
 
-                ui.allocate_exact_size(Vec2::new(total_w, total_h), Sense::hover());
+                ui.allocate_exact_size(
+                    Vec2::new(total_w, total_h),
+                    Sense::hover(),
+                );
             }
         }
     }

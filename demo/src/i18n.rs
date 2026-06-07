@@ -929,7 +929,8 @@ mod web {
                 Some(bytes) => {
                     // Leak: install_exported wants `'static`, and a catalog lives
                     // for the whole session anyway.
-                    let leaked: &'static [u8] = Box::leak(bytes.into_boxed_slice());
+                    let leaked: &'static [u8] =
+                        Box::leak(bytes.into_boxed_slice());
                     ::i18n::install_exported(lang, leaked);
                     ctx.request_repaint();
                 }

@@ -1,6 +1,8 @@
 use super::spacing::Spacing;
 use crate::ShadcnTheme;
-use egui::{Color32, CornerRadius, Frame, InnerResponse, Margin, Shadow, Stroke, Ui};
+use egui::{
+    Color32, CornerRadius, Frame, InnerResponse, Margin, Shadow, Stroke, Ui,
+};
 
 /// Standard box surface. Draws a rounded border in the default border color and
 /// overlays the flat bottom run (between the corner arcs) in the primary color —
@@ -72,7 +74,11 @@ impl Boxed {
         self
     }
 
-    pub fn show<R>(self, ui: &mut Ui, content: impl FnOnce(&mut Ui) -> R) -> InnerResponse<R> {
+    pub fn show<R>(
+        self,
+        ui: &mut Ui,
+        content: impl FnOnce(&mut Ui) -> R,
+    ) -> InnerResponse<R> {
         let theme = ShadcnTheme::get(ui.ctx());
         let cr = self
             .corner_radius

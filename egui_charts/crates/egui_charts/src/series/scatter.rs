@@ -35,7 +35,8 @@ pub fn render(
         if let Some(h) = hover_screen {
             let d = (pt - h).length();
             if d <= size {
-                let best = nearest.as_ref().map(|n| n.1).unwrap_or(f32::INFINITY);
+                let best =
+                    nearest.as_ref().map(|n| n.1).unwrap_or(f32::INFINITY);
                 if d < best {
                     nearest = Some((i, d, pt, x, y, size));
                 }

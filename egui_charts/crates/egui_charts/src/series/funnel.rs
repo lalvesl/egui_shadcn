@@ -29,7 +29,8 @@ pub fn render(
 
     let n = s.data.len();
     let inner = rect.shrink(8.0);
-    let band_h = (inner.height() - s.gap * (n.saturating_sub(1)) as f32) / n as f32;
+    let band_h =
+        (inner.height() - s.gap * (n.saturating_sub(1)) as f32) / n as f32;
     if band_h <= 0.0 {
         return None;
     }
@@ -40,7 +41,8 @@ pub fn render(
 
     // Map each slot (top→bottom row) to a data index. `inverted` flips so
     // the smallest value sits on top.
-    let data_at_slot = |slot: usize| -> usize { if s.inverted { n - 1 - slot } else { slot } };
+    let data_at_slot =
+        |slot: usize| -> usize { if s.inverted { n - 1 - slot } else { slot } };
 
     for slot in 0..n {
         let data_idx = data_at_slot(slot);
@@ -56,7 +58,8 @@ pub fn render(
         };
 
         let width_top = inner.width() * ((v / max_val) as f32).clamp(0.05, 1.0);
-        let width_bot = inner.width() * ((next_v / max_val) as f32).clamp(0.02, 1.0);
+        let width_bot =
+            inner.width() * ((next_v / max_val) as f32).clamp(0.02, 1.0);
 
         let y_top = inner.min.y + (band_h + s.gap) * slot as f32;
         let y_bot = y_top + band_h;
@@ -77,7 +80,12 @@ pub fn render(
         let fill = if hovered {
             color
         } else if hover_pos.is_some() {
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 220)
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                220,
+            )
         } else {
             color
         };

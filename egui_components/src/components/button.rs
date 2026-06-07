@@ -81,8 +81,11 @@ impl<'a> Button<'a> {
         );
 
         let icon_galley = self.icon.map(|i| {
-            ui.painter()
-                .layout_no_wrap(i.to_owned(), crate::icon_font_id(font_size + 2.0), fg)
+            ui.painter().layout_no_wrap(
+                i.to_owned(),
+                crate::icon_font_id(font_size + 2.0),
+                fg,
+            )
         });
 
         let text_w = text_galley.size().x;
@@ -105,20 +108,37 @@ impl<'a> Button<'a> {
         if ui.is_rect_visible(rect) {
             let painter = ui.painter();
             let is_link = self.variant == ButtonVariant::Link;
-            let default_cr = CornerRadius::same(if is_link { 0 } else { theme.radius as u8 });
+            let default_cr = CornerRadius::same(if is_link {
+                0
+            } else {
+                theme.radius as u8
+            });
             let cr = self.corner_radius.unwrap_or(default_cr);
 
-            let actual_bg = if self.enabled && resp.is_pointer_button_down_on() {
+            let actual_bg = if self.enabled && resp.is_pointer_button_down_on()
+            {
                 match self.variant {
                     ButtonVariant::Outline | ButtonVariant::Ghost => {
                         ShadcnTheme::with_alpha(theme.accent, 200)
                     }
-                    _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 220),
+                    _ => Color32::from_rgba_unmultiplied(
+                        bg.r(),
+                        bg.g(),
+                        bg.b(),
+                        220,
+                    ),
                 }
             } else if self.enabled && resp.hovered() {
                 match self.variant {
-                    ButtonVariant::Outline | ButtonVariant::Ghost => theme.accent,
-                    _ => Color32::from_rgba_unmultiplied(bg.r(), bg.g(), bg.b(), 230),
+                    ButtonVariant::Outline | ButtonVariant::Ghost => {
+                        theme.accent
+                    }
+                    _ => Color32::from_rgba_unmultiplied(
+                        bg.r(),
+                        bg.g(),
+                        bg.b(),
+                        230,
+                    ),
                 }
             } else {
                 bg
@@ -127,7 +147,12 @@ impl<'a> Button<'a> {
             if !is_link {
                 painter.rect_filled(rect, cr, actual_bg);
                 if stroke.width > 0.0 {
-                    painter.rect_stroke(rect, cr, stroke, egui::StrokeKind::Inside);
+                    painter.rect_stroke(
+                        rect,
+                        cr,
+                        stroke,
+                        egui::StrokeKind::Inside,
+                    );
                 }
             }
 
@@ -137,7 +162,10 @@ impl<'a> Button<'a> {
             let start_x = rect.center().x - total_content_w / 2.0;
 
             if let Some(g) = icon_galley {
-                let icon_pos = egui::Pos2::new(start_x, rect.center().y - g.size().y / 2.0);
+                let icon_pos = egui::Pos2::new(
+                    start_x,
+                    rect.center().y - g.size().y / 2.0,
+                );
                 painter.galley(icon_pos, g, text_color);
             }
 
@@ -165,18 +193,32 @@ impl<'a> Button<'a> {
 
     fn colors(&self, t: &ShadcnTheme) -> (Color32, Color32, Stroke) {
         match self.variant {
-            ButtonVariant::Default => (t.primary, t.primary_foreground, Stroke::NONE),
-            ButtonVariant::Success => (t.success, t.success_foreground, Stroke::NONE),
-            ButtonVariant::Warning => (t.warning, t.warning_foreground, Stroke::NONE),
-            ButtonVariant::Destructive => (t.destructive, t.destructive_foreground, Stroke::NONE),
+            ButtonVariant::Default => {
+                (t.primary, t.primary_foreground, Stroke::NONE)
+            }
+            ButtonVariant::Success => {
+                (t.success, t.success_foreground, Stroke::NONE)
+            }
+            ButtonVariant::Warning => {
+                (t.warning, t.warning_foreground, Stroke::NONE)
+            }
+            ButtonVariant::Destructive => {
+                (t.destructive, t.destructive_foreground, Stroke::NONE)
+            }
             ButtonVariant::Outline => (
                 Color32::TRANSPARENT,
                 t.foreground,
                 Stroke::new(1.0, t.border),
             ),
-            ButtonVariant::Secondary => (t.secondary, t.secondary_foreground, Stroke::NONE),
-            ButtonVariant::Ghost => (Color32::TRANSPARENT, t.foreground, Stroke::NONE),
-            ButtonVariant::Link => (Color32::TRANSPARENT, t.primary, Stroke::NONE),
+            ButtonVariant::Secondary => {
+                (t.secondary, t.secondary_foreground, Stroke::NONE)
+            }
+            ButtonVariant::Ghost => {
+                (Color32::TRANSPARENT, t.foreground, Stroke::NONE)
+            }
+            ButtonVariant::Link => {
+                (Color32::TRANSPARENT, t.primary, Stroke::NONE)
+            }
         }
     }
 

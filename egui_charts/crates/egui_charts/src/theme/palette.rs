@@ -14,7 +14,12 @@ pub enum Distribution {
 /// Categorical palette of `n` colors derived from primary.
 ///
 /// Lightness & chroma are tuned per mode so colors stay readable on the active background.
-pub fn categorical(primary: Color32, n: usize, dark: bool, dist: Distribution) -> Vec<Color32> {
+pub fn categorical(
+    primary: Color32,
+    n: usize,
+    dark: bool,
+    dist: Distribution,
+) -> Vec<Color32> {
     if n == 0 {
         return Vec::new();
     }

@@ -38,12 +38,18 @@ pub fn render(
         let frac = (root.subtree_value() / total) as f32;
         let tile = if vertical {
             let w = rect.width() * frac;
-            let r = Rect::from_min_max(Pos2::new(x, rect.min.y), Pos2::new(x + w, rect.max.y));
+            let r = Rect::from_min_max(
+                Pos2::new(x, rect.min.y),
+                Pos2::new(x + w, rect.max.y),
+            );
             x += w;
             r
         } else {
             let h = rect.height() * frac;
-            let r = Rect::from_min_max(Pos2::new(rect.min.x, y), Pos2::new(rect.max.x, y + h));
+            let r = Rect::from_min_max(
+                Pos2::new(rect.min.x, y),
+                Pos2::new(rect.max.x, y + h),
+            );
             y += h;
             r
         };
@@ -91,7 +97,12 @@ fn draw_node(
         let fill = if hovered {
             color
         } else if hover_pos.is_some() {
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 220)
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                220,
+            )
         } else {
             color
         };

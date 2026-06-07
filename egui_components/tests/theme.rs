@@ -88,7 +88,8 @@ fn primary_foreground_is_high_contrast() {
     // strong contrast against the primary it pairs with.
     for hue in [0.0, 90.0, 200.0, 300.0] {
         let t = ShadcnTheme::build(true, Some(hue));
-        let contrast = (luminance(t.primary) - luminance(t.primary_foreground)).abs();
+        let contrast =
+            (luminance(t.primary) - luminance(t.primary_foreground)).abs();
         assert!(
             contrast > 0.2,
             "hue {hue}: primary/fg contrast too low ({contrast})"

@@ -87,7 +87,8 @@ pub fn render(
             Vec3::new(x1, y1, z1),
             Vec3::new(x0, y1, z1),
         ];
-        let pr: [(Pos2, f32); 8] = std::array::from_fn(|i| layout.project(c[i]));
+        let pr: [(Pos2, f32); 8] =
+            std::array::from_fn(|i| layout.project(c[i]));
 
         let shaded = |shade: f32| {
             let s_clamped = shade.clamp(0.2, 1.0);
@@ -158,7 +159,8 @@ fn polygon_contains(p: Pos2, pts: &[Pos2]) -> bool {
         let pi = pts[i];
         let pj = pts[j];
         if (pi.y > p.y) != (pj.y > p.y) {
-            let slope = (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
+            let slope =
+                (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
             if (slope < 0.0) != (pj.y < pi.y) {
                 inside = !inside;
             }

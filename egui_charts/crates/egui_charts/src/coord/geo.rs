@@ -27,7 +27,8 @@ impl GeoBbox {
     }
 
     pub fn aspect(&self) -> f32 {
-        ((self.max_lon - self.min_lon) / (self.max_lat - self.min_lat)).max(1e-6) as f32
+        ((self.max_lon - self.min_lon) / (self.max_lat - self.min_lat))
+            .max(1e-6) as f32
     }
 }
 
@@ -61,8 +62,10 @@ impl GeoLayout {
     }
 
     pub fn project(&self, lon: f64, lat: f64) -> Pos2 {
-        let dx = (lon - self.bbox.min_lon) / (self.bbox.max_lon - self.bbox.min_lon);
-        let dy = (lat - self.bbox.min_lat) / (self.bbox.max_lat - self.bbox.min_lat);
+        let dx =
+            (lon - self.bbox.min_lon) / (self.bbox.max_lon - self.bbox.min_lon);
+        let dy =
+            (lat - self.bbox.min_lat) / (self.bbox.max_lat - self.bbox.min_lat);
         Pos2::new(
             self.plot_rect.min.x + dx as f32 * self.plot_rect.width(),
             self.plot_rect.max.y - dy as f32 * self.plot_rect.height(),

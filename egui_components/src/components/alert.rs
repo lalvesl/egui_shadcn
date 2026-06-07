@@ -38,8 +38,12 @@ impl<'a> Alert<'a> {
         let theme = ShadcnTheme::get(ui.ctx());
 
         let (border_color, icon_color, icon) = match self.variant {
-            AlertVariant::Default => (theme.border, theme.foreground, ICON_INFO),
-            AlertVariant::Destructive => (theme.destructive, theme.destructive, ICON_ERROR_OUTLINE),
+            AlertVariant::Default => {
+                (theme.border, theme.foreground, ICON_INFO)
+            }
+            AlertVariant::Destructive => {
+                (theme.destructive, theme.destructive, ICON_ERROR_OUTLINE)
+            }
             AlertVariant::Warning => (
                 egui::Color32::from_rgb(234, 179, 8),
                 egui::Color32::from_rgb(234, 179, 8),
@@ -72,7 +76,10 @@ impl<'a> Alert<'a> {
                     ui.vertical(|ui| {
                         ui.label(
                             egui::RichText::new(self.title)
-                                .font(FontId::new(14.0, FontFamily::Proportional))
+                                .font(FontId::new(
+                                    14.0,
+                                    FontFamily::Proportional,
+                                ))
                                 .color(theme.foreground)
                                 .strong(),
                         );
@@ -81,7 +88,10 @@ impl<'a> Alert<'a> {
                             ui.add_space(2.0);
                             ui.label(
                                 egui::RichText::new(desc)
-                                    .font(FontId::new(13.0, FontFamily::Proportional))
+                                    .font(FontId::new(
+                                        13.0,
+                                        FontFamily::Proportional,
+                                    ))
                                     .color(theme.muted_foreground),
                             );
                         }

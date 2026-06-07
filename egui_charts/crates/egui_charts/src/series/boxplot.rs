@@ -88,7 +88,12 @@ pub fn render(
             Pos2::new(center_x - box_w * 0.5, y_q3.min(y_q1)),
             Pos2::new(center_x + box_w * 0.5, y_q1.max(y_q3)),
         );
-        let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 60);
+        let fill = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            60,
+        );
         p.rect_filled(rect, fill);
         p.painter.rect_stroke(rect, 0.0, stroke, StrokeKind::Inside);
 
@@ -100,8 +105,12 @@ pub fn render(
         );
 
         if hovered_idx == Some(i as i64) {
-            p.painter
-                .rect_stroke(rect, 0.0, Stroke::new(2.0, theme.text), StrokeKind::Inside);
+            p.painter.rect_stroke(
+                rect,
+                0.0,
+                Stroke::new(2.0, theme.text),
+                StrokeKind::Inside,
+            );
             tip = Some(TooltipDatum {
                 series_index: series_idx,
                 series_name: format!("{} (Q1/med/Q3)", s.name),

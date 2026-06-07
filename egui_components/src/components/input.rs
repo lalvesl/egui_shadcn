@@ -67,7 +67,10 @@ impl<'a> Input<'a> {
         if let Some(lbl) = self.label {
             ui.label(
                 egui::RichText::new(lbl)
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
+                    .font(egui::FontId::new(
+                        14.0,
+                        egui::FontFamily::Proportional,
+                    ))
                     .color(theme.foreground),
             );
             Spacing::Xs.show(ui);
@@ -79,7 +82,8 @@ impl<'a> Input<'a> {
         // so the fill stays the same as the enabled state (Shadcn `opacity-50`).
         let bg = theme.background;
 
-        let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
+        let (rect, _) =
+            ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
 
         if self.bordered {
             ui.painter().rect_filled(rect, cr, bg);

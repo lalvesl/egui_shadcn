@@ -16,7 +16,11 @@ pub struct AlertDialog<'a> {
 }
 
 impl<'a> AlertDialog<'a> {
-    pub fn new(title: &'a str, description: &'a str, open: &'a mut bool) -> Self {
+    pub fn new(
+        title: &'a str,
+        description: &'a str,
+        open: &'a mut bool,
+    ) -> Self {
         Self {
             title,
             description,

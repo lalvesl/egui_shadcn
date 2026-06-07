@@ -37,7 +37,12 @@ impl Grid {
         self
     }
 
-    pub fn show(self, ui: &mut Ui, count: usize, mut item_fn: impl FnMut(&mut Ui, usize)) {
+    pub fn show(
+        self,
+        ui: &mut Ui,
+        count: usize,
+        mut item_fn: impl FnMut(&mut Ui, usize),
+    ) {
         if count == 0 {
             return;
         }

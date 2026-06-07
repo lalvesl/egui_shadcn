@@ -47,7 +47,9 @@ pub fn draw(
     let measured: Vec<egui::Vec2> = lines
         .iter()
         .map(|(s, _)| {
-            let g = ctx.fonts_mut(|f| f.layout_no_wrap(s.clone(), font.clone(), theme.text));
+            let g = ctx.fonts_mut(|f| {
+                f.layout_no_wrap(s.clone(), font.clone(), theme.text)
+            });
             let size = g.size();
             max_w = max_w.max(size.x);
             row_h = row_h.max(size.y);

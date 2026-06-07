@@ -52,7 +52,10 @@ pub fn render(
         let centroid = pts
             .iter()
             .fold(Pos2::ZERO, |a, b| Pos2::new(a.x + b.x, a.y + b.y));
-        let centroid = Pos2::new(centroid.x / pts.len() as f32, centroid.y / pts.len() as f32);
+        let centroid = Pos2::new(
+            centroid.x / pts.len() as f32,
+            centroid.y / pts.len() as f32,
+        );
         for i in 0..pts.len() {
             let a = pts[i];
             let b = pts[(i + 1) % pts.len()];
@@ -72,14 +75,20 @@ pub fn render(
 
     for (i, pt) in s.points.iter().enumerate() {
         let t = ((pt.value - vmin) / vrange).clamp(0.0, 1.0) as f32;
-        let size = s.symbol_size_min + (s.symbol_size_max - s.symbol_size_min) * t;
+        let size =
+            s.symbol_size_min + (s.symbol_size_max - s.symbol_size_min) * t;
         let screen = layout.project(pt.lon, pt.lat);
         let color = theme.series_color(palette_offset + i);
         // Halo + marker.
         p.circle_filled(
             screen,
             size + 4.0,
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 60),
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                60,
+            ),
         );
         symbol(p, s.symbol, screen, size, color);
         p.text(

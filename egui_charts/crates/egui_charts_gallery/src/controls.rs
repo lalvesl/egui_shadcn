@@ -108,8 +108,10 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
                 for (name, hue) in PRESET_HUES {
                     let color = hsl(*hue, 0.72, 0.55);
                     let selected = (state.hue - *hue).abs() < 0.5;
-                    let (rect, resp) =
-                        ui.allocate_exact_size(egui::Vec2::splat(26.0), egui::Sense::click());
+                    let (rect, resp) = ui.allocate_exact_size(
+                        egui::Vec2::splat(26.0),
+                        egui::Sense::click(),
+                    );
                     ui.painter().circle_filled(rect.center(), 11.0, color);
                     if selected {
                         ui.painter().circle_stroke(
@@ -120,7 +122,8 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
                     }
                     let resp = resp.on_hover_text(*name);
                     if resp.hovered() {
-                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                        ui.ctx()
+                            .set_cursor_icon(egui::CursorIcon::PointingHand);
                     }
                     if resp.clicked() {
                         state.hue = *hue;
@@ -140,8 +143,10 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
             // ── Harmony scheme ───────────────────────────────────────────────
             small_text(ui, "Harmony scheme");
             ui.add_space(4.0);
-            let harmony_labels: Vec<&str> = Harmony::ALL.iter().map(|h| h.label()).collect();
-            let mut harmony_idx = Harmony::ALL.iter().position(|h| *h == state.harmony);
+            let harmony_labels: Vec<&str> =
+                Harmony::ALL.iter().map(|h| h.label()).collect();
+            let mut harmony_idx =
+                Harmony::ALL.iter().position(|h| *h == state.harmony);
             if Select::new(&mut harmony_idx, &harmony_labels).show(ui)
                 && let Some(i) = harmony_idx
             {
@@ -153,7 +158,8 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
             // ── Distribution ─────────────────────────────────────────────────
             small_text(ui, "Distribution");
             ui.add_space(4.0);
-            let dist_labels: Vec<&str> = DISTRIBUTIONS.iter().map(|(_, l)| *l).collect();
+            let dist_labels: Vec<&str> =
+                DISTRIBUTIONS.iter().map(|(_, l)| *l).collect();
             let mut dist_idx = DISTRIBUTIONS
                 .iter()
                 .position(|(d, _)| *d == state.distribution);
@@ -166,7 +172,10 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
             ui.add_space(14.0);
 
             // ── Series count ─────────────────────────────────────────────────
-            small_text(ui, &format!("Series in palette: {}", state.series_count));
+            small_text(
+                ui,
+                &format!("Series in palette: {}", state.series_count),
+            );
             ui.add_space(4.0);
             let mut series = state.series_count as f32;
             Slider::new(&mut series, 1.0, 24.0).step(1.0).show(ui);
@@ -181,7 +190,13 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
 
             small_text(ui, "Palette");
             ui.add_space(4.0);
-            swatch_row(ui, &chart_theme.palette, egui::vec2(18.0, 18.0), 3.0, true);
+            swatch_row(
+                ui,
+                &chart_theme.palette,
+                egui::vec2(18.0, 18.0),
+                3.0,
+                true,
+            );
 
             ui.add_space(12.0);
             small_text(ui, "Sequential");
@@ -208,7 +223,13 @@ pub fn show(ui: &mut Ui, state: &mut ControlsState) {
 }
 
 /// Draw a strip of color swatches (palette preview).
-fn swatch_row(ui: &mut Ui, colors: &[Color32], size: egui::Vec2, radius: f32, wrap: bool) {
+fn swatch_row(
+    ui: &mut Ui,
+    colors: &[Color32],
+    size: egui::Vec2,
+    radius: f32,
+    wrap: bool,
+) {
     let draw = |ui: &mut Ui| {
         for color in colors {
             let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());

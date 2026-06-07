@@ -51,7 +51,10 @@ pub fn render(
         let centroid = pts
             .iter()
             .fold(Pos2::ZERO, |a, b| Pos2::new(a.x + b.x, a.y + b.y));
-        let centroid = Pos2::new(centroid.x / pts.len() as f32, centroid.y / pts.len() as f32);
+        let centroid = Pos2::new(
+            centroid.x / pts.len() as f32,
+            centroid.y / pts.len() as f32,
+        );
         for i in 0..pts.len() {
             let a = pts[i];
             let b = pts[(i + 1) % pts.len()];
@@ -98,7 +101,14 @@ pub fn render(
             let perp = egui::vec2(-v.y, v.x).normalized();
             let height = line.arc_height * v.length();
             let ctrl = mid + perp * height;
-            draw_quadratic(p, a, ctrl, b, 24, Stroke::new(s.line_width, stroke_color));
+            draw_quadratic(
+                p,
+                a,
+                ctrl,
+                b,
+                24,
+                Stroke::new(s.line_width, stroke_color),
+            );
 
             if let Some(h) = hover_pos {
                 let d = (h - mid).length();
@@ -126,7 +136,14 @@ pub fn render(
     tip
 }
 
-fn draw_quadratic(p: &ChartPainter, a: Pos2, c: Pos2, b: Pos2, n: usize, stroke: Stroke) {
+fn draw_quadratic(
+    p: &ChartPainter,
+    a: Pos2,
+    c: Pos2,
+    b: Pos2,
+    n: usize,
+    stroke: Stroke,
+) {
     let mut pts = Vec::with_capacity(n + 1);
     for i in 0..=n {
         let t = i as f32 / n as f32;

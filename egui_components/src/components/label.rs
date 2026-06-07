@@ -24,13 +24,19 @@ impl<'a> Label<'a> {
         ui.horizontal(|ui| {
             ui.label(
                 egui::RichText::new(self.text)
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
+                    .font(egui::FontId::new(
+                        14.0,
+                        egui::FontFamily::Proportional,
+                    ))
                     .color(theme.foreground),
             );
             if self.required {
                 ui.label(
                     egui::RichText::new("*")
-                        .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
+                        .font(egui::FontId::new(
+                            14.0,
+                            egui::FontFamily::Proportional,
+                        ))
                         .color(theme.destructive),
                 );
             }

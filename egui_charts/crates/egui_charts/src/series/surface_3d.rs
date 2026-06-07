@@ -80,8 +80,18 @@ pub fn render(
                 Stroke::new(0.4, theme.background)
             };
             if s.wireframe {
-                tris.push((depth1, [a.0, b.0, c.0], Color32::TRANSPARENT, stroke));
-                tris.push((depth2, [a.0, c.0, d.0], Color32::TRANSPARENT, stroke));
+                tris.push((
+                    depth1,
+                    [a.0, b.0, c.0],
+                    Color32::TRANSPARENT,
+                    stroke,
+                ));
+                tris.push((
+                    depth2,
+                    [a.0, c.0, d.0],
+                    Color32::TRANSPARENT,
+                    stroke,
+                ));
             } else {
                 tris.push((depth1, [a.0, b.0, c.0], color, stroke));
                 tris.push((depth2, [a.0, c.0, d.0], color, stroke));

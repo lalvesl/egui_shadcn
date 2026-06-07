@@ -25,7 +25,10 @@ pub struct Chart<'a> {
 }
 
 impl<'a> Chart<'a> {
-    pub fn new(datasets: &'a [ChartDataset<'a>], labels: &'a [&'a str]) -> Self {
+    pub fn new(
+        datasets: &'a [ChartDataset<'a>],
+        labels: &'a [&'a str],
+    ) -> Self {
         Self {
             datasets,
             labels,
@@ -82,8 +85,10 @@ impl<'a> Chart<'a> {
         let pad_right = 10.0;
 
         let total_height = self.height + legend_height + x_label_height;
-        let (outer_rect, _) =
-            ui.allocate_exact_size(Vec2::new(avail_width, total_height), Sense::hover());
+        let (outer_rect, _) = ui.allocate_exact_size(
+            Vec2::new(avail_width, total_height),
+            Sense::hover(),
+        );
 
         // Chart plot area
         let plot_rect = Rect::from_min_max(
@@ -112,11 +117,15 @@ impl<'a> Chart<'a> {
         let grid_lines = 4usize;
         if self.show_grid {
             for i in 0..=grid_lines {
-                let y = plot_rect.bottom() - i as f32 * (plot_rect.height() / grid_lines as f32);
+                let y = plot_rect.bottom()
+                    - i as f32 * (plot_rect.height() / grid_lines as f32);
                 ui.painter().hline(
                     plot_rect.x_range(),
                     y,
-                    Stroke::new(1.0, ShadcnTheme::with_alpha(theme.muted_foreground, 40)),
+                    Stroke::new(
+                        1.0,
+                        ShadcnTheme::with_alpha(theme.muted_foreground, 40),
+                    ),
                 );
                 // Y label
                 let val = max_val as f32 * i as f32 / grid_lines as f32;
@@ -138,9 +147,9 @@ impl<'a> Chart<'a> {
         // Default dataset colors
         let default_colors = [
             theme.primary,
-            Color32::from_rgb(99, 179, 237),  // blue-300
-            Color32::from_rgb(154, 205, 50),  // yellow-green
-            Color32::from_rgb(237, 137, 54),  // orange
+            Color32::from_rgb(99, 179, 237), // blue-300
+            Color32::from_rgb(154, 205, 50), // yellow-green
+            Color32::from_rgb(237, 137, 54), // orange
             Color32::from_rgb(184, 100, 184), // purple
         ];
 
@@ -155,30 +164,36 @@ impl<'a> Chart<'a> {
                 let gap = slot_w * 0.1;
 
                 for (di, dataset) in self.datasets.iter().enumerate() {
-                    let color = dataset
-                        .color
-                        .unwrap_or_else(|| default_colors[di % default_colors.len()]);
+                    let color = dataset.color.unwrap_or_else(|| {
+                        default_colors[di % default_colors.len()]
+                    });
 
                     for (li, &val) in dataset.values.iter().enumerate() {
                         if li >= n_labels {
                             break;
                         }
                         let bar_h = (val / max_val) as f32 * plot_rect.height();
-                        let x = plot_rect.left() + li as f32 * slot_w + gap + di as f32 * bar_w;
+                        let x = plot_rect.left()
+                            + li as f32 * slot_w
+                            + gap
+                            + di as f32 * bar_w;
                         let bar_rect = Rect::from_min_max(
                             Pos2::new(x, plot_rect.bottom() - bar_h),
                             Pos2::new(x + bar_w - 1.0, plot_rect.bottom()),
                         );
-                        ui.painter()
-                            .rect_filled(bar_rect, egui::CornerRadius::same(2), color);
+                        ui.painter().rect_filled(
+                            bar_rect,
+                            egui::CornerRadius::same(2),
+                            color,
+                        );
                     }
                 }
             }
             ChartKind::Line => {
                 for (di, dataset) in self.datasets.iter().enumerate() {
-                    let color = dataset
-                        .color
-                        .unwrap_or_else(|| default_colors[di % default_colors.len()]);
+                    let color = dataset.color.unwrap_or_else(|| {
+                        default_colors[di % default_colors.len()]
+                    });
 
                     let points: Vec<Pos2> = dataset
                         .values
@@ -186,23 +201,30 @@ impl<'a> Chart<'a> {
                         .enumerate()
                         .take(n_labels)
                         .map(|(li, &val)| {
-                            let x = plot_rect.left() + li as f32 * slot_w + slot_w / 2.0;
-                            let y =
-                                plot_rect.bottom() - (val / max_val) as f32 * plot_rect.height();
+                            let x = plot_rect.left()
+                                + li as f32 * slot_w
+                                + slot_w / 2.0;
+                            let y = plot_rect.bottom()
+                                - (val / max_val) as f32 * plot_rect.height();
                             Pos2::new(x, y)
                         })
                         .collect();
 
                     // Lines
                     for w in points.windows(2) {
-                        ui.painter()
-                            .line_segment([w[0], w[1]], Stroke::new(2.0, color));
+                        ui.painter().line_segment(
+                            [w[0], w[1]],
+                            Stroke::new(2.0, color),
+                        );
                     }
                     // Dots
                     for &pt in &points {
                         ui.painter().circle_filled(pt, 4.0, color);
-                        ui.painter()
-                            .circle_stroke(pt, 4.0, Stroke::new(1.5, theme.background));
+                        ui.painter().circle_stroke(
+                            pt,
+                            4.0,
+                            Stroke::new(1.5, theme.background),
+                        );
                     }
                 }
             }
@@ -234,9 +256,9 @@ impl<'a> Chart<'a> {
             let legend_y = outer_rect.top() + pad_top + self.height + 4.0;
             let mut lx = outer_rect.left() + y_label_width;
             for (di, dataset) in self.datasets.iter().enumerate() {
-                let color = dataset
-                    .color
-                    .unwrap_or_else(|| default_colors[di % default_colors.len()]);
+                let color = dataset.color.unwrap_or_else(|| {
+                    default_colors[di % default_colors.len()]
+                });
                 let dot_center = Pos2::new(lx + 6.0, legend_y + 8.0);
                 ui.painter().circle_filled(dot_center, 5.0, color);
                 let text_rect = ui.painter().text(

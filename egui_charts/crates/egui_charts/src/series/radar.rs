@@ -106,8 +106,12 @@ pub fn render(
 
         // Fill (translucent).
         if polygon.len() >= 3 {
-            let fill =
-                Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), ds.fill_alpha);
+            let fill = Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                ds.fill_alpha,
+            );
             // convex_polygon expects convex shape; radar polygon may be
             // non-convex, so fan-triangulate from center instead.
             for i in 0..polygon.len() {
@@ -134,7 +138,10 @@ pub fn render(
                     let v = ds.values.get(i).copied().unwrap_or(0.0);
                     tip = Some(TooltipDatum {
                         series_index: series_idx,
-                        series_name: format!("{} · {}", ds.name, s.indicators[i].name),
+                        series_name: format!(
+                            "{} · {}",
+                            ds.name, s.indicators[i].name
+                        ),
                         data_index: i,
                         value: v,
                         color,

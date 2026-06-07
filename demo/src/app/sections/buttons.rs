@@ -2,8 +2,9 @@ use crate::i18n as t;
 use ::i18n::t as tr;
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
-    ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC, ICON_FORMAT_STRIKETHROUGH,
-    ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH, ICON_SEND,
+    ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC,
+    ICON_FORMAT_STRIKETHROUGH, ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH,
+    ICON_SEND,
     badge::{Badge, BadgeVariant},
     button::{Button, ButtonSize, ButtonVariant},
     button_group::{ButtonGroup, ButtonGroupVariant},
@@ -187,8 +188,16 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::ToggleSec::HBasic).as_ref(), None);
             ui.horizontal(|ui| {
-                Toggle::new(&mut self.toggle1, tr!(t::ToggleSec::Bold).as_ref()).show(ui);
-                Toggle::new(&mut self.toggle2, tr!(t::ToggleSec::Italic).as_ref()).show(ui);
+                Toggle::new(
+                    &mut self.toggle1,
+                    tr!(t::ToggleSec::Bold).as_ref(),
+                )
+                .show(ui);
+                Toggle::new(
+                    &mut self.toggle2,
+                    tr!(t::ToggleSec::Italic).as_ref(),
+                )
+                .show(ui);
             });
         });
 
@@ -196,13 +205,19 @@ impl DemoApp {
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::ToggleSec::HWithIcon).as_ref(), None);
             ui.horizontal(|ui| {
-                Toggle::new(&mut self.toggle_bold, tr!(t::ToggleSec::Bold).as_ref())
-                    .icon(ICON_FORMAT_BOLD)
-                    .show(ui);
+                Toggle::new(
+                    &mut self.toggle_bold,
+                    tr!(t::ToggleSec::Bold).as_ref(),
+                )
+                .icon(ICON_FORMAT_BOLD)
+                .show(ui);
                 Spacing::Xs.show(ui);
-                Toggle::new(&mut self.toggle_italic, tr!(t::ToggleSec::Italic).as_ref())
-                    .icon(ICON_FORMAT_ITALIC)
-                    .show(ui);
+                Toggle::new(
+                    &mut self.toggle_italic,
+                    tr!(t::ToggleSec::Italic).as_ref(),
+                )
+                .icon(ICON_FORMAT_ITALIC)
+                .show(ui);
                 Spacing::Xs.show(ui);
                 Toggle::new(
                     &mut self.toggle_underline,
@@ -229,9 +244,12 @@ impl DemoApp {
                     .enabled(false)
                     .show(ui);
                 let mut dummy2 = false;
-                Toggle::new(&mut dummy2, tr!(t::ToggleSec::DisabledOff).as_ref())
-                    .enabled(false)
-                    .show(ui);
+                Toggle::new(
+                    &mut dummy2,
+                    tr!(t::ToggleSec::DisabledOff).as_ref(),
+                )
+                .enabled(false)
+                .show(ui);
             });
         });
     }

@@ -64,8 +64,11 @@ impl DemoApp {
                         egui::Vec2::new(ui.available_width(), 24.0),
                         egui::Sense::hover(),
                     );
-                    ui.painter()
-                        .rect_filled(rect, egui::CornerRadius::same(4), theme.accent);
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(4),
+                        theme.accent,
+                    );
                 });
             }
         });
@@ -79,16 +82,18 @@ impl DemoApp {
                 Some(pad_margin_desc.as_ref()),
             );
             let inner_label = tr!(t::BoxedSec::InnerLabel);
-            Boxed::new()
-                .padding(Spacing::Lg)
-                .margin(Spacing::Sm)
-                .show(ui, |ui| {
+            Boxed::new().padding(Spacing::Lg).margin(Spacing::Sm).show(
+                ui,
+                |ui| {
                     let (rect, _) = ui.allocate_exact_size(
                         egui::Vec2::new(ui.available_width(), 40.0),
                         egui::Sense::hover(),
                     );
-                    ui.painter()
-                        .rect_filled(rect, egui::CornerRadius::same(6), theme.primary);
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(6),
+                        theme.primary,
+                    );
                     ui.painter().text(
                         rect.center(),
                         egui::Align2::CENTER_CENTER,
@@ -96,7 +101,8 @@ impl DemoApp {
                         egui::FontId::new(12.0, egui::FontFamily::Proportional),
                         theme.primary_foreground,
                     );
-                });
+                },
+            );
         });
     }
 
@@ -109,7 +115,8 @@ impl DemoApp {
             card_header(ui, tr!(t::CalendarSec::HSingle).as_ref(), None);
             let label: String = match self.cal_single {
                 Some(d) => {
-                    let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
+                    let dstr =
+                        format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
                     tr!(t::CalendarSec::SelectedDate, date = dstr).into_owned()
                 }
                 None => tr!(t::CalendarSec::NoDate).into_owned(),
@@ -127,13 +134,15 @@ impl DemoApp {
                 tr!(t::CalendarSec::HRange).as_ref(),
                 Some(range_desc.as_ref()),
             );
-            let label: String = match (self.cal_range_start, self.cal_range_end) {
+            let label: String = match (self.cal_range_start, self.cal_range_end)
+            {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
                     s.year, s.month, s.day, e.year, e.month, e.day
                 ),
                 (Some(s), None) => {
-                    let sstr = format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
+                    let sstr =
+                        format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
                     tr!(t::CalendarSec::RangePending, start = sstr).into_owned()
                 }
                 _ => tr!(t::CalendarSec::RangeNone).into_owned(),
@@ -163,13 +172,17 @@ impl DemoApp {
                 tr!(t::CalendarSec::HRangeCompact).as_ref(),
                 Some(compact_desc.as_ref()),
             );
-            let label: String = match (self.cal_range_compact_start, self.cal_range_compact_end) {
+            let label: String = match (
+                self.cal_range_compact_start,
+                self.cal_range_compact_end,
+            ) {
                 (Some(s), Some(e)) => format!(
                     "{:04}-{:02}-{:02}  →  {:04}-{:02}-{:02}",
                     s.year, s.month, s.day, e.year, e.month, e.day
                 ),
                 (Some(s), None) => {
-                    let sstr = format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
+                    let sstr =
+                        format!("{:04}-{:02}-{:02}", s.year, s.month, s.day);
                     tr!(t::CalendarSec::RangePending, start = sstr).into_owned()
                 }
                 _ => tr!(t::CalendarSec::RangeNone).into_owned(),
@@ -202,7 +215,8 @@ impl DemoApp {
             );
             let label: String = match self.cal_prices_selected {
                 Some(d) => {
-                    let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
+                    let dstr =
+                        format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
                     tr!(t::CalendarSec::SelectedDate, date = dstr).into_owned()
                 }
                 None => tr!(t::CalendarSec::NoDate).into_owned(),
@@ -329,20 +343,24 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::DataTableSec::HPayments).as_ref(), None);
-            DataTable::new("demo_data_table", columns, &mut self.data_table_filter)
-                .page_size(3)
-                .show(ui, data.len(), |row_idx, row| {
-                    let (status, email, amount) = data[row_idx];
-                    row.cell(|ui| {
-                        muted_text(ui, status);
-                    });
-                    row.cell(|ui| {
-                        muted_text(ui, email);
-                    });
-                    row.cell(|ui| {
-                        muted_text(ui, amount);
-                    });
+            DataTable::new(
+                "demo_data_table",
+                columns,
+                &mut self.data_table_filter,
+            )
+            .page_size(3)
+            .show(ui, data.len(), |row_idx, row| {
+                let (status, email, amount) = data[row_idx];
+                row.cell(|ui| {
+                    muted_text(ui, status);
                 });
+                row.cell(|ui| {
+                    muted_text(ui, email);
+                });
+                row.cell(|ui| {
+                    muted_text(ui, amount);
+                });
+            });
         });
     }
 
@@ -405,12 +423,20 @@ impl DemoApp {
                 ("Xl3", Spacing::Xl3),
             ] {
                 ui.horizontal(|ui| {
-                    muted_text(ui, &format!("{:<4}  {:>2}px", name, u32::from(sp)));
+                    muted_text(
+                        ui,
+                        &format!("{:<4}  {:>2}px", name, u32::from(sp)),
+                    );
                     Spacing::Md.show(ui);
-                    let (rect, _) =
-                        ui.allocate_exact_size(egui::Vec2::new(sp.px(), 8.0), egui::Sense::hover());
-                    ui.painter()
-                        .rect_filled(rect, egui::CornerRadius::same(2), theme.primary);
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::Vec2::new(sp.px(), 8.0),
+                        egui::Sense::hover(),
+                    );
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(2),
+                        theme.primary,
+                    );
                 });
                 Spacing::Xs.show(ui);
             }

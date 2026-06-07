@@ -19,9 +19,11 @@ async fn fetch_material_icons() -> Option<Vec<u8>> {
     use wasm_bindgen_futures::JsFuture;
 
     let window = web_sys::window()?;
-    let resp = JsFuture::from(window.fetch_with_str("wasm_assets/MaterialIcons-Regular.ttf?v=2"))
-        .await
-        .ok()?;
+    let resp = JsFuture::from(
+        window.fetch_with_str("wasm_assets/MaterialIcons-Regular.ttf?v=2"),
+    )
+    .await
+    .ok()?;
     let resp: web_sys::Response = resp.dyn_into().ok()?;
     let array_buf = JsFuture::from(resp.array_buffer().ok()?).await.ok()?;
     Some(js_sys::Uint8Array::new(&array_buf).to_vec())
@@ -52,7 +54,10 @@ pub fn start() -> Result<(), JsValue> {
                     // Order matters: register_font_bytes must come AFTER DemoApp::new.
                     let app = DemoApp::new(cc);
                     if let Some(bytes) = icon_bytes {
-                        egui_sc::egui_components::register_font_bytes(&cc.egui_ctx, bytes);
+                        egui_sc::egui_components::register_font_bytes(
+                            &cc.egui_ctx,
+                            bytes,
+                        );
                     }
                     Ok(Box::new(app))
                 }),
@@ -76,7 +81,8 @@ fn android_main(android_app: winit::platform::android::activity::AndroidApp) {
     use crate::app::DemoApp;
 
     android_logger::init_once(
-        android_logger::Config::default().with_max_level(log::LevelFilter::Info),
+        android_logger::Config::default()
+            .with_max_level(log::LevelFilter::Info),
     );
 
     let options = eframe::NativeOptions {
@@ -134,7 +140,8 @@ mod tests {
         );
         if let Err(ref e) = hinting_result {
             web_sys::console::warn_1(
-                &format!("[test] HintingInstance::new error (non-fatal): {e}").into(),
+                &format!("[test] HintingInstance::new error (non-fatal): {e}")
+                    .into(),
             );
         }
     }

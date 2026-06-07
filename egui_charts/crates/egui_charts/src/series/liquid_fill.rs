@@ -56,7 +56,12 @@ pub fn render(
         shape.push(Pos2::new(center.x + r, center.y + r));
         shape.push(Pos2::new(center.x - r, center.y + r));
 
-        let fill = Color32::from_rgba_unmultiplied(base.r(), base.g(), base.b(), alpha);
+        let fill = Color32::from_rgba_unmultiplied(
+            base.r(),
+            base.g(),
+            base.b(),
+            alpha,
+        );
         // Clip to disc by drawing through a temporary mask polygon — for
         // Phase 2 we accept slight overflow which is hidden by the outer
         // stroke below.
@@ -93,7 +98,8 @@ pub fn render(
     p.circle_stroke(center, r, Stroke::new(2.0, base));
 
     // Center label.
-    let text = format!("{:.0}{}", value * 100.0, s.unit.as_deref().unwrap_or(""));
+    let text =
+        format!("{:.0}{}", value * 100.0, s.unit.as_deref().unwrap_or(""));
     p.text(
         center,
         Align2::CENTER_CENTER,

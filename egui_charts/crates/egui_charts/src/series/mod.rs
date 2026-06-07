@@ -110,9 +110,16 @@ pub fn render_all(
         let color = theme.series_color(idx);
         match series {
             Series::Line(l) => {
-                if let Some(t) =
-                    line::render(p, l, idx, color, layout, theme, &mut line_stack, hover_data)
-                {
+                if let Some(t) = line::render(
+                    p,
+                    l,
+                    idx,
+                    color,
+                    layout,
+                    theme,
+                    &mut line_stack,
+                    hover_data,
+                ) {
                     tips.push(t);
                 }
             }
@@ -135,44 +142,58 @@ pub fn render_all(
                 }
             }
             Series::Scatter(s) => {
-                if let Some(t) = scatter::render(p, s, idx, color, layout, theme, hover_data) {
+                if let Some(t) =
+                    scatter::render(p, s, idx, color, layout, theme, hover_data)
+                {
                     tips.push(t);
                 }
             }
             Series::Heatmap(s) => {
-                if let Some(t) = heatmap::render(p, s, idx, color, layout, theme, hover_data) {
+                if let Some(t) =
+                    heatmap::render(p, s, idx, color, layout, theme, hover_data)
+                {
                     tips.push(t);
                 }
             }
             Series::Candlestick(s) => {
-                if let Some(t) = candlestick::render(p, s, idx, color, layout, theme, hover_data) {
+                if let Some(t) = candlestick::render(
+                    p, s, idx, color, layout, theme, hover_data,
+                ) {
                     tips.push(t);
                 }
             }
             Series::BoxPlot(s) => {
-                if let Some(t) = boxplot::render(p, s, idx, color, layout, theme, hover_data) {
+                if let Some(t) =
+                    boxplot::render(p, s, idx, color, layout, theme, hover_data)
+                {
                     tips.push(t);
                 }
             }
             Series::EffectScatter(s) => {
-                if let Some(t) = effect_scatter::render(p, s, idx, color, layout, theme, hover_data)
-                {
+                if let Some(t) = effect_scatter::render(
+                    p, s, idx, color, layout, theme, hover_data,
+                ) {
                     tips.push(t);
                 }
             }
             Series::LinesCartesian(s) => {
-                if let Some(t) = lines::render(p, s, idx, color, layout, theme, hover_data) {
-                    tips.push(t);
-                }
-            }
-            Series::PictorialBar(s) => {
-                if let Some(t) = pictorial_bar::render(p, s, idx, color, layout, theme, hover_data)
+                if let Some(t) =
+                    lines::render(p, s, idx, color, layout, theme, hover_data)
                 {
                     tips.push(t);
                 }
             }
+            Series::PictorialBar(s) => {
+                if let Some(t) = pictorial_bar::render(
+                    p, s, idx, color, layout, theme, hover_data,
+                ) {
+                    tips.push(t);
+                }
+            }
             Series::ThemeRiver(s) => {
-                if let Some(t) = theme_river::render(p, s, idx, color, layout, theme, hover_data) {
+                if let Some(t) = theme_river::render(
+                    p, s, idx, color, layout, theme, hover_data,
+                ) {
                     tips.push(t);
                 }
             }
@@ -244,133 +265,184 @@ pub fn render_non_cartesian(
         );
         match series {
             Series::Pie(s) => {
-                if let Some(t) = pie::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Radar(s) => {
-                if let Some(t) = radar::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Gauge(s) => {
-                if let Some(t) = gauge::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Funnel(s) => {
-                if let Some(t) = funnel::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::PolarBar(s) => {
-                if let Some(t) = polar_bar::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Sunburst(s) => {
-                if let Some(t) = sunburst::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Treemap(s) => {
-                if let Some(t) = treemap::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Tree(s) => {
-                if let Some(t) = tree::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Sankey(s) => {
-                if let Some(t) = sankey::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Graph(s) => {
-                if let Some(t) = graph::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::Parallel(s) => {
-                if let Some(t) = parallel::render(p, s, *idx, cell, theme, *idx, hover_pos) {
-                    tips.push(t);
-                }
-            }
-            Series::CalendarHeatmap(s) => {
-                if let Some(t) = calendar_heatmap::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                if let Some(t) =
+                    pie::render(p, s, *idx, cell, theme, *idx, hover_pos)
                 {
                     tips.push(t);
                 }
             }
+            Series::Radar(s) => {
+                if let Some(t) =
+                    radar::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Gauge(s) => {
+                if let Some(t) =
+                    gauge::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Funnel(s) => {
+                if let Some(t) =
+                    funnel::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::PolarBar(s) => {
+                if let Some(t) =
+                    polar_bar::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Sunburst(s) => {
+                if let Some(t) =
+                    sunburst::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Treemap(s) => {
+                if let Some(t) =
+                    treemap::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Tree(s) => {
+                if let Some(t) =
+                    tree::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Sankey(s) => {
+                if let Some(t) =
+                    sankey::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Graph(s) => {
+                if let Some(t) =
+                    graph::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::Parallel(s) => {
+                if let Some(t) =
+                    parallel::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
+                    tips.push(t);
+                }
+            }
+            Series::CalendarHeatmap(s) => {
+                if let Some(t) = calendar_heatmap::render(
+                    p, s, *idx, cell, theme, *idx, hover_pos,
+                ) {
+                    tips.push(t);
+                }
+            }
             Series::WordCloud(s) => {
-                if let Some(t) = word_cloud::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    word_cloud::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::LiquidFill(s) => {
-                if let Some(t) = liquid_fill::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) = liquid_fill::render(
+                    p, s, *idx, cell, theme, *idx, hover_pos,
+                ) {
                     tips.push(t);
                 }
             }
             Series::Custom(s) => {
-                if let Some(t) = custom::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    custom::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Map(s) => {
-                if let Some(t) = map::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    map::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::LinesGeo(s) => {
-                if let Some(t) = lines_geo::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    lines_geo::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::ScatterGeo(s) => {
-                if let Some(t) = scatter_geo::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) = scatter_geo::render(
+                    p, s, *idx, cell, theme, *idx, hover_pos,
+                ) {
                     tips.push(t);
                 }
             }
             Series::Bar3D(s) => {
-                if let Some(t) = bar_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    bar_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Line3D(s) => {
-                if let Some(t) = line_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    line_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Scatter3D(s) => {
-                if let Some(t) = scatter_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    scatter_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Surface3D(s) => {
-                if let Some(t) = surface_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    surface_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Lines3D(s) => {
-                if let Some(t) = lines_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    lines_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Map3D(s) => {
-                if let Some(t) = map_3d::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    map_3d::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Globe(s) => {
-                if let Some(t) = globe::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    globe::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }
             Series::Chord(s) => {
-                if let Some(t) = chord::render(p, s, *idx, cell, theme, *idx, hover_pos) {
+                if let Some(t) =
+                    chord::render(p, s, *idx, cell, theme, *idx, hover_pos)
+                {
                     tips.push(t);
                 }
             }

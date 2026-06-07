@@ -23,7 +23,8 @@ pub fn render(
     }
 
     let up_color = s.up_color.unwrap_or(Color32::from_rgb(0x16, 0xa3, 0x4a));
-    let down_color = s.down_color.unwrap_or(Color32::from_rgb(0xdc, 0x26, 0x26));
+    let down_color =
+        s.down_color.unwrap_or(Color32::from_rgb(0xdc, 0x26, 0x26));
 
     let slot_w = layout.plot_rect.width() / s.data.len().max(1) as f32;
     let body_w = (slot_w * s.body_ratio).max(2.0);

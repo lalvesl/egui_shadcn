@@ -6,8 +6,8 @@ use egui_sc::egui_components::{
     badge::{Badge, BadgeVariant},
     card::{Card, card_header},
     typography::{
-        body_text, code_text, heading1, heading2, heading3, heading4, lead_text, muted_text,
-        small_text,
+        body_text, code_text, heading1, heading2, heading3, heading4,
+        lead_text, muted_text, small_text,
     },
 };
 
@@ -43,14 +43,18 @@ impl DemoApp {
 
         let comps_label = tr!(t::OverviewSec::Components);
         let themes_label = tr!(t::OverviewSec::Themes);
-        let row1: &[(&str, &str)] = &[("56", comps_label.as_ref()), ("2", themes_label.as_ref())];
+        let row1: &[(&str, &str)] =
+            &[("56", comps_label.as_ref()), ("2", themes_label.as_ref())];
 
         ui.horizontal(|ui| {
             for (n, desc) in row1 {
                 Card::new().padding(16.0).show(ui, |ui| {
                     ui.label(
                         egui::RichText::new(*n)
-                            .font(egui::FontId::new(28.0, egui::FontFamily::Proportional))
+                            .font(egui::FontId::new(
+                                28.0,
+                                egui::FontFamily::Proportional,
+                            ))
                             .color(theme.primary)
                             .strong(),
                     );
@@ -63,14 +67,18 @@ impl DemoApp {
 
         let presets_label = tr!(t::OverviewSec::ColorPresets);
         let custom_label = tr!(t::OverviewSec::Customizable);
-        let row2: &[(&str, &str)] = &[("8", presets_label.as_ref()), ("∞", custom_label.as_ref())];
+        let row2: &[(&str, &str)] =
+            &[("8", presets_label.as_ref()), ("∞", custom_label.as_ref())];
 
         ui.horizontal(|ui| {
             for (n, desc) in row2 {
                 Card::new().padding(16.0).show(ui, |ui| {
                     ui.label(
                         egui::RichText::new(*n)
-                            .font(egui::FontId::new(28.0, egui::FontFamily::Proportional))
+                            .font(egui::FontId::new(
+                                28.0,
+                                egui::FontFamily::Proportional,
+                            ))
                             .color(theme.primary)
                             .strong(),
                     );

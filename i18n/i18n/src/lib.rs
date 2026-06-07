@@ -22,7 +22,9 @@ use std::sync::OnceLock;
 // Re-exports so the generated code (and users) have a single import root.
 pub use i18n_format as format;
 pub use i18n_format::Languages;
-pub use i18n_format::{composite_key, ArgValue, Catalog, LanguagesWithValue, Plural, Translate};
+pub use i18n_format::{
+    composite_key, ArgValue, Catalog, LanguagesWithValue, Plural, Translate,
+};
 pub use i18n_macros::{t, traductions};
 #[doc(hidden)]
 pub use linkme;
@@ -89,7 +91,8 @@ pub fn set_language(lang: Languages) {
 
 /// The active UI language. `t!` reads this on every call.
 pub fn current_language() -> Languages {
-    Languages::from_index(CURRENT.load(Ordering::Relaxed)).unwrap_or(Languages::En)
+    Languages::from_index(CURRENT.load(Ordering::Relaxed))
+        .unwrap_or(Languages::En)
 }
 
 // ---------------------------------------------------------------------------
@@ -125,7 +128,8 @@ fn notify_missing(lang: Languages, app_id: u16, variant: u8) {
 
 use std::sync::RwLock;
 
-static RUNTIME: OnceLock<[RwLock<Vec<&'static [u8]>>; Languages::COUNT]> = OnceLock::new();
+static RUNTIME: OnceLock<[RwLock<Vec<&'static [u8]>>; Languages::COUNT]> =
+    OnceLock::new();
 
 fn runtime() -> &'static [RwLock<Vec<&'static [u8]>>; Languages::COUNT] {
     RUNTIME.get_or_init(|| {
@@ -179,15 +183,20 @@ pub fn install_exported(lang: Languages, bytes: &'static [u8]) -> usize {
     if bytes.len() < 4 {
         return 0;
     }
-    let count = u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]) as usize;
+    let count =
+        u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]) as usize;
     let mut cur = 4usize;
     let mut installed = 0usize;
     for _ in 0..count {
         if cur + 4 > bytes.len() {
             break;
         }
-        let len = u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]])
-            as usize;
+        let len = u32::from_le_bytes([
+            bytes[cur],
+            bytes[cur + 1],
+            bytes[cur + 2],
+            bytes[cur + 3],
+        ]) as usize;
         cur += 4;
         if cur + len > bytes.len() {
             break;
@@ -236,7 +245,11 @@ fn lookup(
 /// Resolution order: current language (embedded, then runtime) → kick the async
 /// source on a miss → fallback language → a visible `⟦app:variant⟧` marker so a
 /// missing key is obvious rather than silently empty.
-pub fn translate(app_id: u16, variant: u8, args: &[ArgValue<'_>]) -> Cow<'static, str> {
+pub fn translate(
+    app_id: u16,
+    variant: u8,
+    args: &[ArgValue<'_>],
+) -> Cow<'static, str> {
     let lang = current_language();
 
     if let Some(s) = lookup(lang, app_id, variant, args) {

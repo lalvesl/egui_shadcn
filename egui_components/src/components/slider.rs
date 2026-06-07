@@ -37,16 +37,22 @@ impl<'a> Slider<'a> {
         let height = self.size.height();
         let width = ui.available_width();
 
-        let (rect, resp) =
-            ui.allocate_exact_size(Vec2::new(width, height.max(thumb_r * 2.0)), Sense::drag());
+        let (rect, resp) = ui.allocate_exact_size(
+            Vec2::new(width, height.max(thumb_r * 2.0)),
+            Sense::drag(),
+        );
 
-        let track_rect = egui::Rect::from_center_size(rect.center(), Vec2::new(width, track_h));
+        let track_rect = egui::Rect::from_center_size(
+            rect.center(),
+            Vec2::new(width, track_h),
+        );
 
         if resp.dragged() {
             let delta = resp.drag_delta().x;
             let range = self.max - self.min;
             let px_per_unit = (width - thumb_r * 2.0) / range;
-            *self.value = (*self.value + delta / px_per_unit).clamp(self.min, self.max);
+            *self.value =
+                (*self.value + delta / px_per_unit).clamp(self.min, self.max);
             if let Some(step) = self.step {
                 *self.value = (*self.value / step).round() * step;
             }
@@ -62,8 +68,10 @@ impl<'a> Slider<'a> {
             let fill_w = (track_rect.width() * t).max(0.0);
 
             if fill_w > 0.0 {
-                let fill_rect =
-                    egui::Rect::from_min_size(track_rect.min, Vec2::new(fill_w, track_h));
+                let fill_rect = egui::Rect::from_min_size(
+                    track_rect.min,
+                    Vec2::new(fill_w, track_h),
+                );
                 painter.rect_filled(fill_rect, cr, theme.primary);
             }
 
@@ -71,7 +79,11 @@ impl<'a> Slider<'a> {
             let thumb_center = egui::Pos2::new(thumb_x, rect.center().y);
 
             painter.circle_filled(thumb_center, thumb_r, Color32::WHITE);
-            painter.circle_stroke(thumb_center, thumb_r, Stroke::new(2.0, theme.primary));
+            painter.circle_stroke(
+                thumb_center,
+                thumb_r,
+                Stroke::new(2.0, theme.primary),
+            );
         }
 
         resp

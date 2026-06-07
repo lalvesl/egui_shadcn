@@ -34,23 +34,47 @@ pub fn reserve(rect: Rect, chart: &Chart) -> (Rect, Rect) {
     match chart.legend.position {
         LegendPosition::Hidden => (rect, Rect::NOTHING),
         LegendPosition::Top => {
-            let legend = Rect::from_min_max(rect.min, egui::pos2(rect.max.x, rect.min.y + h));
-            let plot = Rect::from_min_max(egui::pos2(rect.min.x, rect.min.y + h), rect.max);
+            let legend = Rect::from_min_max(
+                rect.min,
+                egui::pos2(rect.max.x, rect.min.y + h),
+            );
+            let plot = Rect::from_min_max(
+                egui::pos2(rect.min.x, rect.min.y + h),
+                rect.max,
+            );
             (plot, legend)
         }
         LegendPosition::Bottom => {
-            let legend = Rect::from_min_max(egui::pos2(rect.min.x, rect.max.y - h), rect.max);
-            let plot = Rect::from_min_max(rect.min, egui::pos2(rect.max.x, rect.max.y - h));
+            let legend = Rect::from_min_max(
+                egui::pos2(rect.min.x, rect.max.y - h),
+                rect.max,
+            );
+            let plot = Rect::from_min_max(
+                rect.min,
+                egui::pos2(rect.max.x, rect.max.y - h),
+            );
             (plot, legend)
         }
         LegendPosition::Left => {
-            let legend = Rect::from_min_max(rect.min, egui::pos2(rect.min.x + w, rect.max.y));
-            let plot = Rect::from_min_max(egui::pos2(rect.min.x + w, rect.min.y), rect.max);
+            let legend = Rect::from_min_max(
+                rect.min,
+                egui::pos2(rect.min.x + w, rect.max.y),
+            );
+            let plot = Rect::from_min_max(
+                egui::pos2(rect.min.x + w, rect.min.y),
+                rect.max,
+            );
             (plot, legend)
         }
         LegendPosition::Right => {
-            let legend = Rect::from_min_max(egui::pos2(rect.max.x - w, rect.min.y), rect.max);
-            let plot = Rect::from_min_max(rect.min, egui::pos2(rect.max.x - w, rect.max.y));
+            let legend = Rect::from_min_max(
+                egui::pos2(rect.max.x - w, rect.min.y),
+                rect.max,
+            );
+            let plot = Rect::from_min_max(
+                rect.min,
+                egui::pos2(rect.max.x - w, rect.max.y),
+            );
             (plot, legend)
         }
     }
@@ -65,7 +89,9 @@ pub fn draw_and_handle(
     theme: &ChartTheme,
     states: &mut [SeriesState],
 ) {
-    if rect.area() <= 0.0 || matches!(chart.legend.position, LegendPosition::Hidden) {
+    if rect.area() <= 0.0
+        || matches!(chart.legend.position, LegendPosition::Hidden)
+    {
         return;
     }
 
@@ -83,7 +109,9 @@ pub fn draw_and_handle(
         let label = it.name.clone();
         let text_size = ui
             .ctx()
-            .fonts_mut(|f| f.layout_no_wrap(label.clone(), font.clone(), theme.text))
+            .fonts_mut(|f| {
+                f.layout_no_wrap(label.clone(), font.clone(), theme.text)
+            })
             .size();
         let entry_size = vec2(text_size.x + 24.0, text_size.y.max(16.0) + 4.0);
 

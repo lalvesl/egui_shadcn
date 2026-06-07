@@ -75,7 +75,10 @@ impl<'a> Textarea<'a> {
         if let Some(lbl) = self.label {
             ui.label(
                 egui::RichText::new(lbl)
-                    .font(egui::FontId::new(14.0, egui::FontFamily::Proportional))
+                    .font(egui::FontId::new(
+                        14.0,
+                        egui::FontFamily::Proportional,
+                    ))
                     .color(theme.foreground),
             );
             Spacing::Xs.show(ui);
@@ -119,7 +122,8 @@ impl<'a> Textarea<'a> {
             let inner_h = stored_h.clamp(min_h, max_h);
             let height = inner_h + v_pad * 2.0;
 
-            let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
+            let (rect, _) = ui
+                .allocate_exact_size(Vec2::new(width, height), Sense::hover());
             ui.painter().rect_filled(rect, cr, bg);
             ui.painter().rect_stroke(
                 rect,
@@ -131,8 +135,10 @@ impl<'a> Textarea<'a> {
             let inner_rect = rect.shrink2(Vec2::new(h_pad, v_pad));
             // Tall max_rect so TextEdit can allocate its full content height;
             // set_clip_rect ensures nothing bleeds outside the border.
-            let tall_rect =
-                Rect::from_min_size(inner_rect.min, egui::vec2(inner_rect.width(), 10_000.0));
+            let tall_rect = Rect::from_min_size(
+                inner_rect.min,
+                egui::vec2(inner_rect.width(), 10_000.0),
+            );
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(tall_rect)
@@ -176,7 +182,8 @@ impl<'a> Textarea<'a> {
         };
         let height = line_h * display_rows as f32 + v_pad * 2.0;
 
-        let (rect, _) = ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
+        let (rect, _) =
+            ui.allocate_exact_size(Vec2::new(width, height), Sense::hover());
         ui.painter().rect_filled(rect, cr, bg);
         ui.painter().rect_stroke(
             rect,
@@ -189,8 +196,10 @@ impl<'a> Textarea<'a> {
 
         let resp = if self.scroll {
             // Tall child so TextEdit allocates full content; ScrollArea clips+scrolls.
-            let tall_rect =
-                Rect::from_min_size(inner_rect.min, egui::vec2(inner_rect.width(), 10_000.0));
+            let tall_rect = Rect::from_min_size(
+                inner_rect.min,
+                egui::vec2(inner_rect.width(), 10_000.0),
+            );
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(tall_rect)

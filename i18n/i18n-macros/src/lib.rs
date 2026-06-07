@@ -200,7 +200,8 @@ pub fn traductions(item: TokenStream) -> TokenStream {
     let app_id = fnv1a_16(&name.to_string());
 
     // 1. The regenerated, payload-free enum.
-    let variant_idents: Vec<&Ident> = variants.iter().map(|v| &v.name).collect();
+    let variant_idents: Vec<&Ident> =
+        variants.iter().map(|v| &v.name).collect();
     let enum_def = quote! {
         #[repr(u8)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -264,7 +265,8 @@ pub fn traductions(item: TokenStream) -> TokenStream {
             name.to_string().to_uppercase(),
             lang_variant.to_uppercase()
         );
-        let slice_ident = format_ident!("__I18N_CATALOGS_{}", lang_variant.to_uppercase());
+        let slice_ident =
+            format_ident!("__I18N_CATALOGS_{}", lang_variant.to_uppercase());
 
         lang_blobs.extend(quote! {
             // linkme has no wasm backend, so the registration only exists on
@@ -291,7 +293,10 @@ pub fn traductions(item: TokenStream) -> TokenStream {
 }
 
 /// Helper: turn a DSL variant into the encoder's `FormSpec`s for one language.
-fn collect_forms_for_lang(var: &DslVariant, lang_variant: &str) -> Vec<i18n_format::FormSpec> {
+fn collect_forms_for_lang(
+    var: &DslVariant,
+    lang_variant: &str,
+) -> Vec<i18n_format::FormSpec> {
     use i18n_format::{FormSpec, Plural};
     let cat_of = |c: &str| -> Plural {
         match c {
@@ -370,7 +375,8 @@ impl Parse for TInvocation {
 
 #[proc_macro]
 pub fn t(input: TokenStream) -> TokenStream {
-    let TInvocation { item, mut args } = parse_macro_input!(input as TInvocation);
+    let TInvocation { item, mut args } =
+        parse_macro_input!(input as TInvocation);
 
     // Sort by name so positional indices match the catalog's sorted name set.
     args.sort_by_key(|a| a.0.to_string());

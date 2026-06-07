@@ -158,7 +158,8 @@ fn demo_survives_pointer_scrubbing() {
     for i in 0..8 {
         let mut input = screen();
         let x = 100.0 + (i as f32) * 120.0;
-        input.events = vec![egui::Event::PointerMoved(egui::pos2(x, 80.0 + x * 0.2))];
+        input.events =
+            vec![egui::Event::PointerMoved(egui::pos2(x, 80.0 + x * 0.2))];
         let _ = ctx.run_ui(input, |ui| app.show(ui));
     }
 }

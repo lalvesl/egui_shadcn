@@ -46,7 +46,8 @@ impl<'a> Select<'a> {
         let popup_id = egui::Id::new("shadcn_select")
             .with(self.placeholder.unwrap_or("__shadcn_default_select__"));
 
-        let (trigger_rect, resp) = ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
+        let (trigger_rect, resp) =
+            ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
 
         let cr = CornerRadius::same(theme.radius as u8);
         let border_color = if resp.hovered() {
@@ -71,7 +72,8 @@ impl<'a> Select<'a> {
                 ph_owned.as_ref()
             }
         };
-        let display = self.current.map(|i| self.options[i]).unwrap_or(placeholder);
+        let display =
+            self.current.map(|i| self.options[i]).unwrap_or(placeholder);
         let text_color = if self.current.is_some() {
             theme.foreground
         } else {
@@ -79,14 +81,23 @@ impl<'a> Select<'a> {
         };
 
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.left() + 12.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::LEFT_CENTER,
             display,
-            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+            egui::FontId::new(
+                self.size.font_size(),
+                egui::FontFamily::Proportional,
+            ),
             text_color,
         );
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.right() - 20.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.right() - 20.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::CENTER_CENTER,
             ICON_EXPAND_MORE,
             crate::icon_font_id(18.0),
@@ -110,19 +121,19 @@ impl<'a> Select<'a> {
                 .fixed_pos(pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding(Spacing::Xs)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding(Spacing::Xs).show(
+                        ui,
+                        |ui| {
                             ui.set_min_width(width);
 
                             for (i, opt) in self.options.iter().enumerate() {
                                 let is_sel = *self.current == Some(i);
 
-                                let (item_rect, item_resp) = ui.allocate_exact_size(
-                                    Vec2::new(width - 8.0, 32.0),
-                                    Sense::click(),
-                                );
+                                let (item_rect, item_resp) = ui
+                                    .allocate_exact_size(
+                                        Vec2::new(width - 8.0, 32.0),
+                                        Sense::click(),
+                                    );
 
                                 let bg = if is_sel || item_resp.hovered() {
                                     theme.accent
@@ -135,10 +146,16 @@ impl<'a> Select<'a> {
                                     theme.foreground
                                 };
 
-                                ui.painter()
-                                    .rect_filled(item_rect, CornerRadius::same(4), bg);
+                                ui.painter().rect_filled(
+                                    item_rect,
+                                    CornerRadius::same(4),
+                                    bg,
+                                );
                                 ui.painter().text(
-                                    egui::Pos2::new(item_rect.left() + 8.0, item_rect.center().y),
+                                    egui::Pos2::new(
+                                        item_rect.left() + 8.0,
+                                        item_rect.center().y,
+                                    ),
                                     egui::Align2::LEFT_CENTER,
                                     *opt,
                                     egui::FontId::new(
@@ -150,11 +167,14 @@ impl<'a> Select<'a> {
 
                                 if item_resp.clicked() {
                                     *self.current = Some(i);
-                                    ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
+                                    ui.ctx().data_mut(|d| {
+                                        d.insert_temp(popup_id, false)
+                                    });
                                     changed = true;
                                 }
                             }
-                        });
+                        },
+                    );
                 });
 
             // Close on click outside

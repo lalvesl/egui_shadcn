@@ -326,7 +326,10 @@ fn collect_names(tmpl: &str, names: &mut BTreeSet<String>) {
 /// Split a template into its literal bytes (placeholders removed) and the slot
 /// table `(byte_offset_in_literal, arg_index)`. `index_of` maps a placeholder
 /// name to its `u8` rank. `{{` / `}}` become single literal braces.
-fn split_template(tmpl: &str, index_of: &impl Fn(&str) -> u8) -> (Vec<u8>, Vec<(u16, u8)>) {
+fn split_template(
+    tmpl: &str,
+    index_of: &impl Fn(&str) -> u8,
+) -> (Vec<u8>, Vec<(u16, u8)>) {
     let b = tmpl.as_bytes();
     let mut lit: Vec<u8> = Vec::with_capacity(b.len());
     let mut slots: Vec<(u16, u8)> = Vec::new();
@@ -399,7 +402,9 @@ pub fn encode_catalog(lang: Languages, mut entries: Vec<EntrySpec>) -> Vec<u8> {
         if let Some(d) = &e.plural_driver {
             names.insert(d.clone());
         }
-        let index_of = |name: &str| names.iter().position(|n| n == name).unwrap_or(0) as u8;
+        let index_of = |name: &str| {
+            names.iter().position(|n| n == name).unwrap_or(0) as u8
+        };
 
         let is_plural = e.plural_driver.is_some() && e.forms.len() > 1;
         let mut flags = 0u8;
@@ -479,7 +484,8 @@ impl<'a> Catalog<'a> {
     /// Wrap a buffer, validating the header. Returns `None` if it is not a
     /// recognizable catalog (wrong magic / version / truncated).
     pub fn new(data: &'a [u8]) -> Option<Catalog<'a>> {
-        if data.len() < HEADER_LEN || data[0..4] != MAGIC || data[4] != VERSION {
+        if data.len() < HEADER_LEN || data[0..4] != MAGIC || data[4] != VERSION
+        {
             return None;
         }
         Some(Catalog { data })
@@ -563,7 +569,11 @@ fn read_payload(bytes: &[u8], at: usize) -> (Vec<(u16, u8)>, &str, usize) {
 impl<'a> Entry<'a> {
     /// Render this entry. Zero-allocation `Cow::Borrowed` when the chosen form
     /// has no argument slots; otherwise one `String` is produced.
-    pub fn render(&self, lang: Languages, args: &[ArgValue<'_>]) -> Cow<'a, str> {
+    pub fn render(
+        &self,
+        lang: Languages,
+        args: &[ArgValue<'_>],
+    ) -> Cow<'a, str> {
         if self.flags & F_PLURAL == 0 {
             let (slots, lit, _) = read_payload(self.bytes, 0);
             return render_form(lit, &slots, args);
@@ -599,7 +609,11 @@ impl<'a> Entry<'a> {
 
 /// Splice argument values into a literal at the recorded offsets. Borrowed (zero
 /// alloc) when there are no slots.
-fn render_form<'a>(lit: &'a str, slots: &[(u16, u8)], args: &[ArgValue<'_>]) -> Cow<'a, str> {
+fn render_form<'a>(
+    lit: &'a str,
+    slots: &[(u16, u8)],
+    args: &[ArgValue<'_>],
+) -> Cow<'a, str> {
     use std::fmt::Write;
     if slots.is_empty() {
         return Cow::Borrowed(lit);
@@ -794,7 +808,10 @@ mod tests {
 
     #[test]
     fn single_placeholder() {
-        let bytes = encode_catalog(Languages::En, vec![plain(1, 0, "The month {month}!")]);
+        let bytes = encode_catalog(
+            Languages::En,
+            vec![plain(1, 0, "The month {month}!")],
+        );
         let cat = Catalog::new(&bytes).unwrap();
         let e = cat.lookup(1, 0).unwrap();
         // One arg "month" -> index 0.
@@ -827,7 +844,10 @@ mod tests {
 
     #[test]
     fn escaped_braces() {
-        let bytes = encode_catalog(Languages::En, vec![plain(1, 0, "{{not a var}} {x}")]);
+        let bytes = encode_catalog(
+            Languages::En,
+            vec![plain(1, 0, "{{not a var}} {x}")],
+        );
         let cat = Catalog::new(&bytes).unwrap();
         let e = cat.lookup(1, 0).unwrap();
         let out = e.render(Languages::En, &[5i32.into()]);

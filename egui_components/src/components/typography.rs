@@ -80,7 +80,10 @@ pub fn code_text(ui: &mut Ui, text: &str) {
 
     let h_pad = 4.0;
     let v_pad = 2.0;
-    let size = egui::Vec2::new(galley.size().x + h_pad * 2.0, galley.size().y + v_pad * 2.0);
+    let size = egui::Vec2::new(
+        galley.size().x + h_pad * 2.0,
+        galley.size().y + v_pad * 2.0,
+    );
     let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
 
     if ui.is_rect_visible(rect) {

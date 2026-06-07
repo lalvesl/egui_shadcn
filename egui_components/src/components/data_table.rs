@@ -2,7 +2,9 @@ use super::spacing::Spacing;
 use crate::i18n;
 use crate::{ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH, ShadcnTheme};
 use ::i18n::t;
-use egui::{Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2};
+use egui::{
+    Color32, CornerRadius, Frame, Margin, Pos2, Rect, Sense, Stroke, Ui, Vec2,
+};
 
 pub struct DataColumn<'a> {
     pub header: &'a str,
@@ -25,7 +27,11 @@ pub struct DataTable<'a> {
 }
 
 impl<'a> DataTable<'a> {
-    pub fn new(id: &'a str, columns: &'a [DataColumn<'a>], filter: &'a mut String) -> Self {
+    pub fn new(
+        id: &'a str,
+        columns: &'a [DataColumn<'a>],
+        filter: &'a mut String,
+    ) -> Self {
         Self {
             id,
             columns,
@@ -57,8 +63,10 @@ impl<'a> DataTable<'a> {
         let page_id = base_id.with("page");
 
         // State
-        let mut sort_state: Option<(usize, SortDir)> = ui.ctx().data(|d| d.get_temp(sort_id));
-        let mut current_page: usize = ui.ctx().data(|d| d.get_temp::<usize>(page_id).unwrap_or(0));
+        let mut sort_state: Option<(usize, SortDir)> =
+            ui.ctx().data(|d| d.get_temp(sort_id));
+        let mut current_page: usize =
+            ui.ctx().data(|d| d.get_temp::<usize>(page_id).unwrap_or(0));
 
         let mut sort_changed: Option<(usize, SortDir)> = None;
 
@@ -85,8 +93,10 @@ impl<'a> DataTable<'a> {
 
         // Column widths
         let available_width = ui.available_width();
-        let fixed_total: f32 = self.columns.iter().filter_map(|c| c.width).sum();
-        let flex_count = self.columns.iter().filter(|c| c.width.is_none()).count();
+        let fixed_total: f32 =
+            self.columns.iter().filter_map(|c| c.width).sum();
+        let flex_count =
+            self.columns.iter().filter(|c| c.width.is_none()).count();
         let flex_width = if flex_count > 0 {
             ((available_width - fixed_total) / flex_count as f32).max(40.0)
         } else {
@@ -114,16 +124,20 @@ impl<'a> DataTable<'a> {
         };
 
         let table_height = header_height + visible_rows as f32 * row_height;
-        let (table_rect, _) =
-            ui.allocate_exact_size(Vec2::new(total_width, table_height), Sense::hover());
+        let (table_rect, _) = ui.allocate_exact_size(
+            Vec2::new(total_width, table_height),
+            Sense::hover(),
+        );
 
         // Background
         ui.painter()
             .rect_filled(table_rect, CornerRadius::ZERO, theme.card);
 
         // Header row
-        let header_rect =
-            Rect::from_min_size(table_rect.min, Vec2::new(total_width, header_height));
+        let header_rect = Rect::from_min_size(
+            table_rect.min,
+            Vec2::new(total_width, header_height),
+        );
         ui.painter()
             .rect_filled(header_rect, CornerRadius::ZERO, theme.muted);
 
@@ -146,10 +160,13 @@ impl<'a> DataTable<'a> {
 
             // Sort icon
             if col.sortable {
-                let is_sorted = sort_state.map(|(sc, _)| sc == ci).unwrap_or(false);
+                let is_sorted =
+                    sort_state.map(|(sc, _)| sc == ci).unwrap_or(false);
                 let sort_icon = match sort_state {
                     Some((sc, SortDir::Asc)) if sc == ci => ICON_ARROW_UPWARD,
-                    Some((sc, SortDir::Desc)) if sc == ci => ICON_ARROW_DOWNWARD,
+                    Some((sc, SortDir::Desc)) if sc == ci => {
+                        ICON_ARROW_DOWNWARD
+                    }
                     _ => ICON_ARROW_DOWNWARD,
                 };
                 let icon_color = if is_sorted {
@@ -162,8 +179,11 @@ impl<'a> DataTable<'a> {
                     Pos2::new(icon_x, cell_rect.center().y),
                     Vec2::splat(20.0),
                 );
-                let icon_resp =
-                    ui.interact(icon_rect, base_id.with(("sort_btn", ci)), Sense::click());
+                let icon_resp = ui.interact(
+                    icon_rect,
+                    base_id.with(("sort_btn", ci)),
+                    Sense::click(),
+                );
                 if icon_resp.hovered() {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 }
@@ -185,8 +205,11 @@ impl<'a> DataTable<'a> {
                 }
 
                 // Also allow clicking on full header cell
-                let header_resp =
-                    ui.interact(cell_rect, base_id.with(("hdr_click", ci)), Sense::click());
+                let header_resp = ui.interact(
+                    cell_rect,
+                    base_id.with(("hdr_click", ci)),
+                    Sense::click(),
+                );
                 if header_resp.hovered() {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                     ui.painter().rect_filled(
@@ -228,7 +251,9 @@ impl<'a> DataTable<'a> {
         // Body rows
         for display_idx in 0..visible_rows {
             let logical_idx = start_row + display_idx;
-            let row_top = table_rect.top() + header_height + display_idx as f32 * row_height;
+            let row_top = table_rect.top()
+                + header_height
+                + display_idx as f32 * row_height;
             let row_rect = Rect::from_min_size(
                 Pos2::new(table_rect.left(), row_top),
                 Vec2::new(total_width, row_height),
@@ -295,7 +320,9 @@ impl<'a> DataTable<'a> {
                         );
                         if prev_resp.clicked() && can_prev {
                             current_page -= 1;
-                            ui.ctx().data_mut(|d| d.insert_temp(page_id, current_page));
+                            ui.ctx().data_mut(|d| {
+                                d.insert_temp(page_id, current_page)
+                            });
                         }
 
                         Spacing::Sm.show(ui);
@@ -330,7 +357,9 @@ impl<'a> DataTable<'a> {
                         );
                         if next_resp.clicked() && can_next {
                             current_page += 1;
-                            ui.ctx().data_mut(|d| d.insert_temp(page_id, current_page));
+                            ui.ctx().data_mut(|d| {
+                                d.insert_temp(page_id, current_page)
+                            });
                         }
                     });
                 });

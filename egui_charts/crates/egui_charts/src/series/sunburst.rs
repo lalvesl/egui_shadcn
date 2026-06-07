@@ -128,7 +128,12 @@ fn draw_node(
     let fill = if hovered {
         color
     } else if hover_pos.is_some() {
-        egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 220)
+        egui::Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            220,
+        )
     } else {
         color
     };
@@ -162,7 +167,8 @@ fn draw_node(
     if sweep > 0.18 && ring_w > 14.0 {
         let mid_chart = (start_chart + end_chart) * 0.5;
         let mid_screen = chart_to_screen(mid_chart);
-        let pos = center + egui::vec2(mid_screen.cos(), mid_screen.sin()) * label_radius;
+        let pos = center
+            + egui::vec2(mid_screen.cos(), mid_screen.sin()) * label_radius;
         p.text(
             pos,
             Align2::CENTER_CENTER,

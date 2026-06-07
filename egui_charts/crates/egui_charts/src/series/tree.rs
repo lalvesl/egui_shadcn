@@ -25,35 +25,44 @@ pub fn render(
     let pad_y = 24.0;
     let inner = rect.shrink2(egui::vec2(pad_x, pad_y));
 
-    let (level_axis_size, leaf_axis_size, level_dir, leaf_dir) = match s.orientation {
-        TreeOrientation::LeftRight => (
-            inner.width(),
-            inner.height(),
-            egui::vec2(1.0, 0.0),
-            egui::vec2(0.0, 1.0),
-        ),
-        TreeOrientation::RightLeft => (
-            inner.width(),
-            inner.height(),
-            egui::vec2(-1.0, 0.0),
-            egui::vec2(0.0, 1.0),
-        ),
-        TreeOrientation::TopBottom => (
-            inner.height(),
-            inner.width(),
-            egui::vec2(0.0, 1.0),
-            egui::vec2(1.0, 0.0),
-        ),
-        TreeOrientation::BottomTop => (
-            inner.height(),
-            inner.width(),
-            egui::vec2(0.0, -1.0),
-            egui::vec2(1.0, 0.0),
-        ),
-        TreeOrientation::Radial => {
-            return draw_radial(p, s, series_idx, rect, theme, palette_offset, hover_pos);
-        }
-    };
+    let (level_axis_size, leaf_axis_size, level_dir, leaf_dir) =
+        match s.orientation {
+            TreeOrientation::LeftRight => (
+                inner.width(),
+                inner.height(),
+                egui::vec2(1.0, 0.0),
+                egui::vec2(0.0, 1.0),
+            ),
+            TreeOrientation::RightLeft => (
+                inner.width(),
+                inner.height(),
+                egui::vec2(-1.0, 0.0),
+                egui::vec2(0.0, 1.0),
+            ),
+            TreeOrientation::TopBottom => (
+                inner.height(),
+                inner.width(),
+                egui::vec2(0.0, 1.0),
+                egui::vec2(1.0, 0.0),
+            ),
+            TreeOrientation::BottomTop => (
+                inner.height(),
+                inner.width(),
+                egui::vec2(0.0, -1.0),
+                egui::vec2(1.0, 0.0),
+            ),
+            TreeOrientation::Radial => {
+                return draw_radial(
+                    p,
+                    s,
+                    series_idx,
+                    rect,
+                    theme,
+                    palette_offset,
+                    hover_pos,
+                );
+            }
+        };
 
     let dx = level_axis_size / (depth as f32 + 0.0).max(1.0);
     let leaf_step = leaf_axis_size / (leaves as f32 + 1.0).max(1.0);
@@ -114,7 +123,9 @@ fn layout(
 
     if node.children.is_empty() {
         *leaf_counter += 1;
-        let leaf_pos = origin + pos_level_offset + leaf_dir * leaf_step * *leaf_counter as f32;
+        let leaf_pos = origin
+            + pos_level_offset
+            + leaf_dir * leaf_step * *leaf_counter as f32;
         out[self_idx].pos = leaf_pos;
         self_idx
     } else {
@@ -168,12 +179,20 @@ fn draw_nodes(
             if horizontal {
                 let mid_x = (a.x + b.x) * 0.5;
                 p.line(a, Pos2::new(mid_x, a.y), edge_stroke);
-                p.line(Pos2::new(mid_x, a.y), Pos2::new(mid_x, b.y), edge_stroke);
+                p.line(
+                    Pos2::new(mid_x, a.y),
+                    Pos2::new(mid_x, b.y),
+                    edge_stroke,
+                );
                 p.line(Pos2::new(mid_x, b.y), b, edge_stroke);
             } else {
                 let mid_y = (a.y + b.y) * 0.5;
                 p.line(a, Pos2::new(a.x, mid_y), edge_stroke);
-                p.line(Pos2::new(a.x, mid_y), Pos2::new(b.x, mid_y), edge_stroke);
+                p.line(
+                    Pos2::new(a.x, mid_y),
+                    Pos2::new(b.x, mid_y),
+                    edge_stroke,
+                );
                 p.line(Pos2::new(b.x, mid_y), b, edge_stroke);
             }
         }
@@ -182,7 +201,8 @@ fn draw_nodes(
 
     let mut tip: Option<TooltipDatum> = None;
     for (i, n) in nodes.iter().enumerate() {
-        let color = theme.series_color(palette_offset + (if n.leaf { 1 } else { 0 }));
+        let color =
+            theme.series_color(palette_offset + (if n.leaf { 1 } else { 0 }));
         p.circle_filled(n.pos, 5.0, color);
         p.circle_stroke(n.pos, 5.0, Stroke::new(1.0, theme.background));
 
@@ -322,7 +342,8 @@ fn draw_radial(
         }
     }
     for (i, n) in nodes.iter().enumerate() {
-        let color = theme.series_color(palette_offset + (if n.leaf { 1 } else { 0 }));
+        let color =
+            theme.series_color(palette_offset + (if n.leaf { 1 } else { 0 }));
         p.circle_filled(n.pos, 5.0, color);
         p.text(
             n.pos + egui::vec2(8.0, -8.0),

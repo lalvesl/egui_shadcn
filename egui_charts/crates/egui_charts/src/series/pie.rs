@@ -111,7 +111,12 @@ pub fn render(
         let fill = if hovered {
             color
         } else if hover_pos.is_some() {
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 220)
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                220,
+            )
         } else {
             color
         };

@@ -46,7 +46,10 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
         let text_g = self.label.map(|lbl| {
             ui.painter().layout_no_wrap(
                 lbl.to_owned(),
-                egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+                egui::FontId::new(
+                    self.size.font_size(),
+                    egui::FontFamily::Proportional,
+                ),
                 theme.foreground,
             )
         });
@@ -75,7 +78,11 @@ impl<'a, T: PartialEq + Clone> Radio<'a, T> {
             } else {
                 theme.border
             };
-            painter.circle_stroke(center, box_r - 1.0, Stroke::new(1.5, border_color));
+            painter.circle_stroke(
+                center,
+                box_r - 1.0,
+                Stroke::new(1.5, border_color),
+            );
             if checked {
                 painter.circle_filled(center, box_r * 0.52, theme.primary);
             }

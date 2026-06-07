@@ -43,7 +43,10 @@ impl<'a> Switch<'a> {
         let text_galley = self.label.map(|lbl| {
             ui.painter().layout_no_wrap(
                 lbl.to_owned(),
-                egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+                egui::FontId::new(
+                    self.size.font_size(),
+                    egui::FontFamily::Proportional,
+                ),
                 theme.foreground,
             )
         });
@@ -81,10 +84,14 @@ impl<'a> Switch<'a> {
             painter.rect_filled(track_rect, cr, track_color);
 
             let thumb_dur = Animations::duration(ui.ctx(), 0.12);
-            let anim_t = ui
-                .ctx()
-                .animate_bool_with_time(resp.id, *self.checked, thumb_dur);
-            let thumb_x = track_rect.left() + track_h / 2.0 + anim_t * (track_w - track_h);
+            let anim_t = ui.ctx().animate_bool_with_time(
+                resp.id,
+                *self.checked,
+                thumb_dur,
+            );
+            let thumb_x = track_rect.left()
+                + track_h / 2.0
+                + anim_t * (track_w - track_h);
             let thumb_center = egui::Pos2::new(thumb_x, track_rect.center().y);
             painter.circle_filled(thumb_center, thumb_r, Color32::WHITE);
 

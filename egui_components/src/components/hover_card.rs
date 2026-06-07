@@ -59,20 +59,21 @@ impl HoverCard {
         let should_show = hover_count >= delay;
 
         if should_show {
-            let popup_pos = trigger_rect.right_bottom() + egui::Vec2::new(4.0, 4.0);
+            let popup_pos =
+                trigger_rect.right_bottom() + egui::Vec2::new(4.0, 4.0);
 
             egui::Area::new(self.id.with("hover_card_area"))
                 .fixed_pos(popup_pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding_px(16.0)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding_px(16.0).show(
+                        ui,
+                        |ui| {
                             ui.set_min_width(width);
                             ui.set_max_width(width);
                             content_fn(ui);
-                        });
+                        },
+                    );
                 });
         }
     }

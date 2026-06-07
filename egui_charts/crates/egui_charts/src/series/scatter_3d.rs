@@ -67,7 +67,12 @@ pub fn render(
         let t = ((*depth - 2.0) / 4.0).clamp(0.0, 1.0);
         let attenuated_size = size * (1.0 - 0.25 * t);
         let alpha = (255.0 - 80.0 * t) as u8;
-        let c = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), alpha);
+        let c = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            alpha,
+        );
         symbol(p, s.symbol, *pt, attenuated_size, c);
     }
 

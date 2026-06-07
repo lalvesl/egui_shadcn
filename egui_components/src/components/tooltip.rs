@@ -11,7 +11,11 @@ impl<'a> Tooltip<'a> {
     }
 
     /// Show `content` and attach tooltip on hover.
-    pub fn wrap(self, ui: &mut Ui, content: impl FnOnce(&mut Ui) -> Response) -> Response {
+    pub fn wrap(
+        self,
+        ui: &mut Ui,
+        content: impl FnOnce(&mut Ui) -> Response,
+    ) -> Response {
         let text = self.text;
 
         let inner = content(ui);
@@ -27,7 +31,10 @@ impl<'a> Tooltip<'a> {
                 .show(ui, |ui| {
                     ui.label(
                         egui::RichText::new(text)
-                            .font(egui::FontId::new(12.0, egui::FontFamily::Proportional))
+                            .font(egui::FontId::new(
+                                12.0,
+                                egui::FontFamily::Proportional,
+                            ))
                             .color(theme.background),
                     );
                 });

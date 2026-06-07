@@ -42,20 +42,21 @@ impl Popover {
         }
 
         if is_open {
-            let popup_pos = trigger_rect.left_bottom() + egui::Vec2::new(0.0, 4.0);
+            let popup_pos =
+                trigger_rect.left_bottom() + egui::Vec2::new(0.0, 4.0);
 
             let area_resp = egui::Area::new(self.id.with("popover_area"))
                 .fixed_pos(popup_pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding_px(16.0)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding_px(16.0).show(
+                        ui,
+                        |ui| {
                             ui.set_min_width(width);
                             ui.set_max_width(width);
                             content_fn(ui);
-                        });
+                        },
+                    );
                 });
 
             let popup_rect = area_resp.response.rect;

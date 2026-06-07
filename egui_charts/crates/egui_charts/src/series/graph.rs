@@ -81,7 +81,8 @@ pub fn render(
     let font = label_font();
 
     for (i, node) in s.nodes.iter().enumerate() {
-        let t = ((node.value - min_v) / (max_v - min_v).max(1e-12)).clamp(0.0, 1.0) as f32;
+        let t = ((node.value - min_v) / (max_v - min_v).max(1e-12))
+            .clamp(0.0, 1.0) as f32;
         let size = s.node_size_min + (s.node_size_max - s.node_size_min) * t;
         let color = theme.series_color(palette_offset + i);
         let hovered = hover_pos
@@ -90,7 +91,12 @@ pub fn render(
         let fill = if hovered {
             color
         } else {
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 230)
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                230,
+            )
         };
         p.circle_filled(pos[i], size, fill);
         p.circle_stroke(pos[i], size, Stroke::new(1.0, theme.background));
@@ -118,7 +124,13 @@ pub fn render(
     tip
 }
 
-fn run_force(pos: &mut [Pos2], n: &usize, links: &[(usize, usize)], rect: Rect, iterations: usize) {
+fn run_force(
+    pos: &mut [Pos2],
+    n: &usize,
+    links: &[(usize, usize)],
+    rect: Rect,
+    iterations: usize,
+) {
     let n = *n;
     if n == 0 {
         return;

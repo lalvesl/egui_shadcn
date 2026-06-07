@@ -91,7 +91,11 @@ impl PartialOrd for CalDate {
 }
 impl Ord for CalDate {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        (self.year, self.month, self.day).cmp(&(other.year, other.month, other.day))
+        (self.year, self.month, self.day).cmp(&(
+            other.year,
+            other.month,
+            other.day,
+        ))
     }
 }
 
@@ -118,7 +122,8 @@ fn weekday_of(year: i32, month: u8, day: u8) -> usize {
     if month < 3 {
         y -= 1;
     }
-    ((y + y / 4 - y / 100 + y / 400 + T[month as usize - 1] + day as i32).rem_euclid(7)) as usize
+    ((y + y / 4 - y / 100 + y / 400 + T[month as usize - 1] + day as i32)
+        .rem_euclid(7)) as usize
 }
 
 // ── internal egui state ───────────────────────────────────────────────────────
@@ -163,7 +168,10 @@ pub struct Calendar<'a> {
 }
 
 impl<'a> Calendar<'a> {
-    pub fn single(id: impl std::hash::Hash, selected: &'a mut Option<CalDate>) -> Self {
+    pub fn single(
+        id: impl std::hash::Hash,
+        selected: &'a mut Option<CalDate>,
+    ) -> Self {
         Self {
             id: egui::Id::new(id),
             selected,
@@ -421,7 +429,11 @@ fn fit_to_width(
     (cell_w, cell_h, compact)
 }
 
-fn range_click(d: CalDate, start: &mut Option<CalDate>, end: &mut Option<CalDate>) {
+fn range_click(
+    d: CalDate,
+    start: &mut Option<CalDate>,
+    end: &mut Option<CalDate>,
+) {
     match (*start, *end) {
         (None, _) => {
             *start = Some(d);

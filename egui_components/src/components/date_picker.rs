@@ -61,7 +61,10 @@ impl<'a> DatePicker<'a> {
         );
 
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.left() + 12.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::LEFT_CENTER,
             ICON_CALENDAR_TODAY,
             crate::icon_font_id(16.0),
@@ -86,7 +89,10 @@ impl<'a> DatePicker<'a> {
         };
 
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.left() + 34.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.left() + 34.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::LEFT_CENTER,
             display,
             egui::FontId::new(14.0, egui::FontFamily::Proportional),
@@ -104,7 +110,8 @@ impl<'a> DatePicker<'a> {
         let mut changed = false;
 
         if is_open {
-            let popup_pos = trigger_rect.left_bottom() + egui::Vec2::new(0.0, 4.0);
+            let popup_pos =
+                trigger_rect.left_bottom() + egui::Vec2::new(0.0, 4.0);
 
             let prev_value = *self.value;
 
@@ -112,16 +119,17 @@ impl<'a> DatePicker<'a> {
                 .fixed_pos(popup_pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding(Spacing::Md)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding(Spacing::Md).show(
+                        ui,
+                        |ui| {
                             crate::Calendar::single(
-                                egui::Id::new("shadcn_date_picker_cal").with(self.id),
+                                egui::Id::new("shadcn_date_picker_cal")
+                                    .with(self.id),
                                 self.value,
                             )
                             .show(ui);
-                        });
+                        },
+                    );
                 });
 
             if *self.value != prev_value {

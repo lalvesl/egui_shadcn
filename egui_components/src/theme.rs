@@ -238,24 +238,33 @@ impl ShadcnTheme {
         vis.window_corner_radius = egui::CornerRadius::same(self.radius as u8);
 
         vis.widgets.noninteractive.bg_fill = self.card;
-        vis.widgets.noninteractive.fg_stroke = egui::Stroke::new(1.0, self.foreground);
-        vis.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0, self.border);
-        vis.widgets.noninteractive.corner_radius = egui::CornerRadius::same(self.radius as u8);
+        vis.widgets.noninteractive.fg_stroke =
+            egui::Stroke::new(1.0, self.foreground);
+        vis.widgets.noninteractive.bg_stroke =
+            egui::Stroke::new(1.0, self.border);
+        vis.widgets.noninteractive.corner_radius =
+            egui::CornerRadius::same(self.radius as u8);
 
         vis.widgets.inactive.bg_fill = self.secondary;
-        vis.widgets.inactive.fg_stroke = egui::Stroke::new(1.0, self.secondary_foreground);
+        vis.widgets.inactive.fg_stroke =
+            egui::Stroke::new(1.0, self.secondary_foreground);
         vis.widgets.inactive.bg_stroke = egui::Stroke::new(1.0, self.border);
-        vis.widgets.inactive.corner_radius = egui::CornerRadius::same(self.radius as u8);
+        vis.widgets.inactive.corner_radius =
+            egui::CornerRadius::same(self.radius as u8);
 
         vis.widgets.hovered.bg_fill = self.accent;
-        vis.widgets.hovered.fg_stroke = egui::Stroke::new(1.0, self.accent_foreground);
+        vis.widgets.hovered.fg_stroke =
+            egui::Stroke::new(1.0, self.accent_foreground);
         vis.widgets.hovered.bg_stroke = egui::Stroke::new(1.0, self.ring);
-        vis.widgets.hovered.corner_radius = egui::CornerRadius::same(self.radius as u8);
+        vis.widgets.hovered.corner_radius =
+            egui::CornerRadius::same(self.radius as u8);
 
         vis.widgets.active.bg_fill = self.primary;
-        vis.widgets.active.fg_stroke = egui::Stroke::new(1.0, self.primary_foreground);
+        vis.widgets.active.fg_stroke =
+            egui::Stroke::new(1.0, self.primary_foreground);
         vis.widgets.active.bg_stroke = egui::Stroke::new(1.0, self.ring);
-        vis.widgets.active.corner_radius = egui::CornerRadius::same(self.radius as u8);
+        vis.widgets.active.corner_radius =
+            egui::CornerRadius::same(self.radius as u8);
 
         vis.selection.bg_fill = self.primary.gamma_multiply(0.25);
         vis.selection.stroke = egui::Stroke::new(1.0, self.ring);

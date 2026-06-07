@@ -45,7 +45,10 @@ impl<'a> Checkbox<'a> {
         let text_galley = self.label.map(|lbl| {
             ui.painter().layout_no_wrap(
                 lbl.to_owned(),
-                egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+                egui::FontId::new(
+                    self.size.font_size(),
+                    egui::FontFamily::Proportional,
+                ),
                 theme.foreground,
             )
         });

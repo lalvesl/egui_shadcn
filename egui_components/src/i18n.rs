@@ -8,7 +8,9 @@
 //! i18n::set_language(i18n::Languages::PtBr);   // global; reads in t!()
 //! ```
 
-pub use ::i18n::{Languages, Source, Translate, current_language, set_language, set_source};
+pub use ::i18n::{
+    Languages, Source, Translate, current_language, set_language, set_source,
+};
 
 ::i18n::traductions! {
     pub enum Calendar {

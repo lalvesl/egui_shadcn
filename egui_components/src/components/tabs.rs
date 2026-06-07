@@ -9,7 +9,11 @@ pub struct Tabs<'t> {
 }
 
 impl<'t> Tabs<'t> {
-    pub fn new(id: impl std::hash::Hash, labels: &'t [&'t str], current: &'t mut usize) -> Self {
+    pub fn new(
+        id: impl std::hash::Hash,
+        labels: &'t [&'t str],
+        current: &'t mut usize,
+    ) -> Self {
         Self {
             id: egui::Id::new(id),
             labels,
@@ -32,9 +36,11 @@ impl<'t> Tabs<'t> {
             .labels
             .iter()
             .map(|lbl| {
-                let g =
-                    ui.painter()
-                        .layout_no_wrap((*lbl).to_owned(), font.clone(), Color32::WHITE);
+                let g = ui.painter().layout_no_wrap(
+                    (*lbl).to_owned(),
+                    font.clone(),
+                    Color32::WHITE,
+                );
                 g.size().x + tab_pad_h * 2.0
             })
             .collect();
@@ -56,10 +62,13 @@ impl<'t> Tabs<'t> {
         let bar_top = bar_rect_alloc.top() + 4.0;
 
         for (i, (lbl, w)) in self.labels.iter().zip(widths.iter()).enumerate() {
-            let tab_rect =
-                egui::Rect::from_min_size(egui::Pos2::new(x, bar_top), Vec2::new(*w, bar_h - 8.0));
+            let tab_rect = egui::Rect::from_min_size(
+                egui::Pos2::new(x, bar_top),
+                Vec2::new(*w, bar_h - 8.0),
+            );
 
-            let tab_resp = ui.interact(tab_rect, self.id.with(i), Sense::click());
+            let tab_resp =
+                ui.interact(tab_rect, self.id.with(i), Sense::click());
 
             let is_active = *self.current == i;
 
@@ -93,7 +102,11 @@ impl<'t> Tabs<'t> {
                 );
             }
 
-            let galley = painter.layout_no_wrap((*lbl).to_owned(), font.clone(), text_color);
+            let galley = painter.layout_no_wrap(
+                (*lbl).to_owned(),
+                font.clone(),
+                text_color,
+            );
             painter.galley(
                 egui::Pos2::new(
                     tab_rect.center().x - galley.size().x / 2.0,

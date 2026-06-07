@@ -2,11 +2,9 @@ use std::{fs, io::Read, path::PathBuf};
 
 const NERD_FONT_URL: &str = "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf";
 
-const FALLBACK_FONT_URL: &str =
-    "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf";
+const FALLBACK_FONT_URL: &str = "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf";
 
-const MATERIAL_ICONS_URL: &str =
-    "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
+const MATERIAL_ICONS_URL: &str = "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
 
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let resp = ureq::get(url).call()?;
@@ -62,10 +60,12 @@ fn main() {
     println!("cargo::rustc-check-cfg=cfg(has_wasm_icons)");
     println!("cargo:rerun-if-changed=build.rs");
 
-    let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    let target_arch =
+        std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
 
     if target_arch == "wasm32" {
-        let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+        let manifest_dir =
+            PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
         let wasm_assets = manifest_dir.join("../target/wasm_assets");
         fs::create_dir_all(&wasm_assets).expect("create target/wasm_assets");
 
@@ -80,7 +80,9 @@ fn main() {
                         fs::write(&raw_path, &bytes).expect("write raw font");
                     }
                     Err(e) => {
-                        eprintln!("[demo] WARNING: could not download Material Icons: {e}");
+                        eprintln!(
+                            "[demo] WARNING: could not download Material Icons: {e}"
+                        );
                         return;
                     }
                 }

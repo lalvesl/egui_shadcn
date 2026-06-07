@@ -52,8 +52,19 @@ impl Icon {
         )
     }
 
-    pub fn paint(self, ui: &Ui, pos: egui::Pos2, align: egui::Align2, color: Color32) {
-        ui.painter()
-            .text(pos, align, self.glyph, icon_font_id(self.size), color);
+    pub fn paint(
+        self,
+        ui: &Ui,
+        pos: egui::Pos2,
+        align: egui::Align2,
+        color: Color32,
+    ) {
+        ui.painter().text(
+            pos,
+            align,
+            self.glyph,
+            icon_font_id(self.size),
+            color,
+        );
     }
 }

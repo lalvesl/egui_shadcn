@@ -20,22 +20,23 @@ pub fn render(
     hover_pos: Option<Pos2>,
 ) -> Option<TooltipDatum> {
     #[allow(clippy::type_complexity)]
-    let regions: Vec<(String, Vec<(f64, f64)>, Option<f64>)> = if s.regions.is_empty() {
-        // No regions supplied → draw the world atlas as a neutral background.
-        world_continents()
-            .into_iter()
-            .map(|(name, pts)| (name.to_string(), pts, None))
-            .collect()
-    } else {
-        s.regions
-            .iter()
-            .flat_map(|r| {
-                r.paths
-                    .iter()
-                    .map(move |path| (r.name.clone(), path.clone(), r.value))
-            })
-            .collect()
-    };
+    let regions: Vec<(String, Vec<(f64, f64)>, Option<f64>)> =
+        if s.regions.is_empty() {
+            // No regions supplied → draw the world atlas as a neutral background.
+            world_continents()
+                .into_iter()
+                .map(|(name, pts)| (name.to_string(), pts, None))
+                .collect()
+        } else {
+            s.regions
+                .iter()
+                .flat_map(|r| {
+                    r.paths.iter().map(move |path| {
+                        (r.name.clone(), path.clone(), r.value)
+                    })
+                })
+                .collect()
+        };
 
     if regions.is_empty() {
         return None;
@@ -155,7 +156,8 @@ fn point_in_poly(p: Pos2, pts: &[Pos2]) -> bool {
         let pi = pts[i];
         let pj = pts[j];
         if (pi.y > p.y) != (pj.y > p.y) {
-            let slope = (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
+            let slope =
+                (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
             if (slope < 0.0) != (pj.y < pi.y) {
                 inside = !inside;
             }

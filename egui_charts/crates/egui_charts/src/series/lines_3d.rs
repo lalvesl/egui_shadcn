@@ -89,7 +89,10 @@ pub fn render(
                     data_index: *i,
                     value: s.segments[*i].2,
                     color: *color,
-                    screen_pos: Some(Pos2::new((a.x + b.x) * 0.5, (a.y + b.y) * 0.5)),
+                    screen_pos: Some(Pos2::new(
+                        (a.x + b.x) * 0.5,
+                        (a.y + b.y) * 0.5,
+                    )),
                 });
             }
         }

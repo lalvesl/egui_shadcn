@@ -16,7 +16,11 @@ pub struct Combobox<'a> {
 }
 
 impl<'a> Combobox<'a> {
-    pub fn new(id: &'a str, current: &'a mut Option<usize>, options: &'a [&'a str]) -> Self {
+    pub fn new(
+        id: &'a str,
+        current: &'a mut Option<usize>,
+        options: &'a [&'a str],
+    ) -> Self {
         Self {
             id,
             current,
@@ -48,7 +52,8 @@ impl<'a> Combobox<'a> {
         let popup_id = egui::Id::new("shadcn_combobox").with(self.id);
         let query_id = popup_id.with("query");
 
-        let (trigger_rect, resp) = ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
+        let (trigger_rect, resp) =
+            ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
 
         let cr = CornerRadius::same(theme.radius as u8);
         let is_open = ui
@@ -77,7 +82,8 @@ impl<'a> Combobox<'a> {
                 ph_owned.as_ref()
             }
         };
-        let display = self.current.map(|i| self.options[i]).unwrap_or(placeholder);
+        let display =
+            self.current.map(|i| self.options[i]).unwrap_or(placeholder);
         let text_color = if self.current.is_some() {
             theme.foreground
         } else {
@@ -85,14 +91,23 @@ impl<'a> Combobox<'a> {
         };
 
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.left() + 12.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.left() + 12.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::LEFT_CENTER,
             display,
-            egui::FontId::new(self.size.font_size(), egui::FontFamily::Proportional),
+            egui::FontId::new(
+                self.size.font_size(),
+                egui::FontFamily::Proportional,
+            ),
             text_color,
         );
         ui.painter().text(
-            egui::Pos2::new(trigger_rect.right() - 20.0, trigger_rect.center().y),
+            egui::Pos2::new(
+                trigger_rect.right() - 20.0,
+                trigger_rect.center().y,
+            ),
             egui::Align2::CENTER_CENTER,
             ICON_EXPAND_MORE,
             crate::icon_font_id(18.0),
@@ -102,8 +117,9 @@ impl<'a> Combobox<'a> {
         if resp.clicked() {
             ui.ctx().data_mut(|d| d.insert_temp(popup_id, !is_open));
             if !is_open {
-                ui.ctx()
-                    .data_mut(|d| d.insert_temp::<String>(query_id, String::new()));
+                ui.ctx().data_mut(|d| {
+                    d.insert_temp::<String>(query_id, String::new())
+                });
             }
         }
 
@@ -120,15 +136,16 @@ impl<'a> Combobox<'a> {
                 .fixed_pos(pos)
                 .order(egui::Order::Foreground)
                 .show(ui.ctx(), |ui| {
-                    Boxed::new()
-                        .fill(theme.card)
-                        .padding(Spacing::Xs)
-                        .show(ui, |ui| {
+                    Boxed::new().fill(theme.card).padding(Spacing::Xs).show(
+                        ui,
+                        |ui| {
                             ui.set_min_width(width);
                             ui.set_max_width(width);
 
-                            let search_rect_alloc = ui
-                                .allocate_exact_size(Vec2::new(width - 8.0, 32.0), Sense::hover());
+                            let search_rect_alloc = ui.allocate_exact_size(
+                                Vec2::new(width - 8.0, 32.0),
+                                Sense::hover(),
+                            );
                             let search_rect = search_rect_alloc.0;
 
                             ui.painter().rect_filled(
@@ -144,10 +161,17 @@ impl<'a> Combobox<'a> {
                             );
 
                             let inner = egui::Rect::from_min_max(
-                                egui::Pos2::new(search_rect.left() + 8.0, search_rect.top()),
-                                egui::Pos2::new(search_rect.right() - 8.0, search_rect.bottom()),
+                                egui::Pos2::new(
+                                    search_rect.left() + 8.0,
+                                    search_rect.top(),
+                                ),
+                                egui::Pos2::new(
+                                    search_rect.right() - 8.0,
+                                    search_rect.bottom(),
+                                ),
                             );
-                            let search_hint = t!(i18n::Combobox::SearchPlaceholder);
+                            let search_hint =
+                                t!(i18n::Combobox::SearchPlaceholder);
                             let te = egui::TextEdit::singleline(&mut query)
                                 .desired_width(inner.width())
                                 .hint_text(search_hint.as_ref())
@@ -159,39 +183,48 @@ impl<'a> Combobox<'a> {
                                 .frame(egui::Frame::new());
 
                             let mut child = ui.new_child(
-                                egui::UiBuilder::new()
-                                    .max_rect(inner)
-                                    .layout(egui::Layout::left_to_right(egui::Align::Center)),
+                                egui::UiBuilder::new().max_rect(inner).layout(
+                                    egui::Layout::left_to_right(
+                                        egui::Align::Center,
+                                    ),
+                                ),
                             );
                             child.add(te);
 
-                            ui.ctx()
-                                .data_mut(|d| d.insert_temp(query_id, query.clone()));
+                            ui.ctx().data_mut(|d| {
+                                d.insert_temp(query_id, query.clone())
+                            });
 
                             let q_lower = query.to_lowercase();
 
                             egui::ScrollArea::vertical()
                                 .max_height(200.0)
                                 .show(ui, |ui| {
-                                    for (i, opt) in self.options.iter().enumerate() {
+                                    for (i, opt) in
+                                        self.options.iter().enumerate()
+                                    {
                                         if !q_lower.is_empty()
-                                            && !opt.to_lowercase().contains(&q_lower)
+                                            && !opt
+                                                .to_lowercase()
+                                                .contains(&q_lower)
                                         {
                                             continue;
                                         }
 
                                         let is_sel = *self.current == Some(i);
 
-                                        let (item_rect, item_resp) = ui.allocate_exact_size(
-                                            Vec2::new(width - 8.0, 32.0),
-                                            Sense::click(),
-                                        );
+                                        let (item_rect, item_resp) = ui
+                                            .allocate_exact_size(
+                                                Vec2::new(width - 8.0, 32.0),
+                                                Sense::click(),
+                                            );
 
-                                        let bg = if is_sel || item_resp.hovered() {
-                                            theme.accent
-                                        } else {
-                                            Color32::TRANSPARENT
-                                        };
+                                        let bg =
+                                            if is_sel || item_resp.hovered() {
+                                                theme.accent
+                                            } else {
+                                                Color32::TRANSPARENT
+                                            };
                                         let text_col = if is_sel {
                                             theme.accent_foreground
                                         } else {
@@ -219,12 +252,15 @@ impl<'a> Combobox<'a> {
 
                                         if item_resp.clicked() {
                                             *self.current = Some(i);
-                                            ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
+                                            ui.ctx().data_mut(|d| {
+                                                d.insert_temp(popup_id, false)
+                                            });
                                             changed = true;
                                         }
                                     }
                                 });
-                        });
+                        },
+                    );
                 });
 
             if ui.ctx().input(|i| i.pointer.any_click()) {
@@ -235,7 +271,9 @@ impl<'a> Combobox<'a> {
                     trigger_rect.left_bottom() + egui::Vec2::new(0.0, 4.0),
                     Vec2::new(width + 8.0, 260.0),
                 );
-                if !trigger_rect.contains(hover) && !popup_approx.contains(hover) {
+                if !trigger_rect.contains(hover)
+                    && !popup_approx.contains(hover)
+                {
                     ui.ctx().data_mut(|d| d.insert_temp(popup_id, false));
                 }
             }

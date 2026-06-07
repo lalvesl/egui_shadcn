@@ -30,7 +30,11 @@ pub struct Command<'a> {
 }
 
 impl<'a> Command<'a> {
-    pub fn new(id: &'a str, groups: &'a [CommandGroup<'a>], open: &'a mut bool) -> Self {
+    pub fn new(
+        id: &'a str,
+        groups: &'a [CommandGroup<'a>],
+        open: &'a mut bool,
+    ) -> Self {
         Self {
             id,
             groups,
@@ -63,7 +67,8 @@ impl<'a> Command<'a> {
         let mut query: String = ctx
             .data(|d| d.get_temp::<String>(query_id).clone())
             .unwrap_or_default();
-        let mut selected_idx: usize = ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
+        let mut selected_idx: usize =
+            ctx.data(|d| d.get_temp::<usize>(sel_id).unwrap_or(0));
 
         let filtered: Vec<(usize, usize)> = self
             .groups
@@ -75,7 +80,10 @@ impl<'a> Command<'a> {
                     .enumerate()
                     .filter(|(_, item)| {
                         query.is_empty()
-                            || item.label.to_lowercase().contains(&query.to_lowercase())
+                            || item
+                                .label
+                                .to_lowercase()
+                                .contains(&query.to_lowercase())
                     })
                     .map(move |(ii, _)| (gi, ii))
             })
@@ -129,7 +137,8 @@ impl<'a> Command<'a> {
             .order(egui::Order::Background)
             .interactable(false)
             .show(ctx, |ui| {
-                let (r, _) = ui.allocate_exact_size(screen.size(), Sense::hover());
+                let (r, _) =
+                    ui.allocate_exact_size(screen.size(), Sense::hover());
                 ui.painter().rect_filled(
                     r,
                     egui::CornerRadius::ZERO,

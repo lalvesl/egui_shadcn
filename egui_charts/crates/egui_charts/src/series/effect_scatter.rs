@@ -34,7 +34,12 @@ pub fn render(
         for r in 1..=s.ripple_count {
             let radius = size * (0.6 + r as f32 * 0.55);
             let alpha = (90 / (r as u32 + 1)).min(80) as u8;
-            let halo = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), alpha);
+            let halo = Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                alpha,
+            );
             p.circle_filled(pt, radius, halo);
         }
 
@@ -43,7 +48,8 @@ pub fn render(
         if let Some(h) = hover_screen {
             let d = (pt - h).length();
             if d <= size * 1.4 {
-                let best = nearest.as_ref().map(|n| n.1).unwrap_or(f32::INFINITY);
+                let best =
+                    nearest.as_ref().map(|n| n.1).unwrap_or(f32::INFINITY);
                 if d < best {
                     nearest = Some((i, d, pt, size, y));
                 }

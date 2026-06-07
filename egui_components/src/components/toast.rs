@@ -1,6 +1,8 @@
 use super::boxed::Boxed;
 use super::spacing::Spacing;
-use crate::{ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING, ShadcnTheme};
+use crate::{
+    ICON_CHECK_CIRCLE, ICON_CLOSE, ICON_ERROR, ICON_WARNING, ShadcnTheme,
+};
 use egui::{CornerRadius, Vec2};
 
 #[derive(Clone, PartialEq)]
@@ -27,7 +29,11 @@ const TOAST_COUNTER_KEY: &str = "shadcn_toast_counter";
 pub struct Toaster;
 
 impl Toaster {
-    pub fn push(ctx: &egui::Context, title: impl Into<String>, variant: ToastVariant) {
+    pub fn push(
+        ctx: &egui::Context,
+        title: impl Into<String>,
+        variant: ToastVariant,
+    ) {
         Self::push_internal(ctx, title.into(), None, variant);
     }
 
@@ -37,7 +43,12 @@ impl Toaster {
         description: impl Into<String>,
         variant: ToastVariant,
     ) {
-        Self::push_internal(ctx, title.into(), Some(description.into()), variant);
+        Self::push_internal(
+            ctx,
+            title.into(),
+            Some(description.into()),
+            variant,
+        );
     }
 
     fn push_internal(
@@ -65,7 +76,8 @@ impl Toaster {
 
         ctx.data_mut(|d| {
             let queue_id = egui::Id::new(TOAST_QUEUE_KEY);
-            let mut queue: Vec<ToastMessage> = d.get_temp(queue_id).unwrap_or_default();
+            let mut queue: Vec<ToastMessage> =
+                d.get_temp(queue_id).unwrap_or_default();
             queue.push(msg);
             d.insert_temp(queue_id, queue);
         });
@@ -78,7 +90,8 @@ impl Toaster {
 
         // Age all toasts and collect survivors
         let toasts: Vec<ToastMessage> = ctx.data_mut(|d| {
-            let mut queue: Vec<ToastMessage> = d.get_temp(queue_id).unwrap_or_default();
+            let mut queue: Vec<ToastMessage> =
+                d.get_temp(queue_id).unwrap_or_default();
             for t in &mut queue {
                 t.elapsed += dt;
             }
@@ -112,10 +125,18 @@ impl Toaster {
                     // Render in reverse so newest is at bottom
                     for toast in toasts.iter().rev() {
                         let (accent_color, icon) = match toast.variant {
-                            ToastVariant::Default => (theme.primary, ICON_CHECK_CIRCLE),
-                            ToastVariant::Success => (theme.success, ICON_CHECK_CIRCLE),
-                            ToastVariant::Warning => (theme.warning, ICON_WARNING),
-                            ToastVariant::Destructive => (theme.destructive, ICON_ERROR),
+                            ToastVariant::Default => {
+                                (theme.primary, ICON_CHECK_CIRCLE)
+                            }
+                            ToastVariant::Success => {
+                                (theme.success, ICON_CHECK_CIRCLE)
+                            }
+                            ToastVariant::Warning => {
+                                (theme.warning, ICON_WARNING)
+                            }
+                            ToastVariant::Destructive => {
+                                (theme.destructive, ICON_ERROR)
+                            }
                         };
 
                         let toast_id = toast.id;
@@ -128,10 +149,9 @@ impl Toaster {
                         // Card surface (fill + border + primary bottom accent) via
                         // the shared Boxed primitive; the variant left-stripe and
                         // contents are painted on top.
-                        Boxed::new()
-                            .fill(theme.card)
-                            .padding_px(0.0)
-                            .show(ui, |ui| {
+                        Boxed::new().fill(theme.card).padding_px(0.0).show(
+                            ui,
+                            |ui| {
                                 let (toast_rect, _) = ui.allocate_exact_size(
                                     Vec2::new(toast_width, item_height),
                                     egui::Sense::hover(),
@@ -173,7 +193,10 @@ impl Toaster {
                                     ),
                                     egui::Align2::LEFT_CENTER,
                                     &toast.title,
-                                    egui::FontId::new(14.0, egui::FontFamily::Proportional),
+                                    egui::FontId::new(
+                                        14.0,
+                                        egui::FontFamily::Proportional,
+                                    ),
                                     theme.foreground,
                                 );
 
@@ -186,7 +209,10 @@ impl Toaster {
                                         ),
                                         egui::Align2::LEFT_CENTER,
                                         desc,
-                                        egui::FontId::new(12.0, egui::FontFamily::Proportional),
+                                        egui::FontId::new(
+                                            12.0,
+                                            egui::FontFamily::Proportional,
+                                        ),
                                         theme.muted_foreground,
                                     );
                                 }
@@ -206,7 +232,9 @@ impl Toaster {
                                     egui::Sense::click(),
                                 );
                                 if close_resp.hovered() {
-                                    ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                                    ctx.set_cursor_icon(
+                                        egui::CursorIcon::PointingHand,
+                                    );
                                 }
                                 ui.painter().text(
                                     close_rect.center(),
@@ -222,7 +250,8 @@ impl Toaster {
                                 if close_resp.clicked() {
                                     ids_to_remove.push(toast_id);
                                 }
-                            });
+                            },
+                        );
 
                         Spacing::Sm.show(ui);
                     }
@@ -232,7 +261,8 @@ impl Toaster {
         // Remove manually dismissed toasts
         if !ids_to_remove.is_empty() {
             ctx.data_mut(|d| {
-                let mut queue: Vec<ToastMessage> = d.get_temp(queue_id).unwrap_or_default();
+                let mut queue: Vec<ToastMessage> =
+                    d.get_temp(queue_id).unwrap_or_default();
                 queue.retain(|t| !ids_to_remove.contains(&t.id));
                 d.insert_temp(queue_id, queue);
             });

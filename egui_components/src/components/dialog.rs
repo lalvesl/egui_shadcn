@@ -59,7 +59,8 @@ impl<'a> Dialog<'a> {
 
         // Dim overlay — fades with the dialog; also the click-outside detector.
         let overlay_id = egui::Id::new("dialog_overlay");
-        let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
+        let overlay_layer =
+            egui::LayerId::new(egui::Order::Background, overlay_id);
         let overlay_painter = ctx.layer_painter(overlay_layer);
         overlay_painter.rect_filled(
             egui::Rect::EVERYTHING,
@@ -68,7 +69,8 @@ impl<'a> Dialog<'a> {
         );
 
         // Only react to fresh clicks while genuinely open (not mid-close).
-        let pointer_down = *self.open && ctx.input(|i| i.pointer.primary_pressed());
+        let pointer_down =
+            *self.open && ctx.input(|i| i.pointer.primary_pressed());
         let dialog_window_id = egui::Id::new("shadcn_dialog").with(self.title);
 
         // Slide up into place on open; slide back down while closing. Fade the
@@ -102,12 +104,17 @@ impl<'a> Dialog<'a> {
                         ui.horizontal(|ui| {
                             ui.label(
                                 egui::RichText::new(self.title)
-                                    .font(egui::FontId::new(18.0, egui::FontFamily::Proportional))
+                                    .font(egui::FontId::new(
+                                        18.0,
+                                        egui::FontFamily::Proportional,
+                                    ))
                                     .color(theme.foreground)
                                     .strong(),
                             );
                             ui.with_layout(
-                                egui::Layout::right_to_left(egui::Align::Center),
+                                egui::Layout::right_to_left(
+                                    egui::Align::Center,
+                                ),
                                 |ui| {
                                     let close_resp = ui.add(
                                         egui::Label::new(
@@ -121,7 +128,9 @@ impl<'a> Dialog<'a> {
                                         *self.open = false;
                                     }
                                     if close_resp.hovered() {
-                                        ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
+                                        ui.ctx().set_cursor_icon(
+                                            egui::CursorIcon::PointingHand,
+                                        );
                                     }
                                 },
                             );

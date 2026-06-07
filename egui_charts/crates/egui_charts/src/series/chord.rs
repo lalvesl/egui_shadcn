@@ -79,7 +79,8 @@ pub fn render(
     // Pair sub-slot lookup table.
     // Each chord (i,j) consumes sub-arc on i = matrix[i][j], on j = matrix[j][i].
     #[allow(clippy::type_complexity)]
-    let mut sub_arcs: Vec<((usize, usize), (f32, f32), (f32, f32))> = Vec::new();
+    let mut sub_arcs: Vec<((usize, usize), (f32, f32), (f32, f32))> =
+        Vec::new();
     for i in 0..n {
         let (start_i, end_i) = node_arcs[i];
         let span_i = (end_i - start_i).max(1e-6);
@@ -128,7 +129,12 @@ pub fn render(
             pts.push(cubic(j_b, polar.center, polar.center, i_b, t));
         }
 
-        let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 100);
+        let fill = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            100,
+        );
         // Approximate ribbon by fanning from center.
         for q in 0..(n_seg) {
             let poly = vec![
@@ -204,7 +210,13 @@ pub fn render(
 
 fn cubic(a: Pos2, b: Pos2, c: Pos2, d: Pos2, t: f32) -> Pos2 {
     let mt = 1.0 - t;
-    let x = mt * mt * mt * a.x + 3.0 * mt * mt * t * b.x + 3.0 * mt * t * t * c.x + t * t * t * d.x;
-    let y = mt * mt * mt * a.y + 3.0 * mt * mt * t * b.y + 3.0 * mt * t * t * c.y + t * t * t * d.y;
+    let x = mt * mt * mt * a.x
+        + 3.0 * mt * mt * t * b.x
+        + 3.0 * mt * t * t * c.x
+        + t * t * t * d.x;
+    let y = mt * mt * mt * a.y
+        + 3.0 * mt * mt * t * b.y
+        + 3.0 * mt * t * t * c.y
+        + t * t * t * d.y;
     Pos2::new(x, y)
 }

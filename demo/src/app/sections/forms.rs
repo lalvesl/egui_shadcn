@@ -70,7 +70,8 @@ impl DemoApp {
                 Spacing::Xs.show(ui);
                 muted_text(
                     ui,
-                    tr!(t::ComboboxSec::Selected, value = frameworks[i]).as_ref(),
+                    tr!(t::ComboboxSec::Selected, value = frameworks[i])
+                        .as_ref(),
                 );
             }
         });
@@ -83,11 +84,15 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::DatePickerSec::HPick).as_ref(), None);
-            DatePicker::new("demo_date_picker", &mut self.date_picker_val).show(ui);
+            DatePicker::new("demo_date_picker", &mut self.date_picker_val)
+                .show(ui);
             if let Some(d) = self.date_picker_val {
                 Spacing::Xs.show(ui);
                 let dstr = format!("{:04}-{:02}-{:02}", d.year, d.month, d.day);
-                muted_text(ui, tr!(t::DatePickerSec::Selected, date = dstr).as_ref());
+                muted_text(
+                    ui,
+                    tr!(t::DatePickerSec::Selected, date = dstr).as_ref(),
+                );
             }
         });
     }
@@ -122,7 +127,11 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             let desc = tr!(t::InputOtpSec::HOtpDesc);
-            card_header(ui, tr!(t::InputOtpSec::HOtp).as_ref(), Some(desc.as_ref()));
+            card_header(
+                ui,
+                tr!(t::InputOtpSec::HOtp).as_ref(),
+                Some(desc.as_ref()),
+            );
             InputOtp::new(&mut self.otp_val, 6)
                 .separator_after(3)
                 .show(ui);
@@ -182,9 +191,12 @@ impl DemoApp {
             Label::new(tr!(t::SelectSec::Framework).as_ref()).show(ui);
             Spacing::Xs.show(ui);
             let placeholder = tr!(t::SelectSec::Placeholder);
-            Select::new(&mut self.select_val, &["React", "Vue", "Svelte", "egui"])
-                .placeholder(placeholder.as_ref())
-                .show(ui);
+            Select::new(
+                &mut self.select_val,
+                &["React", "Vue", "Svelte", "egui"],
+            )
+            .placeholder(placeholder.as_ref())
+            .show(ui);
             if let Some(i) = self.select_val {
                 Spacing::Xs.show(ui);
                 muted_text(ui, ["React", "Vue", "Svelte", "egui"][i]);

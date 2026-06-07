@@ -1,16 +1,18 @@
 //! Sample dataset builders, one per `ChartKind`.
 
 use egui_charts::{
-    Axis, Bar3DSeries, BarSeries, BoxDatum, BoxPlotSeries, CalendarHeatmapSeries, Candle,
-    CandlestickSeries, Chart, ChartKind, ChordSeries, CustomSeries, EffectScatterSeries,
-    FunnelSeries, GaugeSeries, GeoLine, GeoPoint, GlobeSeries, GraphLayout, GraphLink, GraphNode,
-    GraphSeries, HeatmapSeries, Line3DSeries, LineSegment, LineSeries, Lines3DSeries,
-    LinesCartesianSeries, LinesGeoSeries, LiquidFillSeries, Map3DSeries, MapRegion, MapSeries,
-    ParallelAxis, ParallelLine, ParallelSeries, PictorialBarSeries, PieSeries, PolarBarSeries,
-    RadarDataset, RadarSeries, SankeyLink, SankeySeries, Scatter3DSeries, ScatterGeoSeries,
-    ScatterSeries, Series, SunburstNode, SunburstSeries, Surface3DSeries, SymbolKind,
-    ThemeRiverBand, ThemeRiverSeries, TreeNode, TreeOrientation, TreeSeries, TreemapNode,
-    TreemapSeries, WordCloudSeries,
+    Axis, Bar3DSeries, BarSeries, BoxDatum, BoxPlotSeries,
+    CalendarHeatmapSeries, Candle, CandlestickSeries, Chart, ChartKind,
+    ChordSeries, CustomSeries, EffectScatterSeries, FunnelSeries, GaugeSeries,
+    GeoLine, GeoPoint, GlobeSeries, GraphLayout, GraphLink, GraphNode,
+    GraphSeries, HeatmapSeries, Line3DSeries, LineSegment, LineSeries,
+    Lines3DSeries, LinesCartesianSeries, LinesGeoSeries, LiquidFillSeries,
+    Map3DSeries, MapRegion, MapSeries, ParallelAxis, ParallelLine,
+    ParallelSeries, PictorialBarSeries, PieSeries, PolarBarSeries,
+    RadarDataset, RadarSeries, SankeyLink, SankeySeries, Scatter3DSeries,
+    ScatterGeoSeries, ScatterSeries, Series, SunburstNode, SunburstSeries,
+    Surface3DSeries, SymbolKind, ThemeRiverBand, ThemeRiverSeries, TreeNode,
+    TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
 };
 
 /// Build a sample chart for `kind`. Returns `None` for kinds not yet
@@ -64,13 +66,16 @@ fn line_sample() -> Chart {
         .x_axis(Axis::category((1..=12).map(|i| format!("W{i}"))))
         .y_axis(Axis::value().name("Visitors (k)"))
         .series(LineSeries::new("Direct").smooth(true).area().data([
-            22.0, 25.0, 30.0, 28.0, 35.0, 38.0, 42.0, 45.0, 50.0, 48.0, 55.0, 62.0,
+            22.0, 25.0, 30.0, 28.0, 35.0, 38.0, 42.0, 45.0, 50.0, 48.0, 55.0,
+            62.0,
         ]))
         .series(LineSeries::new("Search").smooth(true).data([
-            18.0, 19.0, 22.0, 20.0, 24.0, 27.0, 26.0, 30.0, 35.0, 33.0, 40.0, 45.0,
+            18.0, 19.0, 22.0, 20.0, 24.0, 27.0, 26.0, 30.0, 35.0, 33.0, 40.0,
+            45.0,
         ]))
         .series(LineSeries::new("Referral").step().data([
-            8.0, 9.0, 11.0, 12.0, 12.0, 14.0, 16.0, 17.0, 17.0, 19.0, 21.0, 22.0,
+            8.0, 9.0, 11.0, 12.0, 12.0, 14.0, 16.0, 17.0, 17.0, 19.0, 21.0,
+            22.0,
         ]))
 }
 
@@ -155,8 +160,10 @@ fn candlestick_sample() -> Chart {
             let drift = ((i as f64 * 0.7).sin() * 4.0) + 0.3;
             let open = price;
             let close = price + drift;
-            let high = open.max(close) + (((i as f64 * 1.7).cos().abs()) * 2.0 + 1.0);
-            let low = open.min(close) - (((i as f64 * 2.1).sin().abs()) * 1.5 + 1.0);
+            let high =
+                open.max(close) + (((i as f64 * 1.7).cos().abs()) * 2.0 + 1.0);
+            let low =
+                open.min(close) - (((i as f64 * 2.1).sin().abs()) * 1.5 + 1.0);
             price = close;
             Candle::ohlc(open, high, low, close)
         })
@@ -192,7 +199,8 @@ fn heatmap_sample() -> Chart {
     let mut cells: Vec<(usize, usize, f64)> = Vec::new();
     for hour in 0..24 {
         for day in 0..7 {
-            let v = ((hour as f64 - 12.0).abs() + day as f64 * 0.7).sin() * 30.0
+            let v = ((hour as f64 - 12.0).abs() + day as f64 * 0.7).sin()
+                * 30.0
                 + 50.0
                 + ((hour * day) as f64 % 7.0);
             cells.push((hour, day, v));
@@ -324,8 +332,14 @@ fn radar_sample() -> Chart {
                 ("Power efficiency", 100.0),
                 ("Aesthetics", 100.0),
             ])
-            .dataset(RadarDataset::new("Current").values([78.0, 88.0, 64.0, 92.0, 70.0, 55.0]))
-            .dataset(RadarDataset::new("Competitor").values([65.0, 70.0, 80.0, 60.0, 85.0, 78.0])),
+            .dataset(
+                RadarDataset::new("Current")
+                    .values([78.0, 88.0, 64.0, 92.0, 70.0, 55.0]),
+            )
+            .dataset(
+                RadarDataset::new("Competitor")
+                    .values([65.0, 70.0, 80.0, 60.0, 85.0, 78.0]),
+            ),
     )
 }
 
@@ -353,9 +367,8 @@ fn polar_bar_sample() -> Chart {
 }
 
 fn sunburst_sample() -> Chart {
-    Chart::new()
-        .title("Subscription tier breakdown")
-        .series(SunburstSeries::new("Tiers").root(SunburstNode::parent(
+    Chart::new().title("Subscription tier breakdown").series(
+        SunburstSeries::new("Tiers").root(SunburstNode::parent(
             "All",
             vec![
                 SunburstNode::parent(
@@ -380,7 +393,8 @@ fn sunburst_sample() -> Chart {
                     ],
                 ),
             ],
-        )))
+        )),
+    )
 }
 
 fn treemap_sample() -> Chart {
@@ -788,7 +802,8 @@ fn bar_3d_sample() -> Chart {
     let mut data: Vec<(usize, usize, f64)> = Vec::new();
     for x in 0..8 {
         for z in 0..6 {
-            let v = ((x as f64 * 0.7).sin() * (z as f64 * 0.5).cos() + 1.0) * 5.0
+            let v = ((x as f64 * 0.7).sin() * (z as f64 * 0.5).cos() + 1.0)
+                * 5.0
                 + (x as f64 * z as f64 * 0.1);
             data.push((x, z, v));
         }

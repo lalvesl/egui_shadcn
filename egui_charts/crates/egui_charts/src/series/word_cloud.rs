@@ -25,7 +25,8 @@ pub fn render(
         wmax = wmax.max(*w);
     }
     let range = (wmax - wmin).max(1e-12);
-    let mut sorted: Vec<(usize, &(String, f64))> = s.words.iter().enumerate().collect();
+    let mut sorted: Vec<(usize, &(String, f64))> =
+        s.words.iter().enumerate().collect();
     sorted.sort_by(|a, b| {
         b.1.1
             .partial_cmp(&a.1.1)
@@ -40,10 +41,9 @@ pub fn render(
         let t = ((*w - wmin) / range).clamp(0.0, 1.0) as f32;
         let size = s.min_size + (s.max_size - s.min_size) * t;
         let font = FontId::proportional(size);
-        let layout = p
-            .painter
-            .ctx()
-            .fonts_mut(|f| f.layout_no_wrap(text.clone(), font.clone(), theme.text));
+        let layout = p.painter.ctx().fonts_mut(|f| {
+            f.layout_no_wrap(text.clone(), font.clone(), theme.text)
+        });
         let half = layout.size() * 0.5;
 
         // Spiral search.
@@ -54,7 +54,8 @@ pub fn render(
             let radius = step as f32 * 0.55;
             let cx = center.x + angle.cos() * radius;
             let cy = center.y + angle.sin() * radius;
-            let candidate = Rect::from_center_size(Pos2::new(cx, cy), layout.size());
+            let candidate =
+                Rect::from_center_size(Pos2::new(cx, cy), layout.size());
             if !rect.contains(candidate.min) || !rect.contains(candidate.max) {
                 continue;
             }
@@ -69,8 +70,13 @@ pub fn render(
         };
 
         let color = theme.series_color(palette_offset + rank);
-        p.painter
-            .text(r.center(), Align2::CENTER_CENTER, text.clone(), font, color);
+        p.painter.text(
+            r.center(),
+            Align2::CENTER_CENTER,
+            text.clone(),
+            font,
+            color,
+        );
         placed.push(r);
         positions.push((r, *orig_idx));
 

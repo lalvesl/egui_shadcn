@@ -32,7 +32,8 @@ impl Progress {
         let theme = ShadcnTheme::get(ui.ctx());
 
         let width = ui.available_width();
-        let (rect, _) = ui.allocate_exact_size(Vec2::new(width, self.height), Sense::hover());
+        let (rect, _) = ui
+            .allocate_exact_size(Vec2::new(width, self.height), Sense::hover());
 
         if ui.is_rect_visible(rect) {
             let painter = ui.painter();

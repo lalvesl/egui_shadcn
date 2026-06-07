@@ -6,7 +6,8 @@ use crate::option::{Axis, AxisKind, Chart};
 use crate::render::ChartPainter;
 use crate::render::text::{label_font, title_font};
 use crate::series::{
-    SeriesState, hovered_data, is_all_cartesian, render_all, render_non_cartesian,
+    SeriesState, hovered_data, is_all_cartesian, render_all,
+    render_non_cartesian,
 };
 use crate::theme::ChartTheme;
 use egui::{Align2, Id, Response, Sense, Stroke, StrokeKind, Ui, Vec2, vec2};
@@ -130,20 +131,35 @@ impl<'a> ChartWidget<'a> {
                 let mut last_px = layout.plot_rect.min.y;
                 for (i, t) in y_layout.ticks.iter().enumerate() {
                     let band = egui::Rect::from_min_max(
-                        egui::Pos2::new(layout.plot_rect.min.x, last_px.min(t.pixel)),
-                        egui::Pos2::new(layout.plot_rect.max.x, last_px.max(t.pixel)),
+                        egui::Pos2::new(
+                            layout.plot_rect.min.x,
+                            last_px.min(t.pixel),
+                        ),
+                        egui::Pos2::new(
+                            layout.plot_rect.max.x,
+                            last_px.max(t.pixel),
+                        ),
                     );
                     if band.height() > 0.0 {
-                        chart_p.rect_filled(band, resolved_theme.split_area[i % 2]);
+                        chart_p.rect_filled(
+                            band,
+                            resolved_theme.split_area[i % 2],
+                        );
                     }
                     last_px = t.pixel;
                 }
                 if last_px < layout.plot_rect.max.y {
                     let band = egui::Rect::from_min_max(
                         egui::Pos2::new(layout.plot_rect.min.x, last_px),
-                        egui::Pos2::new(layout.plot_rect.max.x, layout.plot_rect.max.y),
+                        egui::Pos2::new(
+                            layout.plot_rect.max.x,
+                            layout.plot_rect.max.y,
+                        ),
                     );
-                    chart_p.rect_filled(band, resolved_theme.split_area[y_layout.ticks.len() % 2]);
+                    chart_p.rect_filled(
+                        band,
+                        resolved_theme.split_area[y_layout.ticks.len() % 2],
+                    );
                 }
             }
 
@@ -256,7 +272,8 @@ fn draw_axes(
         // Gridlines + tick labels.
         for tick in &axis.ticks {
             if axis.is_x {
-                let show_grid = chart.x_axis.as_ref().map(|a| a.show_grid).unwrap_or(true);
+                let show_grid =
+                    chart.x_axis.as_ref().map(|a| a.show_grid).unwrap_or(true);
                 if show_grid {
                     p.line(
                         egui::Pos2::new(tick.pixel, layout.plot_rect.min.y),
@@ -277,7 +294,10 @@ fn draw_axes(
                     .unwrap_or(true)
                 {
                     p.text(
-                        egui::Pos2::new(tick.pixel, layout.plot_rect.max.y + 6.0),
+                        egui::Pos2::new(
+                            tick.pixel,
+                            layout.plot_rect.max.y + 6.0,
+                        ),
                         Align2::CENTER_TOP,
                         tick.label.clone(),
                         font.clone(),
@@ -285,7 +305,8 @@ fn draw_axes(
                     );
                 }
             } else {
-                let show_grid = chart.y_axis.as_ref().map(|a| a.show_grid).unwrap_or(true);
+                let show_grid =
+                    chart.y_axis.as_ref().map(|a| a.show_grid).unwrap_or(true);
                 if show_grid {
                     p.line(
                         egui::Pos2::new(layout.plot_rect.min.x, tick.pixel),
@@ -305,7 +326,10 @@ fn draw_axes(
                     .unwrap_or(true)
                 {
                     p.text(
-                        egui::Pos2::new(layout.plot_rect.min.x - 6.0, tick.pixel),
+                        egui::Pos2::new(
+                            layout.plot_rect.min.x - 6.0,
+                            tick.pixel,
+                        ),
                         Align2::RIGHT_CENTER,
                         tick.label.clone(),
                         font.clone(),
@@ -330,7 +354,10 @@ fn draw_axes(
                 );
             } else {
                 p.text(
-                    egui::Pos2::new(layout.plot_rect.min.x - 44.0, layout.plot_rect.min.y - 6.0),
+                    egui::Pos2::new(
+                        layout.plot_rect.min.x - 44.0,
+                        layout.plot_rect.min.y - 6.0,
+                    ),
                     Align2::LEFT_BOTTOM,
                     name.clone(),
                     font.clone(),

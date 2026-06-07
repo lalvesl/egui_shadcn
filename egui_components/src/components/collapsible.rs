@@ -1,4 +1,7 @@
-use crate::{Animations, ICON_KEYBOARD_ARROW_DOWN, ICON_KEYBOARD_ARROW_RIGHT, ShadcnTheme};
+use crate::{
+    Animations, ICON_KEYBOARD_ARROW_DOWN, ICON_KEYBOARD_ARROW_RIGHT,
+    ShadcnTheme,
+};
 use egui::{Color32, Frame, Margin, Rect, Sense, Ui, Vec2};
 
 pub struct Collapsible<'a> {
@@ -8,7 +11,11 @@ pub struct Collapsible<'a> {
 }
 
 impl<'a> Collapsible<'a> {
-    pub fn new(id: impl std::hash::Hash, trigger: &'a str, open: &'a mut bool) -> Self {
+    pub fn new(
+        id: impl std::hash::Hash,
+        trigger: &'a str,
+        open: &'a mut bool,
+    ) -> Self {
         Self {
             id: egui::Id::new(id),
             trigger,
@@ -20,7 +27,8 @@ impl<'a> Collapsible<'a> {
         let theme = ShadcnTheme::get(ui.ctx());
         let width = ui.available_width();
         let h = 36.0;
-        let (rect, resp) = ui.allocate_exact_size(Vec2::new(width, h), Sense::click());
+        let (rect, resp) =
+            ui.allocate_exact_size(Vec2::new(width, h), Sense::click());
         if resp.clicked() {
             *self.open = !*self.open;
         }
@@ -54,12 +62,19 @@ impl<'a> Collapsible<'a> {
             .animate_bool_with_time(self.id, *self.open, body_dur);
         if openness > 0.0 {
             let h_id = self.id.with("body_h");
-            let full_h = ui.ctx().data(|d| d.get_temp::<f32>(h_id).unwrap_or(0.0));
+            let full_h =
+                ui.ctx().data(|d| d.get_temp::<f32>(h_id).unwrap_or(0.0));
             let visible_h = (full_h * openness).max(0.0);
 
-            let (window, _) = ui.allocate_exact_size(Vec2::new(width, visible_h), Sense::hover());
+            let (window, _) = ui.allocate_exact_size(
+                Vec2::new(width, visible_h),
+                Sense::hover(),
+            );
 
-            let content_rect = Rect::from_min_size(window.min, Vec2::new(width, full_h.max(1.0)));
+            let content_rect = Rect::from_min_size(
+                window.min,
+                Vec2::new(width, full_h.max(1.0)),
+            );
             let mut child = ui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(content_rect)
@@ -77,8 +92,9 @@ impl<'a> Collapsible<'a> {
                 })
                 .show(&mut child, content);
 
-            ui.ctx()
-                .data_mut(|d| d.insert_temp(h_id, inner.response.rect.height()));
+            ui.ctx().data_mut(|d| {
+                d.insert_temp(h_id, inner.response.rect.height())
+            });
         }
     }
 }

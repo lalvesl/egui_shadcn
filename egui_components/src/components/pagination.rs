@@ -55,7 +55,9 @@ impl Pagination {
                 } else {
                     ButtonVariant::Ghost
                 };
-                if Button::new(&label).variant(variant).show(ui).clicked() && !active {
+                if Button::new(&label).variant(variant).show(ui).clicked()
+                    && !active
+                {
                     result = Some(*page);
                 }
                 prev_page = Some(*page);
@@ -93,7 +95,8 @@ impl Pagination {
 
     fn ellipsis(ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
-        let (rect, _) = ui.allocate_exact_size(Vec2::splat(36.0), Sense::hover());
+        let (rect, _) =
+            ui.allocate_exact_size(Vec2::splat(36.0), Sense::hover());
         if ui.is_rect_visible(rect) {
             ui.painter().text(
                 rect.center(),

@@ -56,9 +56,13 @@ impl<'a> Badge<'a> {
         };
 
         let font = egui::FontId::new(font_size, egui::FontFamily::Proportional);
-        let galley = ui.painter().layout_no_wrap(self.label.to_owned(), font, fg);
+        let galley =
+            ui.painter().layout_no_wrap(self.label.to_owned(), font, fg);
 
-        let size = Vec2::new(galley.size().x + h_pad * 2.0, galley.size().y + v_pad * 2.0);
+        let size = Vec2::new(
+            galley.size().x + h_pad * 2.0,
+            galley.size().y + v_pad * 2.0,
+        );
         let (rect, _) = ui.allocate_exact_size(size, Sense::hover());
 
         if ui.is_rect_visible(rect) {
@@ -84,9 +88,15 @@ impl<'a> Badge<'a> {
     fn colors(&self, t: &ShadcnTheme) -> (Color32, Color32, Option<Color32>) {
         match self.variant {
             BadgeVariant::Default => (t.primary, t.primary_foreground, None),
-            BadgeVariant::Secondary => (t.secondary, t.secondary_foreground, None),
-            BadgeVariant::Destructive => (t.destructive, t.destructive_foreground, None),
-            BadgeVariant::Outline => (Color32::TRANSPARENT, t.foreground, Some(t.border)),
+            BadgeVariant::Secondary => {
+                (t.secondary, t.secondary_foreground, None)
+            }
+            BadgeVariant::Destructive => {
+                (t.destructive, t.destructive_foreground, None)
+            }
+            BadgeVariant::Outline => {
+                (Color32::TRANSPARENT, t.foreground, Some(t.border))
+            }
         }
     }
 }

@@ -30,7 +30,11 @@ impl<'a> Drawer<'a> {
         self
     }
 
-    pub fn show(self, ctx: &egui::Context, content: impl FnOnce(&mut egui::Ui)) {
+    pub fn show(
+        self,
+        ctx: &egui::Context,
+        content: impl FnOnce(&mut egui::Ui),
+    ) {
         if !*self.open {
             return;
         }
@@ -45,9 +49,14 @@ impl<'a> Drawer<'a> {
 
         // Dim overlay
         let overlay_id = egui::Id::new("drawer_overlay");
-        let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
+        let overlay_layer =
+            egui::LayerId::new(egui::Order::Background, overlay_id);
         let overlay_painter = ctx.layer_painter(overlay_layer);
-        overlay_painter.rect_filled(egui::Rect::EVERYTHING, 0.0, Color32::from_black_alpha(100));
+        overlay_painter.rect_filled(
+            egui::Rect::EVERYTHING,
+            0.0,
+            Color32::from_black_alpha(100),
+        );
 
         let pointer_down = ctx.input(|i| i.pointer.primary_pressed());
 
@@ -75,10 +84,9 @@ impl<'a> Drawer<'a> {
             .frame(Frame::new().fill(theme.card).corner_radius(cr))
             .title_bar(false)
             .show(ctx, |ui| {
-                Boxed::new()
-                    .corner_radius(cr)
-                    .padding(Spacing::Lg)
-                    .show(ui, |ui| {
+                Boxed::new().corner_radius(cr).padding(Spacing::Lg).show(
+                    ui,
+                    |ui| {
                         // Drag handle
                         if show_handle {
                             ui.vertical_centered(|ui| {
@@ -99,12 +107,17 @@ impl<'a> Drawer<'a> {
                         ui.horizontal(|ui| {
                             ui.label(
                                 egui::RichText::new(self.title)
-                                    .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
+                                    .font(egui::FontId::new(
+                                        16.0,
+                                        egui::FontFamily::Proportional,
+                                    ))
                                     .color(theme.foreground)
                                     .strong(),
                             );
                             ui.with_layout(
-                                egui::Layout::right_to_left(egui::Align::Center),
+                                egui::Layout::right_to_left(
+                                    egui::Align::Center,
+                                ),
                                 |ui| {
                                     let close_resp = ui.add(
                                         egui::Label::new(
@@ -118,7 +131,9 @@ impl<'a> Drawer<'a> {
                                         *self.open = false;
                                     }
                                     if close_resp.hovered() {
-                                        ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                                        ctx.set_cursor_icon(
+                                            egui::CursorIcon::PointingHand,
+                                        );
                                     }
                                 },
                             );
@@ -129,7 +144,8 @@ impl<'a> Drawer<'a> {
                         Spacing::Sm.show(ui);
 
                         content(ui);
-                    });
+                    },
+                );
             });
 
         // Close if pointer pressed outside the drawer rect

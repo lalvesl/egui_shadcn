@@ -52,7 +52,10 @@ impl Spinner {
             let points: Vec<egui::Pos2> = (0..=n)
                 .map(|i| {
                     let a = angle + (i as f32 / n as f32) * arc_len;
-                    egui::Pos2::new(center.x + a.cos() * radius, center.y + a.sin() * radius)
+                    egui::Pos2::new(
+                        center.x + a.cos() * radius,
+                        center.y + a.sin() * radius,
+                    )
                 })
                 .collect();
 
@@ -65,7 +68,10 @@ impl Spinner {
                     theme.primary.b(),
                     alpha,
                 );
-                painter.line_segment([points[i], points[i + 1]], Stroke::new(thickness, color));
+                painter.line_segment(
+                    [points[i], points[i + 1]],
+                    Stroke::new(thickness, color),
+                );
             }
         }
     }

@@ -72,7 +72,8 @@ pub fn render(
         .map(|i| {
             inner.min.x
                 + s.node_width * 0.5
-                + (inner.width() - s.node_width) * (i as f32 / (layer_count - 1).max(1) as f32)
+                + (inner.width() - s.node_width)
+                    * (i as f32 / (layer_count - 1).max(1) as f32)
         })
         .collect();
 
@@ -131,7 +132,12 @@ pub fn render(
         target_used[link.target] += h;
 
         let color = theme.series_color(palette_offset + li);
-        let fill = Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 110);
+        let fill = Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            110,
+        );
 
         draw_ribbon(
             p,
@@ -173,7 +179,12 @@ pub fn render(
         let fill = if hovered {
             color
         } else {
-            Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 230)
+            Color32::from_rgba_unmultiplied(
+                color.r(),
+                color.g(),
+                color.b(),
+                230,
+            )
         };
         p.rect_filled(*r, fill);
 
@@ -208,7 +219,14 @@ pub fn render(
 }
 
 /// Cubic-bezier ribbon between two vertical strips on left and right anchors.
-fn draw_ribbon(p: &ChartPainter, sa: Pos2, sb: Pos2, ta: Pos2, tb: Pos2, fill: Color32) {
+fn draw_ribbon(
+    p: &ChartPainter,
+    sa: Pos2,
+    sb: Pos2,
+    ta: Pos2,
+    tb: Pos2,
+    fill: Color32,
+) {
     // Build a closed polygon along the top edge then back along the bottom edge.
     let mid_x_a = (sa.x + ta.x) * 0.5;
     let mut pts: Vec<Pos2> = Vec::with_capacity(64);
@@ -242,7 +260,10 @@ fn draw_ribbon(p: &ChartPainter, sa: Pos2, sb: Pos2, ta: Pos2, tb: Pos2, fill: C
 
 fn cubic(a: f32, b: f32, c: f32, d: f32, t: f32) -> f32 {
     let mt = 1.0 - t;
-    mt * mt * mt * a + 3.0 * mt * mt * t * b + 3.0 * mt * t * t * c + t * t * t * d
+    mt * mt * mt * a
+        + 3.0 * mt * mt * t * b
+        + 3.0 * mt * t * t * c
+        + t * t * t * d
 }
 
 fn ribbon_contains(p: Pos2, sa: Pos2, sb: Pos2, ta: Pos2, tb: Pos2) -> bool {

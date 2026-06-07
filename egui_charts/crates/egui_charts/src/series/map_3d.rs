@@ -27,7 +27,9 @@ pub fn render(
         world_continents()
             .into_iter()
             .enumerate()
-            .map(|(i, (name, pts))| (name.to_string(), pts, (i as f64 * 13.0 % 60.0) + 20.0))
+            .map(|(i, (name, pts))| {
+                (name.to_string(), pts, (i as f64 * 13.0 % 60.0) + 20.0)
+            })
             .collect()
     } else {
         s.regions
@@ -119,8 +121,10 @@ pub fn render(
             ));
         }
         // Top face — fan-triangulate around centroid.
-        let centroid_top = top.iter().fold(Pos2::ZERO, |a, b| a + b.0.to_vec2());
-        let centroid_top = Pos2::new(centroid_top.x / n as f32, centroid_top.y / n as f32);
+        let centroid_top =
+            top.iter().fold(Pos2::ZERO, |a, b| a + b.0.to_vec2());
+        let centroid_top =
+            Pos2::new(centroid_top.x / n as f32, centroid_top.y / n as f32);
         let centroid_depth = top.iter().map(|t| t.1).sum::<f32>() / n as f32;
         for i in 0..n {
             let a = top[i].0;
@@ -157,7 +161,11 @@ pub fn render(
             data_index: i,
             value: *v,
             color: palette
-                .get(((((v - vmin) / vrange) as f32 * last as f32).round() as usize).min(last))
+                .get(
+                    ((((v - vmin) / vrange) as f32 * last as f32).round()
+                        as usize)
+                        .min(last),
+                )
                 .copied()
                 .unwrap_or(theme.text),
             screen_pos: None,
@@ -177,7 +185,8 @@ fn polygon_contains(p: Pos2, pts: &[Pos2]) -> bool {
         let pi = pts[i];
         let pj = pts[j];
         if (pi.y > p.y) != (pj.y > p.y) {
-            let slope = (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
+            let slope =
+                (p.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (p.y - pi.y);
             if (slope < 0.0) != (pj.y < pi.y) {
                 inside = !inside;
             }

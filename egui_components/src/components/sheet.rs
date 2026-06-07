@@ -35,7 +35,11 @@ impl<'a> Sheet<'a> {
         self
     }
 
-    pub fn show(self, ctx: &egui::Context, content: impl FnOnce(&mut egui::Ui)) {
+    pub fn show(
+        self,
+        ctx: &egui::Context,
+        content: impl FnOnce(&mut egui::Ui),
+    ) {
         if !*self.open {
             return;
         }
@@ -50,9 +54,14 @@ impl<'a> Sheet<'a> {
 
         // Dim overlay — also acts as click-outside detector
         let overlay_id = egui::Id::new("sheet_overlay");
-        let overlay_layer = egui::LayerId::new(egui::Order::Background, overlay_id);
+        let overlay_layer =
+            egui::LayerId::new(egui::Order::Background, overlay_id);
         let overlay_painter = ctx.layer_painter(overlay_layer);
-        overlay_painter.rect_filled(egui::Rect::EVERYTHING, 0.0, Color32::from_black_alpha(100));
+        overlay_painter.rect_filled(
+            egui::Rect::EVERYTHING,
+            0.0,
+            Color32::from_black_alpha(100),
+        );
 
         let pointer_down = ctx.input(|i| i.pointer.primary_pressed());
 
@@ -92,20 +101,24 @@ impl<'a> Sheet<'a> {
             .frame(Frame::new().fill(theme.card).corner_radius(cr))
             .title_bar(false)
             .show(ctx, |ui| {
-                Boxed::new()
-                    .corner_radius(cr)
-                    .padding(Spacing::Xl)
-                    .show(ui, |ui| {
+                Boxed::new().corner_radius(cr).padding(Spacing::Xl).show(
+                    ui,
+                    |ui| {
                         // Title row with close button
                         ui.horizontal(|ui| {
                             ui.label(
                                 egui::RichText::new(self.title)
-                                    .font(egui::FontId::new(16.0, egui::FontFamily::Proportional))
+                                    .font(egui::FontId::new(
+                                        16.0,
+                                        egui::FontFamily::Proportional,
+                                    ))
                                     .color(theme.foreground)
                                     .strong(),
                             );
                             ui.with_layout(
-                                egui::Layout::right_to_left(egui::Align::Center),
+                                egui::Layout::right_to_left(
+                                    egui::Align::Center,
+                                ),
                                 |ui| {
                                     let close_resp = ui.add(
                                         egui::Label::new(
@@ -119,7 +132,9 @@ impl<'a> Sheet<'a> {
                                         *self.open = false;
                                     }
                                     if close_resp.hovered() {
-                                        ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                                        ctx.set_cursor_icon(
+                                            egui::CursorIcon::PointingHand,
+                                        );
                                     }
                                 },
                             );
@@ -130,7 +145,8 @@ impl<'a> Sheet<'a> {
                         Spacing::Md.show(ui);
 
                         content(ui);
-                    });
+                    },
+                );
             });
 
         // Close if pointer pressed outside the sheet rect

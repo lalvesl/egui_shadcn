@@ -77,7 +77,10 @@ pub fn render(
     for col in 0..53 {
         for row in 0..7 {
             let r = Rect::from_min_size(
-                Pos2::new(origin.x + col as f32 * cell, origin.y + row as f32 * cell),
+                Pos2::new(
+                    origin.x + col as f32 * cell,
+                    origin.y + row as f32 * cell,
+                ),
                 vec2(cell - 1.0, cell - 1.0),
             );
             p.rect_filled(r, empty);
@@ -102,7 +105,10 @@ pub fn render(
         let t = ((v - vmin) / (vmax - vmin)).clamp(0.0, 1.0);
         let color = palette[((t * last as f64).round() as usize).min(last)];
         let cell_rect = Rect::from_min_size(
-            Pos2::new(origin.x + col as f32 * cell, origin.y + row as f32 * cell),
+            Pos2::new(
+                origin.x + col as f32 * cell,
+                origin.y + row as f32 * cell,
+            ),
             vec2(cell - 1.0, cell - 1.0),
         );
         p.rect_filled(cell_rect, color);

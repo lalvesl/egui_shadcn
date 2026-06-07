@@ -1,7 +1,8 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
 use egui_sc::egui_charts::{
-    self, Axis, ChartTheme, ChartWidget, Distribution, Harmony, Series, ThemeMode,
+    self, Axis, ChartTheme, ChartWidget, Distribution, Harmony, Series,
+    ThemeMode,
 };
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
@@ -23,16 +24,19 @@ impl DemoApp {
 
         Card::new().show(ui, |ui| {
             card_header(ui, tr!(t::CarouselSec::HItems).as_ref(), None);
-            Carousel::new("demo_carousel", 5)
-                .height(180.0)
-                .show(ui, |idx, ui| {
+            Carousel::new("demo_carousel", 5).height(180.0).show(
+                ui,
+                |idx, ui| {
                     let theme = ShadcnTheme::get(ui.ctx());
                     let (rect, _) = ui.allocate_exact_size(
                         egui::Vec2::new(ui.available_width(), 160.0),
                         egui::Sense::hover(),
                     );
-                    ui.painter()
-                        .rect_filled(rect, egui::CornerRadius::same(8), theme.muted);
+                    ui.painter().rect_filled(
+                        rect,
+                        egui::CornerRadius::same(8),
+                        theme.muted,
+                    );
                     let n = idx + 1;
                     let slide_label = tr!(t::CarouselSec::Slide, n = n);
                     ui.painter().text(
@@ -42,7 +46,8 @@ impl DemoApp {
                         egui::FontId::new(24.0, egui::FontFamily::Proportional),
                         theme.muted_foreground,
                     );
-                });
+                },
+            );
         });
     }
 
@@ -245,10 +250,16 @@ impl DemoApp {
                             rect.center(),
                             egui::Align2::CENTER_CENTER,
                             one.as_ref(),
-                            egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                            egui::FontId::new(
+                                13.0,
+                                egui::FontFamily::Proportional,
+                            ),
                             theme.muted_foreground,
                         );
-                        let _ = ui.allocate_exact_size(rect.size(), egui::Sense::hover());
+                        let _ = ui.allocate_exact_size(
+                            rect.size(),
+                            egui::Sense::hover(),
+                        );
                     },
                     |ui| {
                         Resizable::new("demo_resizable_v")
@@ -264,11 +275,16 @@ impl DemoApp {
                                         rect.center(),
                                         egui::Align2::CENTER_CENTER,
                                         two.as_ref(),
-                                        egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                                        egui::FontId::new(
+                                            13.0,
+                                            egui::FontFamily::Proportional,
+                                        ),
                                         theme.muted_foreground,
                                     );
-                                    let _ =
-                                        ui.allocate_exact_size(rect.size(), egui::Sense::hover());
+                                    let _ = ui.allocate_exact_size(
+                                        rect.size(),
+                                        egui::Sense::hover(),
+                                    );
                                 },
                                 |ui| {
                                     let theme = ShadcnTheme::get(ui.ctx());
@@ -278,11 +294,16 @@ impl DemoApp {
                                         rect.center(),
                                         egui::Align2::CENTER_CENTER,
                                         three.as_ref(),
-                                        egui::FontId::new(13.0, egui::FontFamily::Proportional),
+                                        egui::FontId::new(
+                                            13.0,
+                                            egui::FontFamily::Proportional,
+                                        ),
                                         theme.muted_foreground,
                                     );
-                                    let _ =
-                                        ui.allocate_exact_size(rect.size(), egui::Sense::hover());
+                                    let _ = ui.allocate_exact_size(
+                                        rect.size(),
+                                        egui::Sense::hover(),
+                                    );
                                 },
                             );
                     },

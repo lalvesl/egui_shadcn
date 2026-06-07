@@ -15,7 +15,10 @@ pub struct ToggleGroup<'a, T: PartialEq + Clone> {
 }
 
 impl<'a, T: PartialEq + Clone> ToggleGroup<'a, T> {
-    pub fn new(items: &'a [(T, ToggleGroupItem<'a>)], selected: &'a mut T) -> Self {
+    pub fn new(
+        items: &'a [(T, ToggleGroupItem<'a>)],
+        selected: &'a mut T,
+    ) -> Self {
         Self {
             items,
             selected,

@@ -35,7 +35,10 @@ impl Skeleton {
     pub fn show(self, ui: &mut Ui) {
         let theme = ShadcnTheme::get(ui.ctx());
 
-        let (rect, _) = ui.allocate_exact_size(Vec2::new(self.width, self.height), Sense::hover());
+        let (rect, _) = ui.allocate_exact_size(
+            Vec2::new(self.width, self.height),
+            Sense::hover(),
+        );
 
         if !ui.is_rect_visible(rect) {
             return;
@@ -58,9 +61,12 @@ impl Skeleton {
             Color32::from_rgb(244, 244, 245)
         };
 
-        let r = base.r() as f32 + (highlight.r() as f32 - base.r() as f32) * pulse;
-        let g = base.g() as f32 + (highlight.g() as f32 - base.g() as f32) * pulse;
-        let b = base.b() as f32 + (highlight.b() as f32 - base.b() as f32) * pulse;
+        let r =
+            base.r() as f32 + (highlight.r() as f32 - base.r() as f32) * pulse;
+        let g =
+            base.g() as f32 + (highlight.g() as f32 - base.g() as f32) * pulse;
+        let b =
+            base.b() as f32 + (highlight.b() as f32 - base.b() as f32) * pulse;
         let color = Color32::from_rgb(r as u8, g as u8, b as u8);
 
         let painter = ui.painter();

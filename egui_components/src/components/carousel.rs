@@ -46,7 +46,11 @@ impl Carousel {
         self
     }
 
-    pub fn show(self, ui: &mut Ui, mut item_fn: impl FnMut(usize, &mut Ui)) -> usize {
+    pub fn show(
+        self,
+        ui: &mut Ui,
+        mut item_fn: impl FnMut(usize, &mut Ui),
+    ) -> usize {
         let theme = ShadcnTheme::get(ui.ctx());
         let cr = CornerRadius::same(theme.radius as u8);
 
@@ -58,7 +62,8 @@ impl Carousel {
 
         let idx_id = self.id.with("index");
         let anim_id = self.id.with("anim");
-        let mut current = ui.ctx().data(|d| d.get_temp::<usize>(idx_id).unwrap_or(0));
+        let mut current =
+            ui.ctx().data(|d| d.get_temp::<usize>(idx_id).unwrap_or(0));
         let mut anim = ui
             .ctx()
             .data(|d| d.get_temp::<Option<CarAnim>>(anim_id))
@@ -75,8 +80,10 @@ impl Carousel {
         let dot_area = 24.0;
         let total_height = self.height + dot_area;
 
-        let (outer_rect, _) =
-            ui.allocate_exact_size(Vec2::new(avail_width, total_height), Sense::hover());
+        let (outer_rect, _) = ui.allocate_exact_size(
+            Vec2::new(avail_width, total_height),
+            Sense::hover(),
+        );
 
         // Background
         ui.painter().rect_filled(outer_rect, cr, theme.card);
@@ -88,7 +95,10 @@ impl Carousel {
         );
 
         // Slide area (excluding dot row)
-        let slide_rect = Rect::from_min_size(outer_rect.min, Vec2::new(avail_width, self.height));
+        let slide_rect = Rect::from_min_size(
+            outer_rect.min,
+            Vec2::new(avail_width, self.height),
+        );
 
         let now = ui.input(|i| i.time);
         let slide_dur = Animations::duration(ui.ctx(), SLIDE_DUR_BASE) as f64;
@@ -109,8 +119,12 @@ impl Carousel {
 
         if self.item_count > 0 {
             match anim {
-                Some(a) if (now - a.start) < slide_dur && a.from < self.item_count => {
-                    let t = ((now - a.start) / slide_dur).clamp(0.0, 1.0) as f32;
+                Some(a)
+                    if (now - a.start) < slide_dur
+                        && a.from < self.item_count =>
+                {
+                    let t =
+                        ((now - a.start) / slide_dur).clamp(0.0, 1.0) as f32;
                     let e = 1.0 - (1.0 - t).powi(3); // ease-out cubic
                     let w = slide_rect.width();
                     let new_dx = a.dir * (1.0 - e) * w;
@@ -132,15 +146,19 @@ impl Carousel {
             outer_rect.left() + btn_size / 2.0 + 8.0,
             slide_rect.center().y,
         );
-        let prev_rect = Rect::from_center_size(prev_center, Vec2::splat(btn_size));
-        let prev_resp = ui.interact(prev_rect, self.id.with("prev"), Sense::click());
+        let prev_rect =
+            Rect::from_center_size(prev_center, Vec2::splat(btn_size));
+        let prev_resp =
+            ui.interact(prev_rect, self.id.with("prev"), Sense::click());
 
         let next_center = Pos2::new(
             outer_rect.right() - btn_size / 2.0 - 8.0,
             slide_rect.center().y,
         );
-        let next_rect = Rect::from_center_size(next_center, Vec2::splat(btn_size));
-        let next_resp = ui.interact(next_rect, self.id.with("next"), Sense::click());
+        let next_rect =
+            Rect::from_center_size(next_center, Vec2::splat(btn_size));
+        let next_resp =
+            ui.interact(next_rect, self.id.with("next"), Sense::click());
 
         // ── Button visuals (drawn over the slides) ─────────────────────────────
         let prev_bg = if prev_resp.hovered() {
@@ -148,8 +166,11 @@ impl Carousel {
         } else {
             ShadcnTheme::with_alpha(theme.background, 200)
         };
-        ui.painter()
-            .rect_filled(prev_rect, CornerRadius::same(btn_size as u8 / 2), prev_bg);
+        ui.painter().rect_filled(
+            prev_rect,
+            CornerRadius::same(btn_size as u8 / 2),
+            prev_bg,
+        );
         ui.painter().rect_stroke(
             prev_rect,
             CornerRadius::same(btn_size as u8 / 2),
@@ -172,8 +193,11 @@ impl Carousel {
         } else {
             ShadcnTheme::with_alpha(theme.background, 200)
         };
-        ui.painter()
-            .rect_filled(next_rect, CornerRadius::same(btn_size as u8 / 2), next_bg);
+        ui.painter().rect_filled(
+            next_rect,
+            CornerRadius::same(btn_size as u8 / 2),
+            next_bg,
+        );
         ui.painter().rect_stroke(
             next_rect,
             CornerRadius::same(btn_size as u8 / 2),
@@ -241,9 +265,10 @@ impl Carousel {
             let dot_row_y = outer_rect.top() + self.height + dot_area / 2.0;
             let dot_r = 4.0;
             let dot_spacing = 12.0;
-            let total_dots_width =
-                self.item_count as f32 * dot_spacing - (dot_spacing - dot_r * 2.0);
-            let mut dot_x = outer_rect.center().x - total_dots_width / 2.0 + dot_r;
+            let total_dots_width = self.item_count as f32 * dot_spacing
+                - (dot_spacing - dot_r * 2.0);
+            let mut dot_x =
+                outer_rect.center().x - total_dots_width / 2.0 + dot_r;
 
             for i in 0..self.item_count {
                 let dot_center = Pos2::new(dot_x, dot_row_y);

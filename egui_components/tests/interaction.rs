@@ -67,7 +67,8 @@ fn button_reports_click_and_disabled_does_not() {
     });
     assert!(clicked, "enabled button must report a click");
 
-    let rect_d = render(&ctx, |ui| Button::new("Go").enabled(false).show(ui).rect);
+    let rect_d =
+        render(&ctx, |ui| Button::new("Go").enabled(false).show(ui).rect);
     let mut clicked_d = false;
     frame(&ctx, click_input(rect_d.center()), |ui| {
         clicked_d = Button::new("Go").enabled(false).show(ui).clicked();

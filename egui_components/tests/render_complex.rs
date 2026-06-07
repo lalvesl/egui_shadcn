@@ -157,7 +157,10 @@ fn context_menu_trigger() {
     ];
     let chosen = render(&ctx, |ui| {
         ContextMenu::new("ctx", &items).show(ui, |ui| {
-            ui.allocate_response(egui::vec2(120.0, 40.0), egui::Sense::click_and_drag())
+            ui.allocate_response(
+                egui::vec2(120.0, 40.0),
+                egui::Sense::click_and_drag(),
+            )
         })
     });
     assert_eq!(chosen, None);
@@ -240,7 +243,8 @@ fn dropdown_menu_trigger() {
             disabled: false,
         },
     ];
-    let chosen = render(&ctx, |ui| DropdownMenu::new("dd", "Menu", &items).show(ui));
+    let chosen =
+        render(&ctx, |ui| DropdownMenu::new("dd", "Menu", &items).show(ui));
     assert_eq!(chosen, None);
 }
 
@@ -275,7 +279,12 @@ fn hover_card_and_popover() {
     frame(&ctx, base_input(), |ui| {
         Popover::new("pop").show(
             ui,
-            |ui| ui.allocate_response(egui::vec2(80.0, 32.0), egui::Sense::click()),
+            |ui| {
+                ui.allocate_response(
+                    egui::vec2(80.0, 32.0),
+                    egui::Sense::click(),
+                )
+            },
             |ui| {
                 ui.label("popover content");
             },
@@ -369,7 +378,12 @@ fn toaster_with_queued_toast() {
     use egui_components::toast::{ToastVariant, Toaster};
     let ctx = ctx();
     Toaster::push(&ctx, "Saved", ToastVariant::Success);
-    Toaster::push_with_desc(&ctx, "Heads up", "Something to note", ToastVariant::Warning);
+    Toaster::push_with_desc(
+        &ctx,
+        "Heads up",
+        "Something to note",
+        ToastVariant::Warning,
+    );
     frame(&ctx, base_input(), |ui| {
         Toaster::show(ui.ctx());
     });
@@ -408,8 +422,9 @@ fn alert_dialog_open() {
     let mut open = true;
     let mut confirmed = false;
     frame(&ctx, base_input(), |ui| {
-        let _ = AlertDialog::new("Delete?", "This cannot be undone.", &mut open)
-            .show(ui.ctx(), || confirmed = true);
+        let _ =
+            AlertDialog::new("Delete?", "This cannot be undone.", &mut open)
+                .show(ui.ctx(), || confirmed = true);
     });
     let _ = confirmed;
 }
