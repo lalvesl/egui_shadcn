@@ -1,3 +1,4 @@
+use super::input::Input;
 use super::spacing::Spacing;
 use crate::i18n;
 use crate::{ICON_ARROW_DOWNWARD, ICON_ARROW_UPWARD, ICON_SEARCH, ShadcnTheme};
@@ -12,7 +13,7 @@ pub struct DataColumn<'a> {
     pub sortable: bool,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum SortDir {
     Asc,
     Desc,
@@ -71,24 +72,12 @@ impl<'a> DataTable<'a> {
         let mut sort_changed: Option<(usize, SortDir)> = None;
 
         // Filter bar
-        ui.horizontal(|ui| {
-            let icon_w = 20.0;
-            ui.painter().text(
-                ui.cursor().left_top() + Vec2::new(0.0, 16.0),
-                egui::Align2::LEFT_CENTER,
-                ICON_SEARCH,
-                ShadcnTheme::icon_font(16.0),
-                theme.muted_foreground,
-            );
-            ui.add_space(icon_w);
-            let filter_hint = t!(i18n::DataTable::FilterPlaceholder);
-            let te = egui::TextEdit::singleline(self.filter)
-                .hint_text(filter_hint.as_ref())
-                .font(ShadcnTheme::body_font())
-                .text_color(theme.foreground)
-                .desired_width(200.0);
-            ui.add(te);
-        });
+        let filter_hint = t!(i18n::DataTable::FilterPlaceholder);
+        Input::new(self.filter)
+            .icon_left(ICON_SEARCH)
+            .placeholder(filter_hint.as_ref())
+            .width(240.0)
+            .show(ui);
         ui.add_space(6.0);
 
         // Column widths
