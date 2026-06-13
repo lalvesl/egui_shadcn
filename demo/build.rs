@@ -7,7 +7,17 @@ const FALLBACK_FONT_URL: &str = "https://github.com/googlefonts/roboto/raw/main/
 const MATERIAL_ICONS_URL: &str = "https://github.com/google/material-design-icons/raw/master/font/MaterialIcons-Regular.ttf";
 
 fn download_bytes(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let resp = ureq::get(url).call()?;
+    // native-tls explicitly: ureq's compiled-in default is Rustls and it
+    // panics at request time when only the native-tls feature is enabled.
+    let agent: ureq::Agent = ureq::Agent::config_builder()
+        .tls_config(
+            ureq::tls::TlsConfig::builder()
+                .provider(ureq::tls::TlsProvider::NativeTls)
+                .build(),
+        )
+        .build()
+        .into();
+    let resp = agent.get(url).call()?;
     let mut bytes = Vec::new();
     resp.into_body().into_reader().read_to_end(&mut bytes)?;
     Ok(bytes)
