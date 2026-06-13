@@ -203,3 +203,48 @@ fn follow_egui_tracks_context_mode() {
 
     assert_ne!(dark.background, light.background);
 }
+
+#[test]
+fn graph_with_hidden_labels_and_groups_renders() {
+    use egui_charts::{GraphLayout, GraphLink, GraphNode, GraphSeries};
+    let mut nodes = vec![
+        GraphNode::new("hub a", 100.0).group(0),
+        GraphNode::new("hub b", 80.0).group(1),
+    ];
+    let mut links = Vec::new();
+    for i in 0..40_u32 {
+        let hub = (i % 2) as usize;
+        nodes.push(
+            GraphNode::new(format!("r{i}"), f64::from(i))
+                .hide_label()
+                .group(hub),
+        );
+        links.push(GraphLink::new(hub, nodes.len() - 1, 1.0));
+    }
+    let r = render_chart(true, || {
+        Chart::new().series(Series::Graph(
+            GraphSeries::new("g")
+                .nodes(nodes)
+                .links(links)
+                .layout(GraphLayout::Force),
+        ))
+    });
+    assert_sane(r);
+}
+
+#[test]
+fn heatmap_sqrt_scale_renders() {
+    use egui_charts::HeatmapSeries;
+    let cells: Vec<(usize, usize, f64)> = (0..64_u32)
+        .map(|i| (i as usize % 8, i as usize / 8, f64::from(i % 16)))
+        .collect();
+    let r = render_chart(true, || {
+        Chart::new().series(Series::Heatmap(
+            HeatmapSeries::new("h")
+                .data(cells.clone())
+                .range(0.0, 255.0)
+                .sqrt_scale(),
+        ))
+    });
+    assert_sane(r);
+}

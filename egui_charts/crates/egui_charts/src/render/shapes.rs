@@ -199,7 +199,11 @@ fn is_monotone_y_above_baseline(line: &[Pos2], baseline_y: f32) -> bool {
         || line.iter().all(|p| p.y >= baseline_y)
 }
 
-/// Annular sector (donut slice). Used by pie/doughnut/sunburst.
+/// Annular sector (donut slice). Used by pie/doughnut/sunburst/gauge.
+///
+/// Filled as an explicit triangle strip: the ring outline is concave, and
+/// egui's `convex_polygon` fan-fills concave outlines into a solid blob
+/// (a 270° gauge track rendered as a pacman disk).
 #[allow(clippy::too_many_arguments)]
 pub fn annular_sector(
     p: &ChartPainter,
@@ -213,16 +217,37 @@ pub fn annular_sector(
     stroke: Stroke,
 ) {
     let segments = segments.max(4);
-    let mut pts = Vec::with_capacity(segments * 2 + 2);
+    let inner_r = inner_r.max(0.0);
+    let angle_at = |i: usize| {
+        let t = i as f32 / segments as f32;
+        start_rad + (end_rad - start_rad) * t
+    };
+
+    let mut mesh = egui::epaint::Mesh::default();
     for i in 0..=segments {
-        let t = i as f32 / segments as f32;
-        let a = start_rad + (end_rad - start_rad) * t;
-        pts.push(center + vec2(a.cos(), a.sin()) * outer_r);
+        let a = angle_at(i);
+        let dir = vec2(a.cos(), a.sin());
+        mesh.colored_vertex(center + dir * outer_r, fill);
+        mesh.colored_vertex(center + dir * inner_r, fill);
     }
-    for i in (0..=segments).rev() {
-        let t = i as f32 / segments as f32;
-        let a = start_rad + (end_rad - start_rad) * t;
-        pts.push(center + vec2(a.cos(), a.sin()) * inner_r);
+    for i in 0..segments {
+        let o0 = u32::try_from(2 * i).unwrap_or(u32::MAX);
+        let (i0, o1, i1) = (o0 + 1, o0 + 2, o0 + 3);
+        mesh.add_triangle(o0, i0, o1);
+        mesh.add_triangle(o1, i0, i1);
     }
-    p.poly(pts, fill, stroke);
+    p.painter.add(egui::Shape::mesh(mesh));
+
+    if !stroke.is_empty() {
+        let mut pts = Vec::with_capacity(segments * 2 + 2);
+        for i in 0..=segments {
+            let a = angle_at(i);
+            pts.push(center + vec2(a.cos(), a.sin()) * outer_r);
+        }
+        for i in (0..=segments).rev() {
+            let a = angle_at(i);
+            pts.push(center + vec2(a.cos(), a.sin()) * inner_r);
+        }
+        p.painter.add(egui::Shape::closed_line(pts, stroke));
+    }
 }

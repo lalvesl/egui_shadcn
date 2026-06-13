@@ -417,7 +417,13 @@ pub fn build_scale(
             let raw_min = axis.min.unwrap_or(data_min);
             let raw_max = axis.max.unwrap_or(data_max);
             let (lo, hi, _step) = nice_range(raw_min, raw_max, 6);
-            Scale::Linear { min: lo, max: hi }
+            // Explicit user bounds are exact; nice-rounding only widens the
+            // auto-fit side (a flat-zero series otherwise pads to [-1, 1]
+            // even when the caller pinned min to 0).
+            Scale::Linear {
+                min: axis.min.unwrap_or(lo),
+                max: axis.max.unwrap_or(hi),
+            }
         }
     }
 }

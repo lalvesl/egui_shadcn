@@ -50,7 +50,10 @@ pub fn render(
         if !v.is_finite() {
             continue;
         }
-        let t = ((v - vmin) / (vmax - vmin)).clamp(0.0, 1.0);
+        let mut t = ((v - vmin) / (vmax - vmin)).clamp(0.0, 1.0);
+        if s.sqrt_scale {
+            t = t.sqrt();
+        }
         let pidx = ((t * last as f64).round() as usize).min(last);
         let color = palette[pidx];
 

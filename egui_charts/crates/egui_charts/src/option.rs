@@ -826,6 +826,11 @@ pub struct HeatmapSeries {
     pub min: Option<f64>,
     pub max: Option<f64>,
     pub show_values: bool,
+    /// Map normalized values through `sqrt` before picking a ramp color.
+    /// Lifts low values out of the darkest palette steps — use when the
+    /// interesting signal sits near the bottom of a fixed `range` (tooltips
+    /// and `show_values` still report the raw value).
+    pub sqrt_scale: bool,
 }
 
 impl HeatmapSeries {
@@ -836,6 +841,7 @@ impl HeatmapSeries {
             min: None,
             max: None,
             show_values: false,
+            sqrt_scale: false,
         }
     }
 
@@ -855,6 +861,12 @@ impl HeatmapSeries {
 
     pub fn show_values(mut self) -> Self {
         self.show_values = true;
+        self
+    }
+
+    /// Enable perceptual `sqrt` color scaling (see [`Self::sqrt_scale`]).
+    pub fn sqrt_scale(mut self) -> Self {
+        self.sqrt_scale = true;
         self
     }
 }
@@ -1457,6 +1469,13 @@ pub struct GraphNode {
     pub value: f64,
     /// Optional fixed position (data coords). `None` means layout decides.
     pub position: Option<(f64, f64)>,
+    /// Draw the node's name next to it. The name still shows in the hover
+    /// tooltip when hidden — turn this off for dense graphs where hundreds
+    /// of labels would overlap into noise.
+    pub show_label: bool,
+    /// Palette group: nodes sharing a group share a color. `None` colors by
+    /// node index (legacy behavior — rainbow on big graphs).
+    pub group: Option<usize>,
 }
 
 impl GraphNode {
@@ -1465,7 +1484,21 @@ impl GraphNode {
             name: name.into(),
             value,
             position: None,
+            show_label: true,
+            group: None,
         }
+    }
+
+    /// Hide the on-canvas label (tooltip keeps the name).
+    pub fn hide_label(mut self) -> Self {
+        self.show_label = false;
+        self
+    }
+
+    /// Color this node by group instead of by its own index.
+    pub fn group(mut self, g: usize) -> Self {
+        self.group = Some(g);
+        self
     }
 }
 

@@ -84,7 +84,8 @@ pub fn render(
         let t = ((node.value - min_v) / (max_v - min_v).max(1e-12))
             .clamp(0.0, 1.0) as f32;
         let size = s.node_size_min + (s.node_size_max - s.node_size_min) * t;
-        let color = theme.series_color(palette_offset + i);
+        let color =
+            theme.series_color(palette_offset + node.group.unwrap_or(i));
         let hovered = hover_pos
             .map(|h| (h - pos[i]).length() <= size)
             .unwrap_or(false);
@@ -101,13 +102,15 @@ pub fn render(
         p.circle_filled(pos[i], size, fill);
         p.circle_stroke(pos[i], size, Stroke::new(1.0, theme.background));
 
-        p.text(
-            pos[i] + vec2(0.0, -size - 4.0),
-            Align2::CENTER_BOTTOM,
-            node.name.clone(),
-            font.clone(),
-            theme.text,
-        );
+        if node.show_label {
+            p.text(
+                pos[i] + vec2(0.0, -size - 4.0),
+                Align2::CENTER_BOTTOM,
+                node.name.clone(),
+                font.clone(),
+                theme.text,
+            );
+        }
 
         if hovered {
             tip = Some(TooltipDatum {
