@@ -285,7 +285,7 @@ impl DemoApp {
                     ))
                     .stroke(egui::Stroke::new(1.0, theme.border)),
             )
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 self.show_toolbar(ui, mobile);
             });
 
@@ -300,7 +300,7 @@ impl DemoApp {
                         .inner_margin(egui::Margin::symmetric(8, 12))
                         .stroke(egui::Stroke::new(1.0, theme.border)),
                 )
-                .show_inside(ui, |ui| {
+                .show(ui, |ui| {
                     self.show_sidebar(ui);
                 });
         }

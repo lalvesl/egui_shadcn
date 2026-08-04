@@ -9,8 +9,7 @@
 //! ```no_run
 //! use egui_charts::{Chart, ChartWidget, Axis, Series};
 //!
-//! # let ctx: egui::Context = unimplemented!();
-//! # egui::CentralPanel::default().show(&ctx, |ui| {
+//! # egui::__run_test_ui(|ui| {
 //! let chart = Chart::new()
 //!     .title("Quarterly revenue")
 //!     .x_axis(Axis::category(["Q1", "Q2", "Q3", "Q4"]))

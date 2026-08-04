@@ -77,7 +77,7 @@ pub enum CellOverflow {
 
 ### Measuring
 
-egui 0.34 provides `UiBuilder::sizing_pass()` (and `invisible()`), which is
+egui 0.35 provides `UiBuilder::sizing_pass()` (and `invisible()`), which is
 exactly the mechanism for this: run `cell_fn` once into an invisible sizing-pass
 `Ui` and read back `min_rect()`.
 

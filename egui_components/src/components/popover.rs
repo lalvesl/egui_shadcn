@@ -8,7 +8,7 @@ pub struct Popover {
 }
 
 impl Popover {
-    pub fn new(id: impl std::hash::Hash) -> Self {
+    pub fn new(id: impl std::hash::Hash + std::fmt::Debug) -> Self {
         Self {
             id: egui::Id::new(id),
             width: 256.0,

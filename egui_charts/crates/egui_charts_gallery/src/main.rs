@@ -97,7 +97,7 @@ impl GalleryApp {
             .resizable(false)
             .exact_size(248.0)
             .frame(card_frame)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 self.draw_sidebar(ui);
             });
 
@@ -106,7 +106,7 @@ impl GalleryApp {
             .resizable(false)
             .exact_size(284.0)
             .frame(card_frame)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 controls::show(ui, &mut self.controls);
             });
 
@@ -117,7 +117,7 @@ impl GalleryApp {
                     .fill(theme.background)
                     .inner_margin(egui::Margin::same(20)),
             )
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 self.draw_canvas(ui);
             });
     }

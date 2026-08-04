@@ -16,15 +16,15 @@ exclude = ["e2e"]
 resolver = "2"
 
 [workspace.dependencies]
-egui = "0.34"
-epaint = "0.34"
-eframe = { version = "0.34", default-features = false }
+egui = "0.35"
+epaint = "0.35"
+eframe = { version = "0.35", default-features = false }
 
 # native-tls, not rustls: this is only the build-time font downloader, and
 # rustls drags `ring` into every consumer's build graph (ring 0.17 is the
 # crate most likely to break on off-pin toolchains).
 ureq = { version = "3.3", default-features = false, features = ["native-tls", "gzip"] }
-skrifa = { version = "0.42", features = ["std", "autohint_shaping"] }
+skrifa = { version = "0.45", features = ["std", "autohint_shaping"] }
 js-sys = "0.3"
 
 # Size-tuned release profile. Main target is the wasm32 demo (`nix build .#web`),

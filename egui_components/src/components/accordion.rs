@@ -9,7 +9,7 @@ pub struct Accordion<'a> {
 
 impl<'a> Accordion<'a> {
     pub fn new(
-        id: impl std::hash::Hash,
+        id: impl std::hash::Hash + std::fmt::Debug,
         title: &'a str,
         open: &'a mut bool,
     ) -> Self {

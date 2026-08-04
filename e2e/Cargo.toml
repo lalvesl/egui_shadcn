@@ -12,8 +12,11 @@ name = "e2e"
 path = "src/main.rs"
 
 [dependencies]
-chromiumoxide = { version = "0.7", default-features = false, features = [
-  "tokio-runtime",
+# 0.9 dropped the `tokio-runtime` feature — tokio is now the only runtime, so
+# the flag no longer exists. The `fetcher` features stay off deliberately: they
+# pull a TLS stack in to download Chromium, which we never do (the flake
+# provides `pkgs.chromium`, overridable with `E2E_CHROME`).
+chromiumoxide = { version = "0.9", default-features = false, features = [
   "bytes",
 ] }
 tokio = { version = "1", features = [

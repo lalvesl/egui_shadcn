@@ -16,11 +16,11 @@ Not published to crates.io — depend on it by git (or a local path):
 [dependencies]
 egui_sc = { git = "https://github.com/lalvesl/egui_shadcn" }
 i18n    = { git = "https://github.com/lalvesl/egui_shadcn" }  # only if you call t!
-egui    = "0.34"
-eframe  = "0.34"
+egui    = "0.35"
+eframe  = "0.35"
 ```
 
-**Your `egui` version must match the library's (0.34).** A mismatch produces
+**Your `egui` version must match the library's (0.35).** A mismatch produces
 type errors on `&mut Ui` that look unrelated to versions.
 
 Language features (default `lang-en-us` + `lang-pt-br`):

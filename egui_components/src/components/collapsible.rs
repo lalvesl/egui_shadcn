@@ -12,7 +12,7 @@ pub struct Collapsible<'a> {
 
 impl<'a> Collapsible<'a> {
     pub fn new(
-        id: impl std::hash::Hash,
+        id: impl std::hash::Hash + std::fmt::Debug,
         trigger: &'a str,
         open: &'a mut bool,
     ) -> Self {

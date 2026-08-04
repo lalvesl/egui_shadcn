@@ -9,7 +9,7 @@ pub struct HoverCard {
 }
 
 impl HoverCard {
-    pub fn new(id: impl std::hash::Hash) -> Self {
+    pub fn new(id: impl std::hash::Hash + std::fmt::Debug) -> Self {
         Self {
             id: egui::Id::new(id),
             delay_frames: 20,

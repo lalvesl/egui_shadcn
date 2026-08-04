@@ -10,7 +10,7 @@ pub struct Tabs<'t> {
 
 impl<'t> Tabs<'t> {
     pub fn new(
-        id: impl std::hash::Hash,
+        id: impl std::hash::Hash + std::fmt::Debug,
         labels: &'t [&'t str],
         current: &'t mut usize,
     ) -> Self {

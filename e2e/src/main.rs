@@ -97,20 +97,24 @@ async fn run() -> Result<()> {
     }
 
     // ── Launch headless Chromium ─────────────────────────────────────────────
+    // chromiumoxide 0.9 takes structured args: a bare key (no `--`), or a
+    // (key, value) tuple. It re-emits them as `--{key}` / `--{key}={values}`,
+    // so passing "--flag" here yields "----flag", which Chromium silently
+    // ignores — the flags below look applied but are not. Keep them unprefixed.
     let mut builder = BrowserConfig::builder()
         .no_sandbox()
-        .arg("--disable-dev-shm-usage")
+        .arg("disable-dev-shm-usage")
         // WebGL via SwiftShader (software renderer) so egui's glow backend works
         // in headless mode without a GPU. Recent Chromium gates the software
         // fallback behind --enable-unsafe-swiftshader (otherwise the context is
         // immediately lost), so opt in explicitly.
-        .arg("--use-gl=angle")
-        .arg("--use-angle=swiftshader")
-        .arg("--enable-unsafe-swiftshader")
-        .arg("--enable-webgl")
-        .arg("--ignore-gpu-blocklist")
-        .arg("--window-size=1280,720")
-        .arg("--hide-scrollbars");
+        .arg(("use-gl", "angle"))
+        .arg(("use-angle", "swiftshader"))
+        .arg("enable-unsafe-swiftshader")
+        .arg("enable-webgl")
+        .arg("ignore-gpu-blocklist")
+        .arg(("window-size", "1280,720"))
+        .arg("hide-scrollbars");
     if let Ok(path) = std::env::var("E2E_CHROME") {
         builder = builder.chrome_executable(path);
     }

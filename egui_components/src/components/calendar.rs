@@ -169,7 +169,7 @@ pub struct Calendar<'a> {
 
 impl<'a> Calendar<'a> {
     pub fn single(
-        id: impl std::hash::Hash,
+        id: impl std::hash::Hash + std::fmt::Debug,
         selected: &'a mut Option<CalDate>,
     ) -> Self {
         Self {
@@ -184,7 +184,7 @@ impl<'a> Calendar<'a> {
     }
 
     pub fn range(
-        id: impl std::hash::Hash,
+        id: impl std::hash::Hash + std::fmt::Debug,
         start: &'a mut Option<CalDate>,
         end: &'a mut Option<CalDate>,
     ) -> Self {
