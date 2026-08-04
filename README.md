@@ -166,6 +166,13 @@ demo/                  — showcase app (native + WASM); depends on egui_sc + i1
 e2e/                   — standalone crate: headless-Chromium web e2e (chromiumoxide)
 ```
 
+## Design records
+
+Non-trivial changes are written up as RFCs in [`rfcs/`](rfcs/) — what the change
+solves, what was decided, and which alternatives lost. Start at the
+[index](rfcs/README.md), which also carries the roadmap: each RFC is `WIP`,
+`PLANNED`, `PLANNED-LOW` or `IMPLEMENTED`.
+
 ## Tech stack
 
 - Rust 1.95+
