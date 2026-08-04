@@ -223,6 +223,8 @@
               CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
               cargoExtraArgs = "--target wasm32-unknown-unknown";
               EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
+              nativeBuildInputs = [ pkgs.pkg-config ];
+              buildInputs = nativeLibs;
               doCheck = false;
             };
           in
@@ -235,10 +237,12 @@
             EGUI_SHADCN_CODEPOINTS_PATH = "${materialIconsCodepoints}";
             buildPhaseCargoCommand = "cargo build --release --target wasm32-unknown-unknown -p demo --lib";
             nativeBuildInputs = [
+              pkgs.pkg-config
               wasmBindgenCli
               pkgs.binaryen
               pkgs.python3
             ];
+            buildInputs = nativeLibs;
             doInstallCargoArtifacts = false;
             installPhase = ''
               mkdir -p "$out/wasm_assets"
