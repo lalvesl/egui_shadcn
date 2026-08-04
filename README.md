@@ -166,6 +166,12 @@ demo/                  — showcase app (native + WASM); depends on egui_sc + i1
 e2e/                   — standalone crate: headless-Chromium web e2e (chromiumoxide)
 ```
 
+## For LLM coding agents
+
+[`AGENTS.md`](AGENTS.md) is the entry point; [`skills/`](skills/) holds
+tool-agnostic reference documents — one for *using* the library, one for
+*contributing* to it.
+
 ## Design records
 
 Non-trivial changes are written up as RFCs in [`rfcs/`](rfcs/) — what the change
