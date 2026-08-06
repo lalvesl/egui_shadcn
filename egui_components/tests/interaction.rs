@@ -56,6 +56,36 @@ fn toggle_click_toggles() {
 }
 
 #[test]
+fn toggle_show_with_click_toggles_and_disabled_is_inert() {
+    use egui_components::toggle::Toggle;
+    let ctx = ctx();
+
+    // Clicking custom content flips the toggle — the content's own labels must
+    // not swallow the click.
+    let mut pressed = false;
+    let build = |pressed: &mut bool, enabled: bool, ui: &mut egui::Ui| {
+        Toggle::custom(pressed)
+            .enabled(enabled)
+            .show_with(ui, |ui| ui.label("Starred"))
+            .response
+            .rect
+    };
+    let rect = render(&ctx, |ui| build(&mut pressed, true, ui));
+    frame(&ctx, click_input(rect.center()), |ui| {
+        build(&mut pressed, true, ui);
+    });
+    assert!(pressed, "show_with toggle should flip pressed on click");
+
+    // Disabled: the same click must not flip it.
+    let mut pressed_d = false;
+    let rect_d = render(&ctx, |ui| build(&mut pressed_d, false, ui));
+    frame(&ctx, click_input(rect_d.center()), |ui| {
+        build(&mut pressed_d, false, ui);
+    });
+    assert!(!pressed_d, "disabled show_with toggle must stay unpressed");
+}
+
+#[test]
 fn button_reports_click_and_disabled_does_not() {
     use egui_components::button::Button;
     let ctx = ctx();
