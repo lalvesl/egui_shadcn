@@ -282,6 +282,73 @@ fn toggle_states() {
     }
 }
 
+/// `show()` runs through `show_with()`; its box must still be
+/// `icon + 6 + text + 2 * h_pad` wide and exactly `Size::height` tall.
+#[test]
+fn toggle_default_content_geometry() {
+    use egui_components::toggle::Toggle;
+    let ctx = ctx();
+    for s in SIZES {
+        let mut pressed = false;
+        let (rect, expected) = render(&ctx, |ui| {
+            let fs = s.font_size();
+            let text = ui.painter().layout_no_wrap(
+                "Bold".to_owned(),
+                egui::FontId::new(fs, egui::FontFamily::Proportional),
+                egui::Color32::PLACEHOLDER,
+            );
+            let icon = ui.painter().layout_no_wrap(
+                ICON_CHECK.to_owned(),
+                egui_components::icon_font_id(fs + 2.0),
+                egui::Color32::PLACEHOLDER,
+            );
+            let expected =
+                text.size().x + icon.size().x + 6.0 + s.h_pad() * 2.0;
+            let rect = Toggle::new(&mut pressed, "Bold")
+                .icon(ICON_CHECK)
+                .size(s)
+                .show(ui)
+                .rect;
+            (rect, expected)
+        });
+        assert_eq!(rect.height(), s.height(), "{s:?} height");
+        assert!(
+            (rect.width() - expected).abs() <= 1.0,
+            "{s:?} width {} should be within a pixel of {expected}",
+            rect.width()
+        );
+    }
+}
+
+#[test]
+fn toggle_show_with_custom_content_geometry() {
+    use egui_components::badge::Badge;
+    use egui_components::toggle::Toggle;
+    let ctx = ctx();
+    for s in SIZES {
+        let mut pressed = false;
+        let (rect, inner) = render(&ctx, |ui| {
+            let r = Toggle::custom(&mut pressed).size(s).show_with(ui, |ui| {
+                ui.label("Starred");
+                Badge::new("12").show(ui);
+                7_u32
+            });
+            (r.response.rect, r.inner)
+        });
+        assert_rect_sane(rect);
+        assert_eq!(inner, 7, "show_with must return the closure's value");
+        assert_eq!(
+            rect.height(),
+            s.height(),
+            "custom content must not change the toggle height"
+        );
+        assert!(
+            rect.width() > s.height(),
+            "label + badge should be wider than the minimum square: {rect:?}"
+        );
+    }
+}
+
 #[test]
 fn typography_helpers() {
     use egui_components::typography::*;
