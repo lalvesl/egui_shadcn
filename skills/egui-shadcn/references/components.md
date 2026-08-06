@@ -61,7 +61,7 @@ gives back. Components marked **ctx** render at viewport level and take
 | `Tabs` | `new(id, &labels, &mut current)` | — | `(ui, content_fn)` | `()` |
 | `Textarea` | `new(&mut String)` | `label` `placeholder` `rows` `max_rows` `max_width` `scroll` `enabled` | `(ui)` | `Response` |
 | `Toaster` **ctx** | `push(ctx, title, variant)` · `push_with_desc(ctx, title, desc, variant)` | — | `show(ctx)` once per frame | `()` |
-| `Toggle` | `new(&mut bool, label)` | `icon` `enabled` `size` `corner_radius` `bordered` | `(ui)` | `Response` |
+| `Toggle` | `new(&mut bool, label)` · `custom(&mut bool)` | `icon` `enabled` `size` `corner_radius` `bordered` | `(ui)` · `show_with(ui, content)` | `Response` · `InnerResponse<R>` |
 | `ToggleGroup<T: PartialEq + Clone>` | `new(&items, &mut selected)` | `enabled` `size` | `(ui)` | `()` |
 | `Tooltip` | `new(text)` | — | `wrap(ui, content)` | `Response` |
 | Typography | free functions | — | `heading1..4`, `lead_text`, `body_text`, `muted_text`, `small_text`, `code_text` | `()` |
@@ -119,6 +119,16 @@ Checkbox::new(&mut checked).label("Accept").size(Size::Default).show(ui) -> Resp
 Switch::new(&mut on).label("Airplane mode").show(ui) -> Response
 Toggle::new(&mut pressed, "Bold").icon(icons::FORMAT_BOLD)
     .bordered(true).corner_radius(cr).show(ui) -> Response
+
+// Arbitrary widgets on the toggle surface. Content is laid out
+// left-to-right, vertically centered in a Size::height row, and labels
+// inherit the pressed/hover foreground. A click-sensing widget inside the
+// content eats the click instead of flipping the toggle.
+Toggle::custom(&mut pressed).bordered(true).show_with(ui, |ui| {
+    ui.label(RichText::new(ICON_STAR).font(icon_font_id(16.0)));
+    ui.label("Starred");
+    Badge::new("12").variant(BadgeVariant::Secondary).show(ui);
+}) -> InnerResponse<R>   // .response for clicks, .inner for the closure's value
 
 // Radio binds by value: T: PartialEq
 Radio::new(&mut current, MyEnum::A).label("Option A").show(ui) -> Response
