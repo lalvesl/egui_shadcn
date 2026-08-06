@@ -57,7 +57,7 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 | Sheet           | ✅     | Side-drawer sliding in from left or right edge                  |
 | Table           | ✅     | Striped table with fixed/flexible columns                       |
 | Toast           | ✅     | Global notification queue, auto-dismiss, 4 variants             |
-| Toggle          | ✅     | Two-state button with label/icon and enabled state              |
+| Toggle          | ✅     | Two-state button with label/icon, custom content, enabled state |
 | Toggle Group    | ✅     | Segmented control, single-select, generic value binding         |
 
 > ✅ Implemented &nbsp; 🚧 Planned
