@@ -1,14 +1,17 @@
 use crate::i18n as t;
 use ::i18n::t as tr;
+use egui::RichText;
 use egui_sc::egui_components::spacing::Spacing;
 use egui_sc::egui_components::{
     ICON_ADD, ICON_DOWNLOAD, ICON_FORMAT_BOLD, ICON_FORMAT_ITALIC,
-    ICON_FORMAT_STRIKETHROUGH, ICON_FORMAT_UNDERLINE, ICON_MAIL, ICON_SEARCH,
-    ICON_SEND,
+    ICON_FORMAT_STRIKETHROUGH, ICON_FORMAT_UNDERLINE, ICON_MAIL,
+    ICON_NOTIFICATIONS, ICON_SEARCH, ICON_SEND, ICON_STAR,
     badge::{Badge, BadgeVariant},
     button::{Button, ButtonSize, ButtonVariant},
     button_group::{ButtonGroup, ButtonGroupVariant},
     card::{Card, card_header},
+    icon_font_id,
+    size::Size,
     toggle::Toggle,
     toggle_group::{ToggleGroup, ToggleGroupItem},
     typography::muted_text,
@@ -250,6 +253,39 @@ impl DemoApp {
                 )
                 .enabled(false)
                 .show(ui);
+            });
+        });
+
+        Spacing::Lg.show(ui);
+        Card::new().show(ui, |ui| {
+            card_header(ui, tr!(t::ToggleSec::HCustom).as_ref(), None);
+            ui.horizontal(|ui| {
+                // `show_with` fills the same surface with arbitrary widgets;
+                // labels inherit the pressed/hover foreground automatically.
+                Toggle::custom(&mut self.toggle_starred)
+                    .bordered(true)
+                    .show_with(ui, |ui| {
+                        ui.label(
+                            RichText::new(ICON_STAR).font(icon_font_id(16.0)),
+                        );
+                        ui.label(tr!(t::ToggleSec::Starred).as_ref());
+                        Badge::new("12")
+                            .variant(BadgeVariant::Secondary)
+                            .show(ui);
+                    });
+                Spacing::Xs.show(ui);
+                Toggle::custom(&mut self.toggle_notify)
+                    .size(Size::Lg)
+                    .show_with(ui, |ui| {
+                        ui.label(
+                            RichText::new(ICON_NOTIFICATIONS)
+                                .font(icon_font_id(18.0)),
+                        );
+                        ui.label(tr!(t::ToggleSec::Notifications).as_ref());
+                        Badge::new("3")
+                            .variant(BadgeVariant::Destructive)
+                            .show(ui);
+                    });
             });
         });
     }
