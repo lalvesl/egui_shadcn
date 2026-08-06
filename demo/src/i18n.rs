@@ -227,6 +227,9 @@ pub const SECTION_COUNT: usize = 51;
         Strikethrough([EnUs("Strikethrough"),               PtBr("Tachado")]),
         DisabledOn([EnUs("Disabled On"),                    PtBr("Desabilitado Ligado")]),
         DisabledOff([EnUs("Disabled Off"),                  PtBr("Desabilitado Desligado")]),
+        HCustom([EnUs("Custom Content"),                    PtBr("Conteúdo Personalizado")]),
+        Starred([EnUs("Starred"),                           PtBr("Favoritos")]),
+        Notifications([EnUs("Notifications"),               PtBr("Notificações")]),
     }
 }
 
