@@ -21,7 +21,10 @@ pub struct Carousel {
 }
 
 impl Carousel {
-    pub fn new(id: impl std::hash::Hash + std::fmt::Debug, item_count: usize) -> Self {
+    pub fn new(
+        id: impl std::hash::Hash + std::fmt::Debug,
+        item_count: usize,
+    ) -> Self {
         Self {
             id: egui::Id::new(id),
             item_count,

@@ -19,7 +19,10 @@ pub struct ContextMenu<'a> {
 }
 
 impl<'a> ContextMenu<'a> {
-    pub fn new(id: impl std::hash::Hash + std::fmt::Debug, items: &'a [ContextItem<'a>]) -> Self {
+    pub fn new(
+        id: impl std::hash::Hash + std::fmt::Debug,
+        items: &'a [ContextItem<'a>],
+    ) -> Self {
         Self {
             id: egui::Id::new(id),
             items,
