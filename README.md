@@ -59,6 +59,7 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 | Toast           | ✅     | Global notification queue, auto-dismiss, 4 variants             |
 | Toggle          | ✅     | Two-state button with label/icon, custom content, enabled state |
 | Toggle Group    | ✅     | Segmented control, single-select, generic value binding         |
+| Time Picker     | ✅     | Touch-first hour/minute wheels, drag + flick + snap, wrapping   |
 
 > ✅ Implemented &nbsp; 🚧 Planned
 
