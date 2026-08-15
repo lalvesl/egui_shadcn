@@ -71,6 +71,13 @@ pub use ::i18n::{
 }
 
 ::i18n::traductions! {
+    pub enum TimePicker {
+        Title([EnUs("Select time"), PtBr("Selecionar hora")]),
+        Done([EnUs("Done"),         PtBr("Concluir")]),
+    }
+}
+
+::i18n::traductions! {
     pub enum Select {
         Placeholder([EnUs("Select…"), PtBr("Selecionar…")]),
     }

@@ -15,6 +15,7 @@ use egui_sc::egui_components::{
     separator::Separator,
     slider::Slider,
     switch::Switch,
+    time_picker::CalTime,
     toast::Toaster,
     typography::{body_text, heading2, heading4, muted_text, small_text},
 };
@@ -89,6 +90,9 @@ pub struct DemoApp {
     pub(super) button_group_outline_sel: Option<usize>,
     pub(super) combobox_val: Option<usize>,
     pub(super) date_picker_val: Option<CalDate>,
+    pub(super) time_picker_val: CalTime,
+    pub(super) time_picker_inline: CalTime,
+    pub(super) time_picker_step: CalTime,
     pub(super) otp_val: String,
     pub(super) sheet_open: bool,
     pub(super) drawer_open: bool,
@@ -159,6 +163,9 @@ impl Default for DemoApp {
             button_group_outline_sel: None,
             combobox_val: None,
             date_picker_val: None,
+            time_picker_val: CalTime::new(9, 30),
+            time_picker_inline: CalTime::new(14, 0),
+            time_picker_step: CalTime::new(18, 45),
             otp_val: String::new(),
             sheet_open: false,
             drawer_open: false,
@@ -755,8 +762,9 @@ impl DemoApp {
             46 => self.section_toast(ui),
             47 => self.section_toggle(ui),
             48 => self.section_toggle_group(ui),
-            49 => self.section_tooltip(ui),
-            50 => self.section_typography(ui),
+            49 => self.section_time_picker(ui),
+            50 => self.section_tooltip(ui),
+            51 => self.section_typography(ui),
             _ => {}
         }
     }
