@@ -31,6 +31,128 @@ fn checkbox_click_toggles_and_disabled_is_inert() {
     assert!(!checked2, "disabled checkbox must stay unchecked");
 }
 
+/// Center x of each wheel inside an inline `TimePicker` whose boxed rect is
+/// `r`: the two 110 px-capped columns and the 26 px colon gap sit centered in
+/// the box, inside its `Spacing::Sm` padding.
+fn wheel_centers(r: egui::Rect) -> (f32, f32) {
+    let (pad, colon_w) = (8.0, 26.0);
+    let inner_w = r.width() - pad * 2.0;
+    let col_w = ((inner_w - colon_w) / 2.0).clamp(48.0, 110.0).floor();
+    let left =
+        r.left() + pad + ((inner_w - (col_w * 2.0 + colon_w)) / 2.0).max(0.0);
+    (left + col_w / 2.0, left + col_w + colon_w + col_w / 2.0)
+}
+
+#[test]
+fn time_picker_wheels_are_centered_in_the_available_width() {
+    use egui_components::time_picker::{CalTime, TimePicker};
+    let ctx = ctx();
+    let mut value = CalTime::new(9, 30);
+    let rect = render(&ctx, |ui| {
+        ui.scope(|ui| {
+            TimePicker::new("centered", &mut value).inline(ui);
+        })
+        .response
+        .rect
+    });
+    let (hour_x, minute_x) = wheel_centers(rect);
+    // The colon sits between the wheels, and the pair straddles the box center.
+    assert!(
+        ((hour_x + minute_x) / 2.0 - rect.center().x).abs() < 1.0,
+        "wheels must straddle the box center: {hour_x}..{minute_x} in {rect:?}"
+    );
+    assert!(
+        hour_x - rect.left() > 100.0,
+        "on an 800 px screen the wheels must not hug the left edge: {hour_x}"
+    );
+}
+
+#[test]
+fn time_picker_wheel_tap_moves_hour_and_minute() {
+    use egui_components::time_picker::{CalTime, TimePicker};
+    let ctx = ctx();
+    let mut value = CalTime::new(9, 30);
+
+    let build = |v: &mut CalTime, ui: &mut egui::Ui| {
+        ui.scope(|ui| {
+            TimePicker::new("wheel", v).inline(ui);
+        })
+        .response
+        .rect
+    };
+
+    let rect = render(&ctx, |ui| build(&mut value, ui));
+    let (hour_x, minute_x) = wheel_centers(rect);
+    // Size::Default on a wide viewport → 36 + 4 px rows.
+    let row_h = 40.0;
+
+    // Tapping the row below the center brings it up: 09 → 10.
+    frame(
+        &ctx,
+        click_input(egui::pos2(hour_x, rect.center().y + row_h)),
+        |ui| {
+            build(&mut value, ui);
+        },
+    );
+    assert_eq!(value.hour, 10, "tap below center should advance the hour");
+    assert_eq!(value.minute, 30, "the minute wheel must not move");
+
+    // And the row above it goes back: 30 → 29 on the minute wheel.
+    frame(
+        &ctx,
+        click_input(egui::pos2(minute_x, rect.center().y - row_h)),
+        |ui| {
+            build(&mut value, ui);
+        },
+    );
+    assert_eq!(
+        value.minute, 29,
+        "tap above center should rewind the minute"
+    );
+    assert_eq!(value.hour, 10, "the hour wheel must not move");
+}
+
+#[test]
+fn time_picker_wheel_wraps_and_honours_minute_step() {
+    use egui_components::time_picker::{CalTime, TimePicker};
+    let ctx = ctx();
+    let mut value = CalTime::new(0, 0);
+
+    let build = |v: &mut CalTime, ui: &mut egui::Ui| {
+        ui.scope(|ui| {
+            TimePicker::new("wrap", v).minute_step(5).inline(ui);
+        })
+        .response
+        .rect
+    };
+
+    let rect = render(&ctx, |ui| build(&mut value, ui));
+    let (hour_x, minute_x) = wheel_centers(rect);
+    let row_h = 40.0;
+
+    // Above 00:00 sits the far end of each wheel — they are cyclic.
+    frame(
+        &ctx,
+        click_input(egui::pos2(hour_x, rect.center().y - row_h)),
+        |ui| {
+            build(&mut value, ui);
+        },
+    );
+    assert_eq!(value.hour, 23, "hour wheel wraps 00 → 23");
+
+    frame(
+        &ctx,
+        click_input(egui::pos2(minute_x, rect.center().y - row_h)),
+        |ui| {
+            build(&mut value, ui);
+        },
+    );
+    assert_eq!(
+        value.minute, 55,
+        "minute wheel wraps 00 → 55 in 5-min steps"
+    );
+}
+
 #[test]
 fn switch_click_toggles() {
     use egui_components::switch::Switch;
