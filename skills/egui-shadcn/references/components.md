@@ -60,6 +60,7 @@ gives back. Components marked **ctx** render at viewport level and take
 | `Table` | `new(&columns)` | `striped` | `(ui, rows, body_fn)` | `()` |
 | `Tabs` | `new(id, &labels, &mut current)` | — | `(ui, content_fn)` | `()` |
 | `Textarea` | `new(&mut String)` | `label` `placeholder` `rows` `max_rows` `max_width` `scroll` `enabled` | `(ui)` | `Response` |
+| `TimePicker` | `new(id, &mut CalTime)` | `minute_step` `rows` `size` `width` `title` | `(ui)` · `inline(ui)` | `bool` |
 | `Toaster` **ctx** | `push(ctx, title, variant)` · `push_with_desc(ctx, title, desc, variant)` | — | `show(ctx)` once per frame | `()` |
 | `Toggle` | `new(&mut bool, label)` · `custom(&mut bool)` | `icon` `enabled` `size` `corner_radius` `bordered` | `(ui)` · `show_with(ui, content)` | `Response` · `InnerResponse<R>` |
 | `ToggleGroup<T: PartialEq + Clone>` | `new(&items, &mut selected)` | `enabled` `size` | `(ui)` | `()` |
@@ -316,6 +317,25 @@ DatePicker::new("id", &mut Option<CalDate>).placeholder("Pick a date")
 
 CalDate::new(2026, 8, 3) / CalDate::today() / .next_month() / .prev_month()
 ```
+
+### Time
+
+```rust
+// Trigger field → Drawer on narrow viewports, Popover on wide ones.
+TimePicker::new("id", &mut time).width(240.0).show(ui) -> bool
+
+// Just the wheels, boxed, laid out in place.
+TimePicker::new("id", &mut time)
+    .minute_step(5)      // 1..=30, default 1
+    .rows(3)             // visible rows per wheel, odd keeps it centered
+    .size(Size::Lg)      // default: Lg on narrow viewports, Default elsewhere
+    .inline(ui) -> bool
+
+CalTime::new(9, 30) / CalTime::from_minutes(570) / .total_minutes() / "09:30"
+```
+
+> The wheels are drag-scrollable (flick + snap), and a tap on any visible row
+> brings it to the center. Both wheels wrap, so 00 is one row above 23 / 59.
 
 > `cell_content` is dropped silently if the cell is too short. Always set
 > `cell_height` when you use it — see RFC 0011, which is fixing this.
