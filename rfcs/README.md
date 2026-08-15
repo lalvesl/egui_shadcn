@@ -38,6 +38,7 @@ renaming the file (`git mv`) and updating the link in the index below.
 | [0010](0010-testing-and-e2e-strategy-IMPLEMENTED.md)     | Testing and e2e strategy                    | IMPLEMENTED | workspace, `e2e`         |
 | [0011](0011-intrinsic-calendar-cell-sizing-WIP.md)| Intrinsic sizing for custom calendar cells | **WIP**     | `egui_components`        |
 | [0012](0012-demo-source-snippet-macro-PLANNED-LOW.md)    | Demo source-snippet macro crate             | PLANNED-LOW | `demo`, new crate        |
+| [0013](0013-touch-time-picker-IMPLEMENTED.md)            | Touch-first time picker                     | IMPLEMENTED | `egui_components`, demo  |
 
 ## Writing a new RFC
 
