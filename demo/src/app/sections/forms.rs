@@ -14,6 +14,7 @@ use egui_sc::egui_components::{
     slider::Slider,
     switch::Switch,
     textarea::Textarea,
+    time_picker::TimePicker,
     typography::muted_text,
 };
 
@@ -94,6 +95,60 @@ impl DemoApp {
                     tr!(t::DatePickerSec::Selected, date = dstr).as_ref(),
                 );
             }
+        });
+    }
+
+    pub(in crate::app) fn section_time_picker(&mut self, ui: &mut egui::Ui) {
+        let title = t::section_name(49);
+        let subtitle = tr!(t::TimePickerSec::Subtitle);
+        self.section_title(ui, title.as_ref(), subtitle.as_ref());
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, tr!(t::TimePickerSec::HPick).as_ref(), None);
+            TimePicker::new("demo_time_picker", &mut self.time_picker_val)
+                .show(ui);
+            Spacing::Xs.show(ui);
+            let time = self.time_picker_val.to_string();
+            muted_text(
+                ui,
+                tr!(t::TimePickerSec::Selected, time = time).as_ref(),
+            );
+        });
+
+        Spacing::Md.show(ui);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, tr!(t::TimePickerSec::HInline).as_ref(), None);
+            TimePicker::new(
+                "demo_time_picker_inline",
+                &mut self.time_picker_inline,
+            )
+            .inline(ui);
+            Spacing::Xs.show(ui);
+            let time = self.time_picker_inline.to_string();
+            muted_text(
+                ui,
+                tr!(t::TimePickerSec::Selected, time = time).as_ref(),
+            );
+        });
+
+        Spacing::Md.show(ui);
+
+        Card::new().show(ui, |ui| {
+            card_header(ui, tr!(t::TimePickerSec::HStep).as_ref(), None);
+            TimePicker::new(
+                "demo_time_picker_step",
+                &mut self.time_picker_step,
+            )
+            .minute_step(5)
+            .rows(3)
+            .inline(ui);
+            Spacing::Xs.show(ui);
+            let time = self.time_picker_step.to_string();
+            muted_text(
+                ui,
+                tr!(t::TimePickerSec::Selected, time = time).as_ref(),
+            );
         });
     }
 
