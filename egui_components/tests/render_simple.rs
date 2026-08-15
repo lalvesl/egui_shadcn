@@ -350,6 +350,80 @@ fn toggle_show_with_custom_content_geometry() {
 }
 
 #[test]
+fn cal_time_normalizes_and_formats() {
+    use egui_components::time_picker::CalTime;
+    assert_eq!(
+        CalTime::new(30, 90),
+        CalTime::new(23, 59),
+        "out of range clamps"
+    );
+    assert_eq!(CalTime::from_minutes(0), CalTime::new(0, 0));
+    assert_eq!(CalTime::from_minutes(9 * 60 + 30), CalTime::new(9, 30));
+    assert_eq!(
+        CalTime::from_minutes(24 * 60),
+        CalTime::new(0, 0),
+        "wraps a full day"
+    );
+    assert_eq!(
+        CalTime::from_minutes(-1),
+        CalTime::new(23, 59),
+        "wraps backwards"
+    );
+    assert_eq!(CalTime::new(7, 5).total_minutes(), 7 * 60 + 5);
+    assert_eq!(CalTime::new(7, 5).to_string(), "07:05");
+}
+
+#[test]
+fn time_picker_inline_geometry() {
+    use egui_components::time_picker::{CalTime, TimePicker};
+    for dark in [false, true] {
+        let ctx = test_ctx(dark);
+        for s in SIZES {
+            for rows in [3_usize, 5] {
+                let mut value = CalTime::new(9, 30);
+                let rect = render(&ctx, |ui| {
+                    ui.scope(|ui| {
+                        TimePicker::new("t", &mut value)
+                            .size(s)
+                            .rows(rows)
+                            .inline(ui);
+                    })
+                    .response
+                    .rect
+                });
+                assert_rect_sane(rect);
+                // rows × row height, plus the `Boxed` Spacing::Sm padding.
+                let expected = rows as f32 * (s.height() + 4.0) + 16.0;
+                assert!(
+                    (rect.height() - expected).abs() < 1.0,
+                    "{s:?}/{rows} rows: height {} != {expected}",
+                    rect.height()
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn time_picker_trigger_geometry() {
+    use egui_components::time_picker::{CalTime, TimePicker};
+    let ctx = ctx();
+    let mut value = CalTime::new(9, 30);
+    let rect = render(&ctx, |ui| {
+        ui.scope(|ui| {
+            TimePicker::new("t_trigger", &mut value)
+                .width(220.0)
+                .show(ui);
+        })
+        .response
+        .rect
+    });
+    assert_rect_sane(rect);
+    assert_eq!(rect.width(), 220.0, "trigger must honour .width()");
+    assert_eq!(rect.height(), 36.0, "trigger is one standard field tall");
+}
+
+#[test]
 fn typography_helpers() {
     use egui_components::typography::*;
     let ctx = ctx();
