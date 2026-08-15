@@ -58,6 +58,7 @@ pub use ::i18n::{Languages, Translate, current_language, set_language};
         Toast([EnUs("Toast"),                           PtBr("Notificação")]),
         Toggle([EnUs("Toggle"),                         PtBr("Alternador")]),
         ToggleGroup([EnUs("Toggle Group"),              PtBr("Grupo de alternadores")]),
+        TimePicker([EnUs("Time Picker"),                PtBr("Seletor de hora")]),
         Tooltip([EnUs("Tooltip"),                       PtBr("Dica")]),
         Typography([EnUs("Typography"),                 PtBr("Tipografia")]),
     }
@@ -116,14 +117,15 @@ pub fn section_name(idx: usize) -> Cow<'static, str> {
         46 => Toast,
         47 => Toggle,
         48 => ToggleGroup,
-        49 => Tooltip,
-        50 => Typography,
+        49 => TimePicker,
+        50 => Tooltip,
+        51 => Typography,
         _ => return Cow::Borrowed(""),
     };
     ::i18n::translate(SectionName::APP_ID, v as u8, &[])
 }
 
-pub const SECTION_COUNT: usize = 51;
+pub const SECTION_COUNT: usize = 52;
 
 // ── Toolbar / dialog ────────────────────────────────────────────────────────
 
@@ -502,6 +504,17 @@ pub const SECTION_COUNT: usize = 51;
                   PtBr("Um seletor de data com popover de calendário.")]),
         HPick([EnUs("Pick a date"),                         PtBr("Escolha uma data")]),
         Selected([EnUs("Selected: {date}"),                 PtBr("Selecionado: {date}")]),
+    }
+}
+
+::i18n::traductions! {
+    pub enum TimePickerSec {
+        Subtitle([EnUs("A touch-first time selector: drag the wheels, tap a row, or flick."),
+                  PtBr("Um seletor de hora para toque: arraste as rodas, toque numa linha ou deslize.")]),
+        HPick([EnUs("Pick a time"),                         PtBr("Escolha um horário")]),
+        HInline([EnUs("Inline wheels"),                     PtBr("Rodas embutidas")]),
+        HStep([EnUs("5-minute steps"),                      PtBr("Passos de 5 minutos")]),
+        Selected([EnUs("Selected: {time}"),                 PtBr("Selecionado: {time}")]),
     }
 }
 
