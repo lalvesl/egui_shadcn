@@ -179,6 +179,34 @@
               "${demoNative}/bin/demo-native" --gen-i18n "$out/i18n"
               echo "[i18n] generated catalogs:" && ls -l "$out/i18n"
             '';
+
+        # ── Toolchain for the impure `nix run` apps ────────────────────────────
+        # apps.{web,test,e2e} compile in the user's checkout, *outside* the Nix
+        # sandbox, so they must put a complete toolchain on PATH — not just
+        # rustc. Shipping rustc alone while exporting LD_LIBRARY_PATH is what
+        # broke CI on non-NixOS hosts: with no Nix `cc` on PATH, rustc links
+        # build scripts with the *host* gcc against the *host* glibc, and then
+        # LD_LIBRARY_PATH hands that binary Nix's libcrypto.so.3, whose
+        # NEEDED libdl.so.2 / libpthread.so.0 resolve through its RUNPATH to
+        # Nix glibc 2.42 — which the older host libc.so.6 cannot satisfy
+        # ("version `GLIBC_ABI_DT_X86_64_PLT' not found"), so egui_components'
+        # build script dies before emitting a single icon constant.
+        # pkg-config is here for the same reason one level up: it makes
+        # openssl-sys (pulled in by ureq/native-tls) resolve at build time the
+        # very OpenSSL that LD_LIBRARY_PATH loads at run time.
+        # None of this reproduces locally — `nix develop` already ships cc.
+        impureBinPath = pkgs.lib.makeBinPath [
+          rustToolchain
+          pkgs.stdenv.cc
+          pkgs.pkg-config
+          pkgs.trunk
+          pkgs.git
+        ];
+        impureEnv = ''
+          export PATH="${impureBinPath}:$PATH"
+          export PKG_CONFIG_PATH="${pkgs.lib.makeSearchPathOutput "dev" "lib/pkgconfig" nativeLibs}"
+          export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
+        '';
       in
       {
         # ── Native dev shell ───────────────────────────────────────────────────
@@ -411,8 +439,8 @@
             let
               script = pkgs.writeShellScript "egui-shadcn-web" ''
                 set -e
-                export PATH="${rustToolchain}/bin:${pkgs.trunk}/bin:$PATH"
-                REPO="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                ${impureEnv}
+                REPO="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
                 cd "$REPO/demo"
                 echo "Starting trunk serve on http://localhost:8080 …"
                 exec trunk serve --port 8080
@@ -433,8 +461,7 @@
             let
               script = pkgs.writeShellScript "egui-shadcn-e2e" ''
                 set -euo pipefail
-                export PATH="${rustToolchain}/bin:${pkgs.trunk}/bin:${pkgs.git}/bin:$PATH"
-                export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
+                ${impureEnv}
 
                 REPO="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
                 cd "$REPO"
@@ -464,9 +491,8 @@
             let
               script = pkgs.writeShellScript "egui-shadcn-test" ''
                 set -euo pipefail
-                export PATH="${rustToolchain}/bin:$PATH"
-                export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeLibs}"
-                REPO="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                ${impureEnv}
+                REPO="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
                 cd "$REPO"
                 exec cargo test --workspace
               '';
