@@ -4,4 +4,7 @@
 **/dist
 .claude
 egui_components/assets/
-result
+# `nix build` output symlinks — they point into /nix/store and dangle
+# everywhere else, which crashes the GitHub Pages Jekyll builder.
+/result
+/result-*
