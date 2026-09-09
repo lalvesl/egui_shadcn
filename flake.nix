@@ -27,7 +27,7 @@
           inherit system overlays;
         };
 
-        rustToolchain = pkgs.rust-bin.stable."1.96.0".default.override {
+        rustToolchain = pkgs.rust-bin.stable."1.98.1".default.override {
           extensions = [
             "rust-src"
             "rust-analyzer"
@@ -71,22 +71,22 @@
           hash = "sha256-Uw8lv3stccjh2pR21T+am7a34Ye/9pu3Eou2ebgZSJQ=";
         };
 
-        # wasm-bindgen-cli at the version matching Cargo.lock (0.2.126).
+        # wasm-bindgen-cli at the version matching Cargo.lock (0.2.128).
         # nixpkgs ships 0.2.121; a mismatch causes "schema version" errors.
         wasmBindgenSrc = pkgs.fetchurl {
-          url = "https://static.crates.io/crates/wasm-bindgen-cli/wasm-bindgen-cli-0.2.126.crate";
-          name = "wasm-bindgen-cli-0.2.126.tar.gz";
-          hash = "sha256-ji6/bu+Hw05mI0fx3d++pUEwS7cpRxHtLCrNh0bMW1A=";
+          url = "https://static.crates.io/crates/wasm-bindgen-cli/wasm-bindgen-cli-0.2.128.crate";
+          name = "wasm-bindgen-cli-0.2.128.tar.gz";
+          hash = "sha256-LikUDAToGDKQK3Dl03uc4b+oEcj+RWO+oI9234OIzyA=";
         };
         wasmBindgenCli = rustPlatform.buildRustPackage {
           pname = "wasm-bindgen-cli";
-          version = "0.2.126";
+          version = "0.2.128";
           src = wasmBindgenSrc;
           # cargoHash uses fetchCargoVendor (runs `cargo vendor` in an FOD)
           # which sends User-Agent: cargo/X.Y.Z — avoids crates.io API 403.
           # cargoLock/importCargoLock would use Nix fetchers (User-Agent: Nix)
           # which crates.io now rejects.
-          cargoHash = "sha256-VucqkXbCi4qtQzY/HrXiDnbSURsagPsdNVMn1Tw3UiY=";
+          cargoHash = "sha256-R1Tas33Ursy8kqsxguAkG0ZhNed2n5uFTAhw1l2qlLY=";
           doCheck = false;
         };
 
@@ -369,7 +369,12 @@
             nativeBuildInputs = [
               pkgs.cargo-apk
               pkgs.jdk17_headless
+              # demo/build.rs pulls in `ureq` (native-tls → openssl-sys); its
+              # build script compiles on the host and needs pkg-config + openssl
+              # even though the download is skipped (assets come from env).
+              pkgs.pkg-config
             ];
+            buildInputs = [ pkgs.openssl ];
 
             buildPhaseCargoCommand = ''
               # ndk-build needs a writable $HOME for its ~/.android lookup.
