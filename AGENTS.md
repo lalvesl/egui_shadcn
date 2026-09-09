@@ -12,7 +12,7 @@ not pixel-perfect.
 ## Dev environment
 
 ```bash
-nix develop            # dev shell: Rust 1.96.0 + GUI libs
+nix develop            # dev shell: Rust 1.98.1 + GUI libs
 cargo run              # native demo
 cargo build
 cargo clippy           # CI runs with -D warnings
