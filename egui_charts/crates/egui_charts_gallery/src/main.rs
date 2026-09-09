@@ -312,7 +312,8 @@ mod tests {
                 app.selected = kind;
                 // A couple of frames so accordions/animations settle.
                 for _ in 0..2 {
-                    let _ = ctx.run_ui(screen(), |ui| app.render(ui));
+                    let mut output = ctx.run_ui(screen(), |ui| app.render(ui));
+                    output.textures_delta.clear();
                 }
             }
         }
