@@ -51,6 +51,12 @@ fn click_at(pos: egui::Pos2) -> egui::RawInput {
     input
 }
 
+/// Run one demo frame, discarding its render output.
+fn step(ctx: &egui::Context, input: egui::RawInput, app: &mut DemoApp) {
+    let mut output = ctx.run_ui(input, |ui| app.show(ui));
+    output.textures_delta.clear();
+}
+
 /// Run the demo for `frames` frames in the given theme + language.
 fn run(dark: bool, lang: Languages, frames: usize) {
     let ctx = egui::Context::default();
@@ -59,7 +65,7 @@ fn run(dark: bool, lang: Languages, frames: usize) {
 
     let mut app = DemoApp::default().with_dark(dark);
     for _ in 0..frames {
-        let _ = ctx.run_ui(screen(), |ui| app.show(ui));
+        step(&ctx, screen(), &mut app);
     }
 }
 
@@ -86,7 +92,7 @@ fn demo_runs_with_custom_primary_hue() {
     i18n::set_language(Languages::EnUs);
     let mut app = DemoApp::default();
     for _ in 0..4 {
-        let _ = ctx.run_ui(screen(), |ui| app.show(ui));
+        step(&ctx, screen(), &mut app);
     }
 }
 
@@ -103,7 +109,7 @@ fn demo_runs_narrow_mobile_layout() {
 
     // Settle into the mobile breakpoint (sidebar auto-collapses on frame 1).
     for _ in 0..3 {
-        let _ = ctx.run_ui(narrow(), |ui| app.show(ui));
+        step(&ctx, narrow(), &mut app);
     }
     assert!(
         !app.sidebar_open(),
@@ -111,9 +117,9 @@ fn demo_runs_narrow_mobile_layout() {
     );
 
     // Hamburger sits at the top-left of the toolbar → opens the overlay drawer.
-    let _ = ctx.run_ui(click_at(egui::pos2(20.0, 26.0)), |ui| app.show(ui));
+    step(&ctx, click_at(egui::pos2(20.0, 26.0)), &mut app);
     for _ in 0..2 {
-        let _ = ctx.run_ui(narrow(), |ui| app.show(ui));
+        step(&ctx, narrow(), &mut app);
     }
     assert!(
         app.sidebar_open(),
@@ -121,9 +127,9 @@ fn demo_runs_narrow_mobile_layout() {
     );
 
     // Tap far from the drawer (right edge) to close it via the scrim.
-    let _ = ctx.run_ui(click_at(egui::pos2(345.0, 400.0)), |ui| app.show(ui));
+    step(&ctx, click_at(egui::pos2(345.0, 400.0)), &mut app);
     for _ in 0..2 {
-        let _ = ctx.run_ui(narrow(), |ui| app.show(ui));
+        step(&ctx, narrow(), &mut app);
     }
     assert!(
         !app.sidebar_open(),
@@ -138,7 +144,7 @@ fn sidebar_defaults_open_on_wide_viewport() {
     i18n::set_language(Languages::EnUs);
     let mut app = DemoApp::default();
     for _ in 0..2 {
-        let _ = ctx.run_ui(screen(), |ui| app.show(ui));
+        step(&ctx, screen(), &mut app);
     }
     assert!(
         app.sidebar_open(),
@@ -160,6 +166,6 @@ fn demo_survives_pointer_scrubbing() {
         let x = 100.0 + (i as f32) * 120.0;
         input.events =
             vec![egui::Event::PointerMoved(egui::pos2(x, 80.0 + x * 0.2))];
-        let _ = ctx.run_ui(input, |ui| app.show(ui));
+        step(&ctx, input, &mut app);
     }
 }
