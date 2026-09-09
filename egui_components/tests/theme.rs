@@ -135,7 +135,7 @@ fn apply_sets_visuals_without_panicking() {
     let ctx = egui::Context::default();
     ctx.set_fonts(egui_components::font_definitions());
     ShadcnTheme::dark().apply(&ctx);
-    let _ = ctx.run_ui(
+    let mut output = ctx.run_ui(
         egui::RawInput {
             screen_rect: Some(egui::Rect::from_min_size(
                 egui::Pos2::ZERO,
@@ -147,6 +147,7 @@ fn apply_sets_visuals_without_panicking() {
             ui.label("themed");
         },
     );
+    output.textures_delta.clear();
     // Visuals were applied: panel fill matches the theme background.
     assert_eq!(
         ctx.global_style().visuals.panel_fill,
