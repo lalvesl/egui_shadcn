@@ -46,7 +46,8 @@ pub fn frame(
     input: RawInput,
     mut build: impl FnMut(&mut egui::Ui),
 ) {
-    let _ = ctx.run_ui(input, |ui| build(ui));
+    let mut output = ctx.run_ui(input, |ui| build(ui));
+    output.textures_delta.clear();
 }
 
 /// Render one default frame, returning whatever the closure extracts (e.g. a
@@ -56,7 +57,8 @@ pub fn render<R>(
     mut build: impl FnMut(&mut egui::Ui) -> R,
 ) -> R {
     let mut out: Option<R> = None;
-    let _ = ctx.run_ui(base_input(), |ui| out = Some(build(ui)));
+    let mut output = ctx.run_ui(base_input(), |ui| out = Some(build(ui)));
+    output.textures_delta.clear();
     out.expect("run_ui ran the closure at least once")
 }
 
