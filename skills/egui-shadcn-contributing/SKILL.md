@@ -12,7 +12,7 @@ see the sibling `egui-shadcn` skill and its `references/components.md`.
 ## Dev environment
 
 ```bash
-nix develop            # Rust 1.96.0 + all GUI libs (libxkbcommon, wayland, …)
+nix develop            # Rust 1.98.1 + all GUI libs (libxkbcommon, wayland, …)
 cargo run              # native demo
 cargo clippy           # CI runs with -D warnings — a new warning fails the build
 cargo test --workspace
