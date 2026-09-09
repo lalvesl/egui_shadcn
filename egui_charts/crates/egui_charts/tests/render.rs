@@ -32,12 +32,13 @@ fn render_chart(dark: bool, build: impl FnOnce() -> Chart) -> egui::Rect {
     };
 
     let mut rect = egui::Rect::ZERO;
-    let _ = ctx.run_ui(input, |ui| {
+    let mut output = ctx.run_ui(input, |ui| {
         rect = ChartWidget::new(&chart)
             .min_size(egui::vec2(480.0, 320.0))
             .show(ui)
             .rect;
     });
+    output.textures_delta.clear();
     rect
 }
 
