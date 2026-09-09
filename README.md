@@ -182,7 +182,7 @@ solves, what was decided, and which alternatives lost. Start at the
 
 ## Tech stack
 
-- Rust 1.96+
-- [egui](https://github.com/emilk/egui) 0.35 / [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) 0.35
+- Rust 1.98+
+- [egui](https://github.com/emilk/egui) 0.36 / [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) 0.36
 - Nix flakes (reproducible dev environment)
 - Trunk (WASM builds)
