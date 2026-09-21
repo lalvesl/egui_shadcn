@@ -21,6 +21,7 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 | Checkbox        | ✅     | Checked / unchecked / disabled                                  |
 | Dialog          | ✅     | Modal overlay with dim backdrop                                 |
 | Input           | ✅     | Label, placeholder, password mode, focus ring                   |
+| NumberInput     | ✅     | Numeric field: commits on Enter/blur, clamps, ↑/↓ step, unit    |
 | Label           | ✅     | Required indicator                                              |
 | Progress        | ✅     | Determinate progress bar                                        |
 | Radio           | ✅     | Radio group via generic value binding                           |
@@ -39,6 +40,7 @@ Rust [egui](https://github.com/emilk/egui) implementation of [Shadcn/ui](https:/
 | Button Group    | ✅     | Connected button strip, default/outline variants, single-select |
 | Carousel        | ✅     | Slide content with prev/next buttons and dot indicators         |
 | Chart           | ✅     | Bar and line charts with grid, legend, auto-scale               |
+| XY Chart        | ✅     | Time series + Bode: value/log axes, 1e6-pt decimation, zoom/pan |
 | Collapsible     | ✅     | Expandable section with trigger and content callback            |
 | Combobox        | ✅     | Searchable select with filter input                             |
 | Command         | ✅     | Command palette with search, groups, keyboard navigation        |
