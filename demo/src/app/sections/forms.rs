@@ -9,6 +9,7 @@ use egui_sc::egui_components::{
     input::Input,
     input_otp::InputOtp,
     label::Label,
+    number_input::NumberInput,
     radio::Radio,
     select::Select,
     slider::Slider,
@@ -171,6 +172,25 @@ impl DemoApp {
                 .label(password.as_ref())
                 .placeholder("••••••••")
                 .password(true)
+                .show(ui);
+        });
+        Spacing::Md.show(ui);
+        Card::new().show(ui, |ui| {
+            card_header(
+                ui,
+                tr!(t::InputSec::Number).as_ref(),
+                Some(tr!(t::InputSec::NumberHint).as_ref()),
+            );
+            Label::new(tr!(t::InputSec::Voltage).as_ref()).show(ui);
+            NumberInput::new("demo_volts", &mut self.number_volts)
+                .range(0.0..=1.0)
+                .step(0.01)
+                .unit("V")
+                .show(ui);
+            Spacing::Sm.show(ui);
+            Label::new(tr!(t::InputSec::Samples).as_ref()).show(ui);
+            NumberInput::new("demo_samples", &mut self.number_samples)
+                .range(2..=64)
                 .show(ui);
         });
     }
