@@ -135,7 +135,11 @@ pub fn draw_and_handle(
             cursor + vec2(2.0, (entry_size.y - 10.0) * 0.5),
             Vec2::splat(10.0),
         );
-        let series_color = theme.series_color(it.series_index);
+        let series_color = chart
+            .series
+            .get(it.series_index)
+            .map(|s| crate::series::series_color(s, it.series_index, theme))
+            .unwrap_or_else(|| theme.series_color(it.series_index));
         let fill = if it.visible {
             series_color
         } else {
