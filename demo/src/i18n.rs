@@ -526,6 +526,11 @@ pub const SECTION_COUNT: usize = 52;
         Username([EnUs("Username"),                         PtBr("Usuário")]),
         UsernamePh([EnUs("Enter your username…"),           PtBr("Digite seu usuário…")]),
         Password([EnUs("Password"),                         PtBr("Senha")]),
+        Number([EnUs("Numeric input"),                      PtBr("Entrada numérica")]),
+        NumberHint([EnUs("Type a value and press Enter, or use ↑/↓. Out-of-range values are clamped; text that is not a number is reverted."),
+                    PtBr("Digite um valor e pressione Enter, ou use ↑/↓. Valores fora da faixa são limitados; texto que não é número é revertido.")]),
+        Voltage([EnUs("Voltage"),                           PtBr("Tensão")]),
+        Samples([EnUs("Samples"),                           PtBr("Amostras")]),
     }
 }
 
@@ -619,12 +624,29 @@ pub const SECTION_COUNT: usize = 52;
 
 ::i18n::traductions! {
     pub enum ChartSec {
-        Subtitle([EnUs("Bar and line charts for data visualization."),
-                  PtBr("Gráficos de barra e linha para visualização de dados.")]),
+        Subtitle([EnUs("Bar, line, time-series and Bode charts for data visualization."),
+                  PtBr("Gráficos de barra, linha, séries temporais e Bode para visualização de dados.")]),
         HBar([EnUs("Bar chart – Desktop vs Mobile"),        PtBr("Gráfico de barras – Desktop vs Móvel")]),
         HLine([EnUs("Line chart"),                          PtBr("Gráfico de linha")]),
         Desktop([EnUs("Desktop"),                           PtBr("Desktop")]),
         Mobile([EnUs("Mobile"),                             PtBr("Móvel")]),
+        HLive([EnUs("Live acquisition – 3 channels × 100k samples @ 1 kHz"),
+               PtBr("Aquisição ao vivo – 3 canais × 100 mil amostras @ 1 kHz")]),
+        LiveHint([EnUs("Wheel zooms (Shift: time only, Ctrl: value only), drag pans, double-click resets."),
+                  PtBr("Roda amplia (Shift: só tempo, Ctrl: só valor), arrastar move, clique duplo restaura.")]),
+        Follow([EnUs("Follow latest 10 s"),                 PtBr("Seguir últimos 10 s")]),
+        ResetView([EnUs("Reset view"),                      PtBr("Restaurar vista")]),
+        Time([EnUs("Time (s)"),                             PtBr("Tempo (s)")]),
+        Value([EnUs("Value"),                               PtBr("Valor")]),
+        Pressure([EnUs("Pressure"),                         PtBr("Pressão")]),
+        Temperature([EnUs("Temperature"),                   PtBr("Temperatura")]),
+        Valve([EnUs("Valve"),                               PtBr("Válvula")]),
+        HBode([EnUs("Bode plot – magnitude and phase"),     PtBr("Diagrama de Bode – módulo e fase")]),
+        Frequency([EnUs("Frequency (Hz)"),                  PtBr("Frequência (Hz)")]),
+        Magnitude([EnUs("Magnitude (dB)"),                  PtBr("Módulo (dB)")]),
+        Phase([EnUs("Phase (deg)"),                         PtBr("Fase (graus)")]),
+        Plant([EnUs("Plant"),                               PtBr("Planta")]),
+        Model([EnUs("1st-order model"),                     PtBr("Modelo de 1ª ordem")]),
     }
 }
 
