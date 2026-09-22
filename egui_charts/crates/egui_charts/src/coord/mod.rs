@@ -57,6 +57,7 @@ pub struct CoordLayout {
     pub kind: CoordKind,
     to_screen: Box<dyn Fn(DataPoint) -> Pos2>,
     to_data: Box<dyn Fn(Pos2) -> DataPoint>,
+    cartesian: Option<cartesian::CartesianScales>,
 }
 
 impl CoordLayout {
@@ -73,7 +74,23 @@ impl CoordLayout {
             axes,
             to_screen,
             to_data,
+            cartesian: None,
         }
+    }
+
+    /// Attach the resolved cartesian scales (fast per-point mapping for large
+    /// series, and the ranges zoom/pan operate on).
+    pub fn with_cartesian(
+        mut self,
+        scales: cartesian::CartesianScales,
+    ) -> Self {
+        self.cartesian = Some(scales);
+        self
+    }
+
+    /// The resolved cartesian scales, for cartesian layouts.
+    pub fn cartesian(&self) -> Option<&cartesian::CartesianScales> {
+        self.cartesian.as_ref()
     }
 
     pub fn to_screen(&self, p: DataPoint) -> Pos2 {
