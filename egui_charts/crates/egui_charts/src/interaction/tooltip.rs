@@ -99,11 +99,32 @@ pub fn draw(
 fn format_value(v: f64) -> String {
     if v == 0.0 {
         "0".into()
+    } else if v.abs() < 0.01 {
+        format!("{:.2e}", v)
     } else if v.abs() >= 1000.0 {
         format!("{:.0}", v)
     } else if v.abs() >= 10.0 {
         format!("{:.1}", v)
     } else {
         format!("{:.2}", v)
+    }
+}
+
+/// Axis-value label for a tooltip header: up to 6 significant digits, trailing
+/// zeros trimmed, exponent form for very large / small magnitudes.
+pub fn format_axis_value(v: f64) -> String {
+    if v == 0.0 || !v.is_finite() {
+        return format!("{v}");
+    }
+    let abs = v.abs();
+    if !(1e-3..1e9).contains(&abs) {
+        return format!("{:.4e}", v);
+    }
+    let decimals = (5 - abs.log10().floor() as i32).clamp(0, 9) as usize;
+    let s = format!("{:.*}", decimals, v);
+    if s.contains('.') {
+        s.trim_end_matches('0').trim_end_matches('.').to_string()
+    } else {
+        s
     }
 }
