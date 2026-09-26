@@ -4,6 +4,7 @@
 //! `legend`, `xAxis`/`yAxis`, `series[]`. Constructed via [`Chart::new()`].
 
 use egui::Align2;
+use std::sync::{Arc, OnceLock};
 
 // ── ChartKind enum (single source of truth for the catalog) ─────────────────
 
@@ -23,6 +24,10 @@ pub enum ChartKind {
     ThemeRiver,
     LinesCartesian,
     Custom,
+    /// Numeric-x line (time series) — [`XyLineSeries`].
+    XyLine,
+    /// Bode plot — two [`XyLineSeries`] charts over a log frequency axis.
+    Bode,
     // 3.2 Polar
     Pie,
     Doughnut,
@@ -73,6 +78,8 @@ impl ChartKind {
             ChartKind::ThemeRiver => "Theme river",
             ChartKind::LinesCartesian => "Lines (cartesian)",
             ChartKind::Custom => "Custom",
+            ChartKind::XyLine => "XY line (time series)",
+            ChartKind::Bode => "Bode plot",
             ChartKind::Pie => "Pie",
             ChartKind::Doughnut => "Doughnut",
             ChartKind::Rose => "Rose / Nightingale",
@@ -115,7 +122,9 @@ impl ChartKind {
             | ChartKind::PictorialBar
             | ChartKind::ThemeRiver
             | ChartKind::LinesCartesian
-            | ChartKind::Custom => "Cartesian",
+            | ChartKind::Custom
+            | ChartKind::XyLine
+            | ChartKind::Bode => "Cartesian",
             ChartKind::Pie
             | ChartKind::Doughnut
             | ChartKind::Rose
@@ -188,6 +197,8 @@ impl ChartKind {
                 | ChartKind::Map3D
                 | ChartKind::Globe
                 | ChartKind::Chord
+                | ChartKind::XyLine
+                | ChartKind::Bode
         )
     }
 
@@ -204,6 +215,8 @@ impl ChartKind {
             ChartKind::ThemeRiver,
             ChartKind::LinesCartesian,
             ChartKind::Custom,
+            ChartKind::XyLine,
+            ChartKind::Bode,
             ChartKind::Pie,
             ChartKind::Doughnut,
             ChartKind::Rose,
@@ -528,6 +541,359 @@ impl ScatterSeries {
 
     pub fn size(mut self, px: f32) -> Self {
         self.symbol_size = px;
+        self
+    }
+}
+
+// ── XY line (numeric x) ──────────────────────────────────────────────────────
+
+/// Stroke pattern of an [`XyLineSeries`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum DashStyle {
+    #[default]
+    Solid,
+    Dashed,
+    Dotted,
+}
+
+/// Summary statistics of an [`XyData`] buffer, computed once and shared by
+/// every clone of it.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct XyStats {
+    /// `x` is non-decreasing across the whole buffer (no NaN `x`).
+    pub sorted: bool,
+    /// Finite `x` extent, `None` when no point has a finite `x`.
+    pub x: Option<(f64, f64)>,
+    /// Finite `y` extent (NaN gaps ignored).
+    pub y: Option<(f64, f64)>,
+    /// Extent of strictly positive finite `x` — what a log axis can show.
+    pub x_pos: Option<(f64, f64)>,
+    /// Extent of strictly positive finite `y` — what a log axis can show.
+    pub y_pos: Option<(f64, f64)>,
+}
+
+impl XyStats {
+    pub fn compute(points: &[[f64; 2]]) -> Self {
+        let mut sorted = true;
+        let mut prev = f64::NEG_INFINITY;
+        let mut x = Extent::default();
+        let mut y = Extent::default();
+        let mut x_pos = Extent::default();
+        let mut y_pos = Extent::default();
+        for &[px, py] in points {
+            // A NaN x is incomparable, which unsorts.
+            if px.partial_cmp(&prev).is_none_or(|o| o.is_lt()) {
+                sorted = false;
+            }
+            prev = px;
+            if px.is_finite() {
+                x.add(px);
+                if px > 0.0 {
+                    x_pos.add(px);
+                }
+            }
+            if py.is_finite() {
+                y.add(py);
+                if py > 0.0 {
+                    y_pos.add(py);
+                }
+            }
+        }
+        Self {
+            sorted,
+            x: x.get(),
+            y: y.get(),
+            x_pos: x_pos.get(),
+            y_pos: y_pos.get(),
+        }
+    }
+}
+
+/// Running min/max accumulator.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Extent {
+    pub min: f64,
+    pub max: f64,
+}
+
+impl Default for Extent {
+    fn default() -> Self {
+        Self {
+            min: f64::INFINITY,
+            max: f64::NEG_INFINITY,
+        }
+    }
+}
+
+impl Extent {
+    #[inline]
+    pub fn add(&mut self, v: f64) {
+        if v < self.min {
+            self.min = v;
+        }
+        if v > self.max {
+            self.max = v;
+        }
+    }
+
+    pub fn get(self) -> Option<(f64, f64)> {
+        (self.min <= self.max).then_some((self.min, self.max))
+    }
+}
+
+#[derive(Clone)]
+enum XyRepr {
+    Slice(Arc<[[f64; 2]]>),
+    Vec(Arc<Vec<[f64; 2]>>),
+}
+
+/// Lazily computed facts about one buffer, shared by every clone of it.
+#[derive(Default)]
+struct XyMeta {
+    sorted: OnceLock<bool>,
+    stats: OnceLock<XyStats>,
+}
+
+/// Shared, immutable `(x, y)` point buffer for [`XyLineSeries`].
+///
+/// Cloning is an `Arc` bump — rebuilding a `Chart` every frame over a million
+/// points copies nothing. Sortedness and extents are computed lazily on first
+/// use and cached **inside** the `XyData`, so keep one `XyData` per data
+/// snapshot and clone it into each frame's chart instead of re-wrapping the
+/// raw `Arc` every frame. For a buffer that changes every frame (streaming)
+/// use [`Self::assume_sorted`]: with a pinned x range nothing then walks the
+/// whole buffer.
+#[derive(Clone)]
+pub struct XyData {
+    repr: XyRepr,
+    meta: Arc<XyMeta>,
+}
+
+impl XyData {
+    /// Wrap a shared slice. No copy.
+    pub fn from_arc(points: Arc<[[f64; 2]]>) -> Self {
+        Self {
+            repr: XyRepr::Slice(points),
+            meta: Arc::default(),
+        }
+    }
+
+    /// Wrap a shared `Vec`. No copy.
+    pub fn from_arc_vec(points: Arc<Vec<[f64; 2]>>) -> Self {
+        Self {
+            repr: XyRepr::Vec(points),
+            meta: Arc::default(),
+        }
+    }
+
+    /// Collect `(x, y)` pairs into a new buffer.
+    pub fn from_points<I: IntoIterator<Item = (f64, f64)>>(points: I) -> Self {
+        let v: Vec<[f64; 2]> =
+            points.into_iter().map(|(x, y)| [x, y]).collect();
+        Self::from_arc(v.into())
+    }
+
+    /// Zip separate `x` and `y` columns (truncates to the shorter one).
+    pub fn from_columns<X, Y>(xs: X, ys: Y) -> Self
+    where
+        X: IntoIterator<Item = f64>,
+        Y: IntoIterator<Item = f64>,
+    {
+        Self::from_points(xs.into_iter().zip(ys))
+    }
+
+    /// Promise that `x` is non-decreasing (e.g. acquisition timestamps), so
+    /// the O(n) sortedness scan is skipped. A wrong promise does not panic,
+    /// but culling, decimation and hover will pick wrong points.
+    pub fn assume_sorted(self) -> Self {
+        let _ = self.meta.sorted.set(true);
+        self
+    }
+
+    /// The points as `[x, y]` pairs.
+    pub fn as_slice(&self) -> &[[f64; 2]] {
+        match &self.repr {
+            XyRepr::Slice(a) => a,
+            XyRepr::Vec(v) => v.as_slice(),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.as_slice().len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.as_slice().is_empty()
+    }
+
+    /// `x` is non-decreasing (and never NaN). O(n) the first time unless
+    /// [`Self::assume_sorted`] was used.
+    pub fn is_sorted(&self) -> bool {
+        *self.meta.sorted.get_or_init(|| {
+            if let Some(st) = self.meta.stats.get() {
+                return st.sorted;
+            }
+            // A NaN x is incomparable, which unsorts.
+            self.as_slice().windows(2).all(|w| {
+                w[1][0].partial_cmp(&w[0][0]).is_some_and(|o| o.is_ge())
+            }) && self.as_slice().first().is_none_or(|p| !p[0].is_nan())
+        })
+    }
+
+    /// Full sortedness + extents, computed once per buffer (O(n)).
+    pub fn stats(&self) -> &XyStats {
+        self.meta.stats.get_or_init(|| {
+            let mut st = XyStats::compute(self.as_slice());
+            if let Some(&hint) = self.meta.sorted.get() {
+                st.sorted = hint;
+            }
+            st
+        })
+    }
+
+    /// Finite x extent (strictly positive only when `log`). O(log n) for
+    /// sorted data, otherwise from [`Self::stats`].
+    pub fn x_extent(&self, log: bool) -> Option<(f64, f64)> {
+        if !self.is_sorted() {
+            let st = self.stats();
+            return if log { st.x_pos } else { st.x };
+        }
+        let d = self.as_slice();
+        let a = if log {
+            d.partition_point(|p| p[0] <= 0.0)
+        } else {
+            d.partition_point(|p| p[0] == f64::NEG_INFINITY)
+        };
+        let b = d.partition_point(|p| p[0] < f64::INFINITY);
+        (a < b).then(|| (d[a][0], d[b - 1][0]))
+    }
+}
+
+impl Default for XyData {
+    fn default() -> Self {
+        Self::from_arc(Arc::from(Vec::new()))
+    }
+}
+
+impl std::fmt::Debug for XyData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("XyData").field("len", &self.len()).finish()
+    }
+}
+
+impl From<Arc<[[f64; 2]]>> for XyData {
+    fn from(a: Arc<[[f64; 2]]>) -> Self {
+        Self::from_arc(a)
+    }
+}
+
+impl From<Arc<Vec<[f64; 2]>>> for XyData {
+    fn from(a: Arc<Vec<[f64; 2]>>) -> Self {
+        Self::from_arc_vec(a)
+    }
+}
+
+impl From<Vec<[f64; 2]>> for XyData {
+    fn from(v: Vec<[f64; 2]>) -> Self {
+        Self::from_arc(v.into())
+    }
+}
+
+/// Line over explicit `(x, y)` pairs, for value and log axes on both x and y.
+///
+/// - A non-finite `y` (NaN) breaks the line: it leaves a gap, it does not
+///   drop to zero. Points outside a log axis' domain (`<= 0`) break it too.
+/// - When `x` is sorted, only the visible x-range is walked (binary search),
+///   and a series with far more points than horizontal pixels is drawn with
+///   min/max-per-pixel-column decimation, so spikes survive. Unsorted data is
+///   drawn point by point.
+/// - Colour comes from the theme palette unless set with [`Self::color`].
+#[derive(Clone, Debug)]
+pub struct XyLineSeries {
+    pub name: String,
+    pub data: XyData,
+    pub line_width: f32,
+    pub dash: DashStyle,
+    /// Marker drawn on every point, `None` for a bare line. Markers are
+    /// skipped while the series is being decimated.
+    pub marker: Option<SymbolKind>,
+    pub marker_size: f32,
+    /// Explicit colour; `None` uses the theme palette.
+    pub color: Option<egui::Color32>,
+}
+
+impl XyLineSeries {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            data: XyData::default(),
+            line_width: 1.5,
+            dash: DashStyle::Solid,
+            marker: None,
+            marker_size: 5.0,
+            color: None,
+        }
+    }
+
+    /// Use a shared buffer (`XyData`, `Arc<[[f64; 2]]>`, `Arc<Vec<[f64; 2]>>`
+    /// or an owned `Vec<[f64; 2]>`). No copy for the `Arc` forms.
+    pub fn data(mut self, data: impl Into<XyData>) -> Self {
+        self.data = data.into();
+        self
+    }
+
+    /// Shared slice of `[x, y]` pairs. Equivalent to `.data(arc)`.
+    pub fn data_arc(self, points: Arc<[[f64; 2]]>) -> Self {
+        self.data(XyData::from_arc(points))
+    }
+
+    /// Convenience: collect `(x, y)` pairs.
+    pub fn points<I: IntoIterator<Item = (f64, f64)>>(self, points: I) -> Self {
+        self.data(XyData::from_points(points))
+    }
+
+    /// Convenience: zip separate `x` and `y` columns.
+    pub fn columns<X, Y>(self, xs: X, ys: Y) -> Self
+    where
+        X: IntoIterator<Item = f64>,
+        Y: IntoIterator<Item = f64>,
+    {
+        self.data(XyData::from_columns(xs, ys))
+    }
+
+    /// Fixed colour for this series, overriding the theme palette — keeps a
+    /// channel the same colour across every chart it appears in.
+    pub fn color(mut self, color: egui::Color32) -> Self {
+        self.color = Some(color);
+        self
+    }
+
+    pub fn width(mut self, px: f32) -> Self {
+        self.line_width = px;
+        self
+    }
+
+    pub fn dash(mut self, dash: DashStyle) -> Self {
+        self.dash = dash;
+        self
+    }
+
+    pub fn dashed(self) -> Self {
+        self.dash(DashStyle::Dashed)
+    }
+
+    pub fn dotted(self) -> Self {
+        self.dash(DashStyle::Dotted)
+    }
+
+    /// Draw `kind` on every (non-decimated) point.
+    pub fn markers(mut self, kind: SymbolKind) -> Self {
+        self.marker = Some(kind);
+        self
+    }
+
+    pub fn marker_size(mut self, px: f32) -> Self {
+        self.marker_size = px;
         self
     }
 }
@@ -2216,6 +2582,8 @@ pub enum Series {
     Map3D(Map3DSeries),
     Globe(GlobeSeries),
     Chord(ChordSeries),
+    /// Line over `(x, y)` pairs on value / log axes. See [`XyLineSeries`].
+    XyLine(XyLineSeries),
 }
 
 /// Which coordinate system a series wants. Drives widget dispatch.
@@ -2257,6 +2625,21 @@ impl Series {
         FunnelSeries::new(name)
     }
 
+    /// Line over explicit `(x, y)` pairs — time series, Bode plots, any
+    /// numeric x. Plots on value and log axes on both x and y.
+    pub fn xy_line(name: impl Into<String>) -> XyLineSeries {
+        XyLineSeries::new(name)
+    }
+
+    /// Explicit per-series colour, when the series carries one. `None` means
+    /// the theme palette colour for the series index is used.
+    pub fn color_override(&self) -> Option<egui::Color32> {
+        match self {
+            Series::XyLine(s) => s.color,
+            _ => None,
+        }
+    }
+
     pub fn name(&self) -> &str {
         match self {
             Series::Line(s) => &s.name,
@@ -2295,6 +2678,7 @@ impl Series {
             Series::Map3D(s) => &s.name,
             Series::Globe(s) => &s.name,
             Series::Chord(s) => &s.name,
+            Series::XyLine(s) => &s.name,
         }
     }
 
@@ -2317,7 +2701,8 @@ impl Series {
             | Series::EffectScatter(_)
             | Series::LinesCartesian(_)
             | Series::PictorialBar(_)
-            | Series::ThemeRiver(_) => SeriesCoord::Cartesian,
+            | Series::ThemeRiver(_)
+            | Series::XyLine(_) => SeriesCoord::Cartesian,
             Series::Pie(_)
             | Series::Gauge(_)
             | Series::PolarBar(_)
@@ -2561,6 +2946,12 @@ impl From<GlobeSeries> for Series {
 impl From<ChordSeries> for Series {
     fn from(s: ChordSeries) -> Self {
         Series::Chord(s)
+    }
+}
+
+impl From<XyLineSeries> for Series {
+    fn from(s: XyLineSeries) -> Self {
+        Series::XyLine(s)
     }
 }
 
