@@ -187,17 +187,23 @@ impl GalleryApp {
         Separator::horizontal().show(ui);
         ui.add_space(14.0);
 
-        if let Some(chart) = samples::build(self.selected) {
+        let charts = samples::build_stack(self.selected);
+        if !charts.is_empty() {
             let chart_theme = self.controls.build_theme();
+            let interactive = samples::is_interactive(self.selected);
+            let kind = self.selected;
             Card::new().padding(12.0).show(ui, |ui| {
                 let avail = ui.available_size();
-                ChartWidget::new(&chart)
-                    .theme(chart_theme)
-                    .min_size(egui::vec2(
-                        avail.x.max(360.0),
-                        (avail.y - 4.0).max(320.0),
-                    ))
-                    .show(ui);
+                let n = charts.len() as f32;
+                let h = ((avail.y - 4.0 - 8.0 * (n - 1.0)) / n).max(260.0);
+                for (i, chart) in charts.iter().enumerate() {
+                    ChartWidget::new(chart)
+                        .id(egui::Id::new(("gallery_chart", kind.label(), i)))
+                        .theme(chart_theme.clone())
+                        .interactive(interactive)
+                        .min_size(egui::vec2(avail.x.max(360.0), h))
+                        .show(ui);
+                }
             });
         } else {
             ui.add_space(40.0);
