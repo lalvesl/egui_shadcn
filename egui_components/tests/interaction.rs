@@ -310,3 +310,194 @@ fn input_typing_appends_text() {
 
     assert_eq!(text, "Hi", "typing into a focused Input should append text");
 }
+
+/// Two `Select`s side by side, their trigger rects, and their selections.
+fn two_selects(
+    ctx: &egui::Context,
+    input: egui::RawInput,
+    a: &mut Option<usize>,
+    b: &mut Option<usize>,
+) -> (egui::Rect, egui::Rect) {
+    use egui_components::select::Select;
+    let opts = ["one", "two", "three"];
+    let mut rects = (egui::Rect::NOTHING, egui::Rect::NOTHING);
+    frame(ctx, input, |ui| {
+        ui.horizontal(|ui| {
+            rects.0 = ui
+                .scope(|ui| Select::new(a, &opts).width(200.0).show(ui))
+                .response
+                .rect;
+            rects.1 = ui
+                .scope(|ui| Select::new(b, &opts).width(200.0).show(ui))
+                .response
+                .rect;
+        });
+    });
+    rects
+}
+
+#[test]
+fn opening_one_select_does_not_open_another() {
+    let ctx = ctx();
+    let (mut a, mut b) = (None, None);
+    let (ra, rb) = two_selects(&ctx, base_input(), &mut a, &mut b);
+    // Open A only.
+    two_selects(&ctx, click_input(ra.center()), &mut a, &mut b);
+    two_selects(&ctx, base_input(), &mut a, &mut b);
+    // Where B's first option would be if B had opened too.
+    let under_b = egui::pos2(rb.center().x, rb.bottom() + 26.0);
+    two_selects(&ctx, click_input(under_b), &mut a, &mut b);
+    assert_eq!(b, None, "B's list was open although only A was clicked");
+
+    // And A's list really was open: its first option is where we expect it.
+    two_selects(&ctx, click_input(ra.center()), &mut a, &mut b);
+    two_selects(&ctx, base_input(), &mut a, &mut b);
+    let under_a = egui::pos2(ra.center().x, ra.bottom() + 26.0);
+    two_selects(&ctx, click_input(under_a), &mut a, &mut b);
+    assert_eq!(a, Some(0), "A's first option should have been picked");
+}
+
+fn number_frame(
+    ctx: &egui::Context,
+    input: egui::RawInput,
+    v: &mut f32,
+) -> (egui::Rect, bool) {
+    use egui_components::number_input::NumberInput;
+    let mut out = (egui::Rect::NOTHING, false);
+    frame(ctx, input, |ui| {
+        let r = ui.scope(|ui| {
+            NumberInput::new("n", v)
+                .range(0.0..=10.0)
+                .step(0.5)
+                .unit("V")
+                .show(ui)
+        });
+        out = (r.response.rect, r.inner);
+    });
+    out
+}
+
+fn keys(events: Vec<Event>) -> egui::RawInput {
+    let mut input = base_input();
+    input.events = events;
+    input
+}
+
+fn key(k: egui::Key) -> Event {
+    Event::Key {
+        key: k,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::default(),
+    }
+}
+
+#[test]
+fn number_input_commits_on_enter_clamps_and_reverts_garbage() {
+    let ctx = ctx();
+    let mut v = 1.0f32;
+    let (rect, _) = number_frame(&ctx, base_input(), &mut v);
+    // Focus the field (click near its left edge, where the text is).
+    number_frame(
+        &ctx,
+        click_input(egui::pos2(rect.left() + 20.0, rect.center().y)),
+        &mut v,
+    );
+
+    // Select all, type a new value: nothing is committed while typing.
+    let (_, changed) = number_frame(
+        &ctx,
+        keys(vec![
+            Event::Key {
+                key: egui::Key::A,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::COMMAND,
+            },
+            Event::Text("2,5".into()),
+        ]),
+        &mut v,
+    );
+    assert!(!changed);
+    assert_eq!(v, 1.0, "typing must not commit");
+
+    let (_, changed) =
+        number_frame(&ctx, keys(vec![key(egui::Key::Enter)]), &mut v);
+    assert!(changed, "Enter commits");
+    assert_eq!(v, 2.5, "decimal comma accepted");
+
+    // Out of range is clamped on commit.
+    number_frame(
+        &ctx,
+        click_input(egui::pos2(rect.left() + 20.0, rect.center().y)),
+        &mut v,
+    );
+    number_frame(
+        &ctx,
+        keys(vec![
+            Event::Key {
+                key: egui::Key::A,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::COMMAND,
+            },
+            Event::Text("99".into()),
+        ]),
+        &mut v,
+    );
+    number_frame(&ctx, keys(vec![key(egui::Key::Enter)]), &mut v);
+    assert_eq!(v, 10.0, "clamped to the range");
+
+    // Garbage is reverted when focus leaves.
+    number_frame(
+        &ctx,
+        click_input(egui::pos2(rect.left() + 20.0, rect.center().y)),
+        &mut v,
+    );
+    number_frame(
+        &ctx,
+        keys(vec![
+            Event::Key {
+                key: egui::Key::A,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::COMMAND,
+            },
+            Event::Text("abc".into()),
+        ]),
+        &mut v,
+    );
+    number_frame(
+        &ctx,
+        click_input(egui::pos2(rect.right() + 300.0, rect.bottom() + 200.0)),
+        &mut v,
+    );
+    number_frame(&ctx, base_input(), &mut v);
+    assert_eq!(v, 10.0, "text that does not parse leaves the value alone");
+}
+
+#[test]
+fn number_input_arrow_keys_step_the_value() {
+    let ctx = ctx();
+    let mut v = 1.0f32;
+    let (rect, _) = number_frame(&ctx, base_input(), &mut v);
+    number_frame(
+        &ctx,
+        click_input(egui::pos2(rect.left() + 20.0, rect.center().y)),
+        &mut v,
+    );
+    let (_, changed) =
+        number_frame(&ctx, keys(vec![key(egui::Key::ArrowUp)]), &mut v);
+    assert!(changed);
+    assert_eq!(v, 1.5);
+    number_frame(
+        &ctx,
+        keys(vec![key(egui::Key::ArrowDown), key(egui::Key::ArrowDown)]),
+        &mut v,
+    );
+    assert!(v < 1.5, "stepped down to {v}");
+}
