@@ -13,7 +13,9 @@ use egui_charts::{
     ScatterGeoSeries, ScatterSeries, Series, SunburstNode, SunburstSeries,
     Surface3DSeries, SymbolKind, ThemeRiverBand, ThemeRiverSeries, TreeNode,
     TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
+    XyData,
 };
+use std::sync::OnceLock;
 
 /// Build a sample chart for `kind`. Returns `None` for kinds not yet
 /// implemented.
@@ -57,7 +59,152 @@ pub fn build(kind: ChartKind) -> Option<Chart> {
         ChartKind::Map3D => Some(map_3d_sample()),
         ChartKind::Globe => Some(globe_sample()),
         ChartKind::Chord => Some(chord_sample()),
+        ChartKind::XyLine => Some(time_series_sample()),
+        ChartKind::Bode => Some(bode_magnitude_sample()),
     }
+}
+
+/// Every chart shown for `kind`, top to bottom. Most kinds are one chart; a
+/// Bode plot is a magnitude chart over a phase chart.
+pub fn build_stack(kind: ChartKind) -> Vec<Chart> {
+    match kind {
+        ChartKind::Bode => vec![bode_magnitude_sample(), bode_phase_sample()],
+        k => build(k).into_iter().collect(),
+    }
+}
+
+/// Kinds whose samples are meant to be zoomed and panned.
+pub fn is_interactive(kind: ChartKind) -> bool {
+    matches!(kind, ChartKind::XyLine | ChartKind::Bode)
+}
+
+// ── XY line: 3 channels × 1e6 samples at 1 kHz ──────────────────────────────
+
+/// Samples per channel: 1000 s at 1 kHz.
+pub const SCOPE_POINTS: usize = 1_000_000;
+const SCOPE_RATE_HZ: f64 = 1_000.0;
+
+/// Deterministic pseudo-noise in [-0.5, 0.5) (xorshift), so the sample looks
+/// like a real acquisition without a `rand` dependency.
+fn noise(state: &mut u64) -> f64 {
+    *state ^= *state << 13;
+    *state ^= *state >> 7;
+    *state ^= *state << 17;
+    (*state >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+}
+
+/// Three simulated steam-plant channels, generated once and shared: every
+/// frame's `Chart` clones the `XyData` (an `Arc` bump), never the points.
+pub fn scope_channels() -> &'static [XyData; 3] {
+    static CHANNELS: OnceLock<[XyData; 3]> = OnceLock::new();
+    CHANNELS.get_or_init(|| {
+        let mut seed = 0x9e37_79b9_7f4a_7c15_u64;
+        let mut pressure = Vec::with_capacity(SCOPE_POINTS);
+        let mut temperature = Vec::with_capacity(SCOPE_POINTS);
+        let mut valve = Vec::with_capacity(SCOPE_POINTS);
+        let (mut p, mut temp) = (4.0_f64, 150.0_f64);
+        for i in 0..SCOPE_POINTS {
+            let t = i as f64 / SCOPE_RATE_HZ;
+            // Valve: a step every 100 s, between 20 % and 80 %.
+            let v = if ((t / 100.0) as usize).is_multiple_of(2) {
+                20.0
+            } else {
+                80.0
+            };
+            // First-order plant responses to the valve (tau 8 s and 30 s).
+            p += (4.0 + v * 0.05 - p) / (8.0 * SCOPE_RATE_HZ);
+            temp += (140.0 + v * 0.6 - temp) / (30.0 * SCOPE_RATE_HZ);
+            let pn = p
+                + 0.03 * noise(&mut seed)
+                + 0.02 * (t * std::f64::consts::TAU * 4.0).sin();
+            let tn = temp + 0.2 * noise(&mut seed);
+            pressure.push([t, pn]);
+            temperature.push([t, tn / 30.0]); // scaled to share the axis
+            valve.push([t, v / 10.0 + 0.05 * noise(&mut seed)]);
+        }
+        // A single-sample spike: decimation must keep it visible.
+        pressure[500_123][1] += 3.0;
+        // A 2 s sensor dropout: NaN leaves a gap, it does not dive to zero.
+        for pt in &mut temperature[620_000..622_000] {
+            pt[1] = f64::NAN;
+        }
+        [pressure, temperature, valve].map(|v| XyData::from(v).assume_sorted())
+    })
+}
+
+fn time_series_sample() -> Chart {
+    let [p, t, v] = scope_channels().clone();
+    Chart::new()
+        .title("Acquisition — 3 channels × 1 M samples @ 1 kHz (wheel: zoom, drag: pan)")
+        .x_axis(Axis::value().name("Time (s)"))
+        .y_axis(Axis::value().name("Value (bar | °C/30 | %/10)"))
+        .series(Series::xy_line("Pressure").data(p))
+        .series(Series::xy_line("Temperature").data(t))
+        .series(Series::xy_line("Valve").data(v).dashed())
+}
+
+// ── Bode plot ────────────────────────────────────────────────────────────────
+
+/// `(f Hz, |G| dB, ∠G deg)` for a 2nd-order plant with dead time, and a
+/// 1st-order model of it, over 0.01 … 100 Hz.
+/// One Bode sample: `(frequency Hz, magnitude dB, phase deg)`.
+type BodePoint = (f64, f64, f64);
+
+fn bode_points() -> (Vec<BodePoint>, Vec<BodePoint>) {
+    let n = 400;
+    let freqs =
+        (0..n).map(|i| 10f64.powf(-2.0 + 4.0 * i as f64 / (n - 1) as f64));
+    let (k, fn_hz, zeta, delay) = (2.0_f64, 1.5_f64, 0.25_f64, 0.05_f64);
+    let mut plant = Vec::with_capacity(n);
+    let mut model = Vec::with_capacity(n);
+    for f in freqs {
+        let r = f / fn_hz;
+        let (re, im) = (1.0 - r * r, 2.0 * zeta * r);
+        let mag = k / (re * re + im * im).sqrt();
+        let phase = -im.atan2(re).to_degrees() - 360.0 * f * delay;
+        plant.push((f, 20.0 * mag.log10(), phase));
+        let tau = 1.0 / (2.0 * std::f64::consts::PI * 0.8);
+        let w = 2.0 * std::f64::consts::PI * f * tau;
+        let mmag = k / (1.0 + w * w).sqrt();
+        model.push((
+            f,
+            20.0 * mmag.log10(),
+            -w.atan().to_degrees() - 360.0 * f * delay,
+        ));
+    }
+    (plant, model)
+}
+
+fn bode_magnitude_sample() -> Chart {
+    let (plant, model) = bode_points();
+    Chart::new()
+        .title("Bode — magnitude")
+        .x_axis(Axis::log().name("Frequency (Hz)"))
+        .y_axis(Axis::value().name("Magnitude (dB)"))
+        .series(
+            Series::xy_line("Plant").points(plant.iter().map(|p| (p.0, p.1))),
+        )
+        .series(
+            Series::xy_line("1st-order model")
+                .points(model.iter().map(|p| (p.0, p.1)))
+                .dashed(),
+        )
+}
+
+fn bode_phase_sample() -> Chart {
+    let (plant, model) = bode_points();
+    Chart::new()
+        .title("Bode — phase")
+        .x_axis(Axis::log().name("Frequency (Hz)"))
+        .y_axis(Axis::value().name("Phase (deg)").min(-360.0).max(0.0))
+        .series(
+            Series::xy_line("Plant").points(plant.iter().map(|p| (p.0, p.2))),
+        )
+        .series(
+            Series::xy_line("1st-order model")
+                .points(model.iter().map(|p| (p.0, p.2)))
+                .dashed(),
+        )
 }
 
 fn line_sample() -> Chart {
