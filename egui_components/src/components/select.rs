@@ -12,6 +12,7 @@ pub struct Select<'a> {
     placeholder: Option<&'a str>,
     width: Option<f32>,
     size: Size,
+    id_salt: Option<egui::Id>,
 }
 
 impl<'a> Select<'a> {
@@ -22,7 +23,16 @@ impl<'a> Select<'a> {
             placeholder: None,
             width: None,
             size: Size::Default,
+            id_salt: None,
         }
+    }
+
+    /// Key for the open/closed state. Optional: by default each `Select` is
+    /// keyed by its own position in the UI, so two on the same screen never
+    /// open together. Set it when the position is not stable across frames.
+    pub fn id(mut self, id: impl std::hash::Hash + std::fmt::Debug) -> Self {
+        self.id_salt = Some(egui::Id::new(id));
+        self
     }
 
     pub fn placeholder(mut self, p: &'a str) -> Self {
@@ -43,11 +53,14 @@ impl<'a> Select<'a> {
         let width = self.width.unwrap_or_else(|| ui.available_width());
         let height = self.size.height();
 
-        let popup_id = egui::Id::new("shadcn_select")
-            .with(self.placeholder.unwrap_or("__shadcn_default_select__"));
-
         let (trigger_rect, resp) =
             ui.allocate_exact_size(Vec2::new(width, height), Sense::click());
+
+        // Namespaced per instance. Keying it by the placeholder alone made
+        // every Select without one share a single open flag, so opening one
+        // opened them all.
+        let popup_id = egui::Id::new("shadcn_select")
+            .with(self.id_salt.unwrap_or(resp.id));
 
         let cr = CornerRadius::same(theme.radius as u8);
         let border_color = if resp.hovered() {
