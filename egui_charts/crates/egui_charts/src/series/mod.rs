@@ -37,6 +37,7 @@ pub mod theme_river;
 pub mod tree;
 pub mod treemap;
 pub mod word_cloud;
+pub mod xy_line;
 
 use crate::coord::{CoordLayout, DataPoint};
 use crate::interaction::tooltip::TooltipDatum;
@@ -62,6 +63,17 @@ impl SeriesState {
             hovered_index: None,
         }
     }
+}
+
+/// Colour of series `idx`: its explicit override, else the theme palette.
+pub fn series_color(
+    series: &Series,
+    idx: usize,
+    theme: &ChartTheme,
+) -> egui::Color32 {
+    series
+        .color_override()
+        .unwrap_or_else(|| theme.series_color(idx))
 }
 
 /// Render every visible series in `chart`, in declaration order.
@@ -107,7 +119,7 @@ pub fn render_all(
         if !state.visible {
             continue;
         }
-        let color = theme.series_color(idx);
+        let color = series_color(series, idx, theme);
         match series {
             Series::Line(l) => {
                 if let Some(t) = line::render(
@@ -194,6 +206,13 @@ pub fn render_all(
                 if let Some(t) = theme_river::render(
                     p, s, idx, color, layout, theme, hover_data,
                 ) {
+                    tips.push(t);
+                }
+            }
+            Series::XyLine(s) => {
+                if let Some(t) =
+                    xy_line::render(p, s, idx, color, layout, theme, hover_data)
+                {
                     tips.push(t);
                 }
             }
