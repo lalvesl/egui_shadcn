@@ -27,6 +27,7 @@ pub mod option;
 pub mod render;
 pub mod series;
 pub mod theme;
+pub mod view;
 pub mod widget;
 
 pub use coord::geo::GeoBbox;
@@ -35,7 +36,7 @@ pub use coord::{CoordKind, CoordLayout, DataPoint};
 pub use option::{
     Axis, AxisKind, Bar3DSeries, BarSeries, BoxDatum, BoxPlotSeries,
     CalendarHeatmapSeries, Candle, CandlestickSeries, Chart, ChartKind,
-    ChordSeries, CustomRenderFn, CustomSeries, EffectScatterSeries,
+    ChordSeries, CustomRenderFn, CustomSeries, DashStyle, EffectScatterSeries,
     FunnelSeries, GaugeSeries, GeoLine, GeoPath, GeoPoint, GlobeSeries,
     GraphLayout, GraphLink, GraphNode, GraphSeries, HeatmapSeries, Legend,
     LegendPosition, Line3DSeries, LineSegment, LineSeries, LineStyle,
@@ -47,6 +48,8 @@ pub use option::{
     Series, SeriesCoord, SunburstNode, SunburstSeries, Surface3DSeries,
     SymbolKind, ThemeRiverBand, ThemeRiverSeries, Title, TreeNode,
     TreeOrientation, TreeSeries, TreemapNode, TreemapSeries, WordCloudSeries,
+    XyData, XyLineSeries, XyStats,
 };
 pub use theme::{ChartTheme, Distribution, Harmony, ThemeMode};
+pub use view::ChartView;
 pub use widget::ChartWidget;
