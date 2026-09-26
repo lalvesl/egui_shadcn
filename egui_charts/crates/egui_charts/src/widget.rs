@@ -1,8 +1,8 @@
 //! `ChartWidget` — the egui-facing chart renderer.
 
 use crate::coord::cartesian::CartesianCoord;
-use crate::interaction::{legend, tooltip};
-use crate::option::{Axis, AxisKind, Chart};
+use crate::interaction::{legend, tooltip, zoom};
+use crate::option::{Axis, AxisKind, Chart, Series};
 use crate::render::ChartPainter;
 use crate::render::text::{label_font, title_font};
 use crate::series::{
@@ -10,6 +10,7 @@ use crate::series::{
     render_non_cartesian,
 };
 use crate::theme::ChartTheme;
+use crate::view::ChartView;
 use egui::{Align2, Id, Response, Sense, Stroke, StrokeKind, Ui, Vec2, vec2};
 
 /// Persistent per-chart state (visibility toggles, etc.) keyed by widget id.
@@ -31,6 +32,7 @@ pub struct ChartWidget<'a> {
     theme: Option<ChartTheme>,
     desired_size: Vec2,
     id_source: Option<Id>,
+    interactive: bool,
 }
 
 impl<'a> ChartWidget<'a> {
@@ -40,6 +42,7 @@ impl<'a> ChartWidget<'a> {
             theme: None,
             desired_size: vec2(480.0, 320.0),
             id_source: None,
+            interactive: false,
         }
     }
 
@@ -53,8 +56,23 @@ impl<'a> ChartWidget<'a> {
         self
     }
 
+    /// Stable id for the chart's persistent state (legend toggles, zoom
+    /// view). Pass the same id to [`ChartView::load`] / [`ChartView::store`]
+    /// to read or drive the view from outside.
     pub fn id(mut self, id: impl Into<Id>) -> Self {
         self.id_source = Some(id.into());
+        self
+    }
+
+    /// Opt-in mouse zoom / pan for cartesian charts (default `false`):
+    /// wheel zooms both axes around the cursor, Shift + wheel x only,
+    /// Ctrl/Cmd + wheel y only, drag pans, double-click resets. The view is
+    /// kept in egui memory under the widget id — see [`ChartView`].
+    ///
+    /// A [`ChartView`] stored by the caller is honoured whether or not the
+    /// chart is interactive.
+    pub fn interactive(mut self, on: bool) -> Self {
+        self.interactive = on;
         self
     }
 
@@ -76,7 +94,12 @@ impl<'a> ChartWidget<'a> {
                 .max(160.0)
                 .min(available.y.max(self.desired_size.y)),
         );
-        let (rect, response) = ui.allocate_exact_size(size, Sense::hover());
+        let sense = if self.interactive {
+            Sense::click_and_drag()
+        } else {
+            Sense::hover()
+        };
+        let (rect, response) = ui.allocate_exact_size(size, sense);
         let id = self.id_source.unwrap_or(response.id);
 
         // Load/store persistent state.
@@ -116,12 +139,36 @@ impl<'a> ChartWidget<'a> {
         // Legend reserves space first.
         let (plot_area, legend_rect) = legend::reserve(content, self.chart);
 
-        let hover_pos = ui.input(|i| i.pointer.hover_pos());
+        let dragging = self.interactive && response.dragged();
+        let hover_pos =
+            ui.input(|i| i.pointer.hover_pos()).filter(|_| !dragging);
 
         let (tips, tooltip_rect, x_label) = if is_all_cartesian(self.chart) {
-            // Build coord layout from the remaining area.
+            // Build coord layout from the remaining area, honouring the
+            // persisted zoom/pan view.
+            let loaded_view = ChartView::load(ui.ctx(), id);
+            let mut view = loaded_view;
             let coord = CartesianCoord::new(self.chart);
-            let layout = coord.layout(plot_area, &resolved_theme);
+            let mut layout =
+                coord.layout_view(plot_area, &resolved_theme, view.x, view.y);
+            if self.interactive
+                && zoom::handle(ui, &response, &layout, &mut view)
+            {
+                layout = coord.layout_view(
+                    plot_area,
+                    &resolved_theme,
+                    view.x,
+                    view.y,
+                );
+                ui.ctx().request_repaint();
+            }
+            if let Some(sc) = layout.cartesian() {
+                view.drawn_x = sc.x.range().map(|(a, b, _)| (a, b));
+                view.drawn_y = sc.y.range().map(|(a, b, _)| (a, b));
+            }
+            if view != loaded_view {
+                view.store(ui.ctx(), id);
+            }
 
             // Draw split areas (alternating bands across y-axis).
             let y_axis = self.chart.y_axis.clone().unwrap_or_else(Axis::value);
@@ -167,13 +214,29 @@ impl<'a> ChartWidget<'a> {
             draw_axes(&chart_p, &layout, &resolved_theme, self.chart);
 
             let hover_data = hover_pos.and_then(|p| hovered_data(&layout, p));
+            // A zoomed / panned view pushes data past the plot edges: clip
+            // the series to the plot so they never paint over the axes.
+            let clipped =
+                painter.with_clip_rect(layout.plot_rect.intersect(rect));
+            let series_p = if view.is_auto() {
+                ChartPainter::new(&painter, rect)
+            } else {
+                ChartPainter::new(&clipped, rect)
+            };
             let tips = render_all(
-                &chart_p,
+                &series_p,
                 self.chart,
                 &layout,
                 &resolved_theme,
                 &state.series,
                 hover_data,
+            );
+            draw_crosshair(
+                &chart_p,
+                self.chart,
+                &layout,
+                &resolved_theme,
+                &tips,
             );
             let x_label = build_x_label(self.chart, &tips);
             (tips, layout.plot_rect, x_label)
@@ -222,11 +285,49 @@ impl<'a> ChartWidget<'a> {
     }
 }
 
+/// Vertical hover line at the x of the first XY-series hit.
+fn draw_crosshair(
+    p: &ChartPainter,
+    chart: &Chart,
+    layout: &crate::coord::CoordLayout,
+    theme: &ChartTheme,
+    tips: &[crate::interaction::tooltip::TooltipDatum],
+) {
+    let Some(pos) = tips
+        .iter()
+        .find(|t| {
+            matches!(chart.series.get(t.series_index), Some(Series::XyLine(_)))
+        })
+        .and_then(|t| t.screen_pos)
+    else {
+        return;
+    };
+    let r = layout.plot_rect;
+    if pos.x < r.min.x || pos.x > r.max.x {
+        return;
+    }
+    p.line(
+        egui::pos2(pos.x, r.min.y),
+        egui::pos2(pos.x, r.max.y),
+        Stroke::new(1.0, theme.axis_line),
+    );
+}
+
 fn build_x_label(
     chart: &Chart,
     tips: &[crate::interaction::tooltip::TooltipDatum],
 ) -> Option<String> {
-    let idx = tips.first()?.data_index;
+    let first = tips.first()?;
+    if let Some(Series::XyLine(s)) = chart.series.get(first.series_index) {
+        let x = s.data.as_slice().get(first.data_index)?[0];
+        let value = tooltip::format_axis_value(x);
+        let name = chart.x_axis.as_ref().and_then(|a| a.name.as_deref());
+        return Some(match name {
+            Some(n) => format!("{n}: {value}"),
+            None => format!("x: {value}"),
+        });
+    }
+    let idx = first.data_index;
     let axis = chart.x_axis.as_ref()?;
     match axis.kind {
         AxisKind::Category => axis.categories.get(idx).cloned(),
@@ -339,15 +440,20 @@ fn draw_axes(
             }
         }
 
-        // Axis name.
+        // Axis name, on the line the layout reserved for it: below the x
+        // tick labels, and above the plot at the left edge of the y gutter.
         if let Some(name) = &axis.name {
+            let outer = layout
+                .cartesian()
+                .map(|c| c.outer_rect)
+                .unwrap_or(layout.plot_rect);
             if axis.is_x {
                 p.text(
                     egui::Pos2::new(
                         (axis.line_start.x + axis.line_end.x) * 0.5,
-                        layout.plot_rect.max.y + 20.0,
+                        outer.max.y - 2.0,
                     ),
-                    Align2::CENTER_CENTER,
+                    Align2::CENTER_BOTTOM,
                     name.clone(),
                     font.clone(),
                     theme.text_dim,
@@ -355,7 +461,7 @@ fn draw_axes(
             } else {
                 p.text(
                     egui::Pos2::new(
-                        layout.plot_rect.min.x - 44.0,
+                        outer.min.x + 2.0,
                         layout.plot_rect.min.y - 6.0,
                     ),
                     Align2::LEFT_BOTTOM,
