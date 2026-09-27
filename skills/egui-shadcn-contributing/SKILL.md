@@ -52,7 +52,7 @@ alternatives were already rejected. Before changing a subsystem, read its record
 | Anything animated | RFC 0004 |
 | Calendar / DatePicker | RFC 0005, RFC 0011 (**WIP**) |
 | The demo app | RFC 0006 |
-| Charts | RFC 0007 |
+| Charts | RFC 0007, RFC 0014 (XY series, zoom) |
 | build.rs, fonts, nix, wasm size | RFC 0008 |
 | i18n | RFC 0009 |
 | Tests, e2e | RFC 0010 |
