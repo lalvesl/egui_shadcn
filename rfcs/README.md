@@ -39,6 +39,7 @@ renaming the file (`git mv`) and updating the link in the index below.
 | [0011](0011-intrinsic-calendar-cell-sizing-WIP.md)| Intrinsic sizing for custom calendar cells | **WIP**     | `egui_components`        |
 | [0012](0012-demo-source-snippet-macro-PLANNED-LOW.md)    | Demo source-snippet macro crate             | PLANNED-LOW | `demo`, new crate        |
 | [0013](0013-touch-time-picker-IMPLEMENTED.md)            | Touch-first time picker                     | IMPLEMENTED | `egui_components`, demo  |
+| [0014](0014-xy-series-decimation-and-zoom-IMPLEMENTED.md) | XY series, decimation and interactive zoom  | IMPLEMENTED | `egui_charts`, demo      |
 
 ## Writing a new RFC
 
