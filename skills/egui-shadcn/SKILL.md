@@ -94,7 +94,7 @@ Return values are **not uniform** — check before assuming:
 | Returns | Components |
 |---|---|
 | `Response` | `Button`, `Checkbox`, `Switch`, `Radio`, `Toggle`, `Slider`, `Input`, `Textarea`, `InputOtp`, `Icon` |
-| `bool` (changed / confirmed) | `Select`, `Combobox`, `DatePicker`, `AlertDialog` |
+| `bool` (changed / confirmed) | `Select`, `Combobox`, `DatePicker`, `AlertDialog`, `NumberInput` |
 | `Option<usize>` (clicked index) | `Breadcrumb`, `ButtonGroup`, `DropdownMenu`, `NavigationMenu`, `Pagination`, `ContextMenu` |
 | `Option<(usize, usize)>` | `Menubar`, `Command` (group, item) |
 | `Option<(usize, SortDir)>` | `DataTable` |
