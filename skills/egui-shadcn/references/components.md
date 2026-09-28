@@ -41,6 +41,7 @@ gives back. Components marked **ctx** render at viewport level and take
 | `HoverCard` | `new(id)` | `delay_frames` `width` | `(ui, trigger_fn, content_fn)` | `()` |
 | `Icon` | `new(glyph)` | `size` `color` `clickable` | `(ui)` · `paint(ui, pos, align, color)` | `Response` |
 | `Input` | `new(&mut String)` | `label` `placeholder` `password` `enabled` `icon_left` `width` `bordered` | `(ui)` | `Response` |
+| `NumberInput<T: Numeric>` | `new(id, &mut T)` | `range` `step` `decimals` `unit` `width` `enabled` | `(ui)` | `bool` (committed) |
 | `InputOtp` | `new(&mut String, digits)` | `separator_after` | `(ui)` | `Response` |
 | `Label` | `new(text)` | `required` | `(ui)` | `()` |
 | `Menubar` | `new(&menus)` | — | `(ui)` | `Option<(usize, usize)>` |
@@ -50,7 +51,7 @@ gives back. Components marked **ctx** render at viewport level and take
 | `Progress` | `new(value)` | `height` | `(ui)` | `()` |
 | `Radio<T: PartialEq>` | `new(&mut current, value)` | `label` `enabled` `size` | `(ui)` | `Response` |
 | `Resizable` | `new(id)` | `dir` `initial_split` `min_size` `height` | `(ui, first_fn, second_fn)` | `()` |
-| `Select` | `new(&mut Option<usize>, &options)` | `placeholder` `width` `size` | `(ui)` | `bool` |
+| `Select` | `new(&mut Option<usize>, &options)` | `placeholder` `width` `size` `id` | `(ui)` | `bool` |
 | `Separator` | `horizontal()` · `vertical()` | `thickness` `length` | `(ui)` | `()` |
 | `Sheet` **ctx** | `new(title, &mut open)` | `side` `width` | `(ctx, content)` | `()` |
 | `Skeleton` | `new(w, h)` · `circle(size)` | `radius` | `(ui)` | `()` |
@@ -115,6 +116,12 @@ Textarea::new(&mut s)
     .show(ui) -> Response
 
 InputOtp::new(&mut s, 6).separator_after(3).show(ui) -> Response
+
+// A number: free text while focused, committed (parsed, clamped) on Enter or
+// blur; garbage is reverted, ↑/↓ step. Returns true only when it committed.
+NumberInput::new("gain", &mut gain_db)
+    .range(-40.0..=40.0).step(0.5).decimals(1).unit("dB")
+    .width(120.0).show(ui) -> bool
 
 Checkbox::new(&mut checked).label("Accept").size(Size::Default).show(ui) -> Response
 Switch::new(&mut on).label("Airplane mode").show(ui) -> Response
@@ -363,6 +370,32 @@ let ct = ChartTheme::from_primary(theme.primary, mode, harmony, series, dist);
 
 Pass a fully transparent background when the chart already sits inside a `Card` —
 `ChartWidget` then skips its own card and border.
+
+### Numeric-x data: time series, Bode plots (RFC 0014)
+
+`Series::xy_line(name)` plots `(x, y)` pairs on `Axis::value()` or `Axis::log()`
+on either axis. Data is an `XyData` (an `Arc` buffer, cloning copies no points).
+NaN `y` leaves a gap; `.color(c)` pins a colour; `.dashed()`/`.dotted()`,
+`.markers(SymbolKind)`, `.width(px)`. Sorted `x` is culled to the visible range
+and min/max decimated per pixel column, so 1e6 points per series are fine.
+
+```rust
+use egui_sc::egui_charts::{Axis, Chart, ChartView, ChartWidget, Series, XyData};
+
+let ch1: XyData = XyData::from(samples_vec).assume_sorted(); // keep & clone per frame
+let chart = Chart::new()
+    .x_axis(Axis::value().name("Time (s)"))
+    .series(Series::xy_line("P1").data(ch1.clone()).color(theme.primary));
+// Follow mode: pin x before `show`; y auto-fits to the visible window.
+ChartView::update(ui.ctx(), "scope", |v| v.x = Some((t - 10.0, t)));
+ChartWidget::new(&chart).id("scope").interactive(true).show(ui);
+if reset_clicked { ChartView::reset(ui.ctx(), "scope"); }
+```
+
+`interactive(true)`: wheel zooms both axes around the cursor, Shift+wheel x only,
+Ctrl/Cmd+wheel y only, drag pans, double-click resets. Per axis the view
+override beats `Axis::min/max`, which beats auto-fit. `ChartView::load(ctx, id)`
+also reports `drawn_x`/`drawn_y`, the ranges that were actually drawn.
 
 The legacy built-in is `Chart::new(&datasets, &labels).kind(ChartKind::Bar)
 .show_grid(true).show_legend(true).show(ui)` with
